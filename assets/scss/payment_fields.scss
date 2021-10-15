@@ -1,0 +1,275 @@
+.provider-group {
+    background-color: #ebebeb;
+    padding: 8px 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+
+    &-title {
+        margin-top: 2px;
+        line-height: 1.2em;
+        font-size: 100%;
+        width: 100%;
+        padding-top: 8px;
+        padding-bottom: 8px;
+
+        display: flex;
+        align-items: center;
+
+        i {
+            width: 5px;
+            height: 28px;
+            display: inline-block;
+            padding-right: 35px;
+        }
+
+        &.bank i {
+            background-position-y: center;
+            background-size: 28px 28px;
+        }
+
+        &.credit i {
+            background-position-y: center;
+            background-size: 28px 28px;
+        }
+
+        &.creditcard i {
+            background-position-y: center;
+            background-size: 28px 28px;
+        }
+
+        &.mobile i {
+            background-position-y: center;
+            background-size: 28px 28px;
+        }
+
+        .icon {
+            float: none;
+            margin-right: 8px;
+        }
+    }
+
+    .provider-list {
+        text-align: right;
+        float: right;
+        font-style: italic;
+        margin-left: 2em;
+        width: 100%;
+        font-size: 75%;
+    }
+
+
+    &.selected {
+        background-color: #33798d;
+        color: #ffffff;
+
+        .provider-group-title {
+            color: #ffffff;
+
+            i {
+                filter: brightness(5);
+            }
+
+            &.bank {
+                background-position-y: center;
+                background-size: 28px 28px;
+            }
+
+            &.credit {
+                background-position-y: center;
+                background-size: 28px 28px;
+            }
+
+            &.creditcard {
+                background-position-y: center;
+                background-size: 28px 28px;
+            }
+
+            &.mobile {
+                background-position-y: center;
+                background-size: 28px 28px;
+            }
+        }
+    }
+}
+.provider-group:hover {
+    background-color: #d0d0d0;
+}
+.provider-group.selected:hover {
+    background-color: #33798d;
+}
+
+.paytrail-woocommerce-payment-fields {
+
+    margin: 0;
+    padding: 0;
+    min-height: 90px;
+
+    &.hidden {
+        display: none;
+    }
+
+    &--list-item {
+        position: relative;
+        display: inline-block;
+        width: 48%;
+        list-style-type: none !important;
+        margin-bottom: 20px;
+
+        label {
+            display: inline;
+        }
+
+        &--wrapper {
+            text-align: center;
+            max-width: 100%;
+            height: 100%;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        &--input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        &--input + &--wrapper {
+            border: 2px solid #ebebeb;
+        }
+
+        &:hover .paytrail-woocommerce-payment-fields--list-item--wrapper,
+        &--input:checked + &--wrapper {
+            border: 2px solid #33798d;
+        }
+
+        &--img {
+            float: none !important;
+            cursor: pointer;
+            width: 100%;
+            max-width: 100% !important;
+            min-height: 5em !important;
+            max-height: 9em !important;
+            padding: 5% 4% !important;
+            margin-left: 0 !important;
+        }
+    }
+}
+
+// Overrides for different themes
+.checkout-terms-link {
+    font-size: 75%;
+    margin-bottom: 10px;
+}
+.woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item {
+    margin-bottom: 5px;
+    margin-left: 4px;
+    margin-right: 4px;
+    /*border: 2px solid #ebebeb;*/
+}
+.woocommerce-checkout #payment ul.payment_methods .col-narrow li.paytrail-woocommerce-payment-fields--list-item {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.woocommerce-checkout .paytrail-for-woocommerce-tokenized-payment-method {
+    width: 100%;
+    max-width: 275px;
+    position: relative;
+    display: inline-block;
+
+    &-title {
+        border: 2px solid #ebebeb;
+        padding: 8px;
+
+        &:hover {
+            border: 2px solid #33798d;
+        }
+    }
+    &-input {
+        display: none;
+    }
+    &-input:checked + div {
+        border: 2px solid #33798d;
+    }
+}
+.paytrail-for-woocommerce-tokenized-payment-methods-saved-payment-methods-title {
+    font-weight: bold;
+}
+.woocommerce-checkout .paytrail-for-woocommerce-tokenized-payment-method-links {
+    display: inline-block !important;
+    font-size: 75%;
+    max-width: 50%;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    margin-right: 5px !important;
+    text-align: center;
+}
+.woocommerce-checkout #payment .payment_methods li .payment_box .woocommerce-SavedPaymentMethods {
+    padding-top: 0;
+    padding-bottom: 5px;
+}
+.woocommerce-checkout #payment .payment_methods li .payment_box .woocommerce-SavedPaymentMethods li {
+    margin-top: 5px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+.woocommerce-checkout #payment .payment_methods li .payment_box .woocommerce-SavedPaymentMethods label {
+    cursor: pointer;
+}
+.woocommerce-checkout .paytrail-for-woocommerce-tokenized-payment-method-title-image {
+    float: left !important;
+    margin-left: -5px;
+    display: inline-block;
+    max-width: 55px;
+    margin-top: 2px;
+    margin-right: 7px;
+}
+.woocommerce-checkout #paytrail-for-woocommerce-tokenized-payment-method-card-expire-date {
+    font-weight: bold;
+    margin-left: 15px;
+}
+.woocommerce-checkout span.paytrail-for-woocommerce-tokenized-payment-add-card-button.dashicons.dashicons-plus {
+    float: left;
+    text-align: left;
+    margin-left: -8px;
+    margin-right: 5px;
+}
+
+.theme-generatepress .paytrail-woocommerce-payment-fields .paytrail-woocommerce-payment-fields--list-item--img {
+    margin-left: -4px !important;
+    max-width: 90% !important;
+}
+.col-wide .paytrail-woocommerce-payment-fields--list-item {
+    width: 18%;
+}
+.col-wide .paytrail-for-woocommerce-tokenized-payment-method {
+    width: 30%;
+}
+
+.col-narrow .paytrail-woocommerce-payment-fields--list-item {
+    width: 47%;
+}
+@media only screen and (max-width: 1000px) {
+    .col-narrow .paytrail-woocommerce-payment-fields--list-item {
+        width: 31%;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .col-narrow .paytrail-woocommerce-payment-fields--list-item {
+        width: 47%;
+    }
+}
+@media only screen and (max-width: 360px) {
+    .woocommerce-checkout .paytrail-for-woocommerce-tokenized-payment-method-links {
+        max-width: 75%;
+    }
+}
+.col-narrow .provider-list {
+    display: none;
+}
+.col-narrow .provider-group-title {
+    margin-bottom: 4px;
+}
