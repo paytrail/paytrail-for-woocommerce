@@ -153,13 +153,13 @@ final class Gateway extends \WC_Payment_Gateway
             $this->secret_key  = $this->get_option( 'secret_key' );
         }
 
-        $cofPluginVersion = 'woocommerce-' . \Paytrail\WooCommercePaymentGateway\Plugin::$version;
+        $platformName = 'woocommerce-' . \Paytrail\WooCommercePaymentGateway\Plugin::$version;
 
         // Create SDK client instance
         $this->client = new Client(
             $this->merchant_id,
             $this->secret_key,
-            $cofPluginVersion
+            $platformName
         );
 
         // Create Helper instance
@@ -182,7 +182,7 @@ final class Gateway extends \WC_Payment_Gateway
         $this->register_scripts();
 
         // Check if we are in response phase
-        $this->check_checkout_response();
+        $this->check_paytrail_response();
     }
 
     /**
@@ -377,7 +377,7 @@ final class Gateway extends \WC_Payment_Gateway
         $add_card_form_request->setCheckoutRedirectCancelUrl($cancel_url);
         $add_card_form_request->setLanguage(Helper::getLocale());
 
-        // Create a addCardFormRequest via Checkout SDK
+        // Create a addCardFormRequest via Paytrail SDK
         /** @var \GuzzleHttp\Psr7\Response $response */
         $response = $this->client->createAddCardFormRequest($add_card_form_request);
 
@@ -523,7 +523,7 @@ final class Gateway extends \WC_Payment_Gateway
      *
      * @return void
      */
-    public function check_checkout_response()
+    public function check_paytrail_response()
     {
         $status           = filter_input( INPUT_GET, 'checkout-status' );
         $refund_callback  = filter_input( INPUT_GET, 'refund_callback' );
@@ -532,18 +532,18 @@ final class Gateway extends \WC_Payment_Gateway
         $reference        = filter_input( INPUT_GET, 'checkout-reference' );
 
         if ((!$status || !$reference) && !$refund_callback && !$refund_unique_id) {
-            $this->log('Paytrail: check_checkout_response, no status or reference found for reference: '.$reference, 'debug');
+            $this->log('Paytrail: check_paytrail_response, no status or reference found for reference: '.$reference, 'debug');
             return;
         }
         $sleepTime = rand(0,3);
         $sleepTimeCallback = rand(3,6);
 
         if (true === $this->callbackMode) {
-            $this->log('Paytrail: Callback check_checkout_response for order '.$reference, 'debug');
+            $this->log('Paytrail: Callback check_paytrail_response for order '.$reference, 'debug');
             $this->log('Paytrail: Wait for '.$sleepTimeCallback.' seconds until processing order '.$reference, 'debug');
             sleep($sleepTimeCallback);
         } else {
-            $this->log('Paytrail: Redirect check_checkout_response for reference '.$reference, 'debug');
+            $this->log('Paytrail: Redirect check_paytrail_response for reference '.$reference, 'debug');
             $this->log('Paytrail: Wait for '.$sleepTime.' seconds until processing reference '.$reference, 'debug');
             sleep($sleepTime);
         }
@@ -795,7 +795,7 @@ final class Gateway extends \WC_Payment_Gateway
         $this->log('Paytrail: process_payment', 'debug');
         /** @var WC_Order $order */
         $order = wc_get_order( $order_id );
-        $token_id = filter_input(INPUT_POST,'wc-checkout_finland-payment-token');
+        $token_id = filter_input(INPUT_POST,'wc-paytrail-payment-token');
 
         // Define if the process should die if an error occurs.
         $die_on_error = filter_input( INPUT_POST, 'woocommerce_pay') ? true : false;
@@ -866,7 +866,7 @@ final class Gateway extends \WC_Payment_Gateway
         // Save the wanted payment provider to the order
         $order->update_meta_data( '_checkout_payment_provider', $payment_provider );
 
-        // Create a payment via Checkout SDK
+        // Create a payment via Paytrail SDK
         try {
             if ($is_token_payment) {
                 return $this->create_cit_payment($payment, $order);
@@ -1545,7 +1545,7 @@ final class Gateway extends \WC_Payment_Gateway
         );
 
         // You can use this filter to modify the error message.
-        $error     = apply_filters( 'checkout_finland_provider_form_error', $error );
+        $error     = apply_filters( 'paytrail_provider_form_error', $error );
         return [
             'error' => $error,
         ];
@@ -1614,7 +1614,6 @@ final class Gateway extends \WC_Payment_Gateway
 
         $item->setVatPercentage( $tax_rate )
             ->setProductCode( $this->get_item_product_code( $order_item ) )
-            ->setDeliveryDate( apply_filters( 'checkout_finland_delivery_date', date( 'Y-m-d' ) ) )
             ->setDescription( $this->get_item_description( $order_item ) )
             ->setStamp( (string) $order_item->get_id() );
 
@@ -1643,7 +1642,7 @@ final class Gateway extends \WC_Payment_Gateway
                 $product_code = __( 'shipping', 'paytrail-for-woocommerce' );
                 break;
         }
-        return apply_filters( 'checkout_finland_item_product_code', $product_code, $item );
+        return apply_filters( 'paytrail_item_product_code', $product_code, $item );
     }
 
     /**
@@ -1667,7 +1666,7 @@ final class Gateway extends \WC_Payment_Gateway
         // Ensure the description is maximum of 1000 characters long.
         $description = mb_substr( $description, 0, 1000 );
 
-        return apply_filters( 'checkout_finland_item_description', $description, $item );
+        return apply_filters( 'paytrail_item_description', $description, $item );
     }
 
     /**

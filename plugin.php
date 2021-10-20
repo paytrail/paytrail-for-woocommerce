@@ -7,7 +7,7 @@
  * Requires at least: 4.9
  * Tested up to: 5.8
  * Requires PHP: 7.3
- * WC requires at least: 3.0
+ * WC requires at least: 3.5
  * WC tested up to: 5.7
  * Author: Paytrail
  * Author URI: https://www.paytrail.com/
@@ -45,7 +45,7 @@ final class Plugin {
      */
     public const TEST_SECRET_KEY = 'SAIPPUAKAUPPIAS';
 
-    public const PAYMENT_METHOD_IMG_URL = 'https://payment.checkout.fi/static/img/payment-methods';
+    public const PAYMENT_METHOD_IMG_URL = 'https://payment.paytrail.com/static/img/payment-methods';
 
     public const BASE_URL = 'paytrail/';
 
@@ -128,9 +128,9 @@ final class Plugin {
         load_plugin_textdomain( 'paytrail-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
         // Register customizations
-        add_action( 'customize_register', [ $this, 'checkout_customizations' ] );
+        add_action( 'customize_register', [ $this, 'paytrail_customizations' ] );
         // Add custom styles
-        add_action( 'wp_head', [ $this, 'op_checkout_customize_css' ] );
+        add_action( 'wp_head', [ $this, 'paytrail_checkout_customize_css' ] );
         // Enable WP Dashicons on frontend
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
@@ -140,33 +140,33 @@ final class Plugin {
     /**
      * Print custom styles
      */
-    public function op_checkout_customize_css() {
+    public function paytrail_checkout_customize_css() {
         ?>
             <style type="text/css">
                 .provider-group {
-                    background-color: <?php echo get_theme_mod('op_group_background', '#ebebeb'); ?> !important;
-                    color: <?php echo get_theme_mod('op_group_text', '#515151'); ?> !important;
+                    background-color: <?php echo get_theme_mod('paytrail_group_background', '#ebebeb'); ?> !important;
+                    color: <?php echo get_theme_mod('paytrail_group_text', '#515151'); ?> !important;
                 }
                 .provider-group.selected {
-                    background-color: <?php echo get_theme_mod('op_group_highlighted_background', '#33798d'); ?> !important;
-                    color: <?php echo get_theme_mod('op_group_highlighted_text', '#ffffff'); ?> !important;
+                    background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
+                    color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
                 .provider-group.selected div {
-                    color: <?php echo get_theme_mod('op_group_highlighted_text', '#ffffff'); ?> !important;
+                    color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
                 .provider-group:hover {
-                    background-color: <?php echo get_theme_mod('op_group_hover_background', '#d0d0d0'); ?> !important;
-                    color: <?php echo get_theme_mod('op_group_hover_text', '#515151'); ?> !important;
+                    background-color: <?php echo get_theme_mod('paytrail_group_hover_background', '#d0d0d0'); ?> !important;
+                    color: <?php echo get_theme_mod('paytrail_group_hover_text', '#515151'); ?> !important;
                 }
                 .provider-group.selected:hover {
-                    background-color: <?php echo get_theme_mod('op_group_highlighted_background', '#33798d'); ?> !important;
-                    color: <?php echo get_theme_mod('op_group_highlighted_text', '#ffffff'); ?> !important;
+                    background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
+                    color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
                 .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {                    
-                    border: 2px solid <?php echo get_theme_mod('op_method_highlighted', '#33798d'); ?> !important;
+                    border: 2px solid <?php echo get_theme_mod('paytrail_method_highlighted', '#33798d'); ?> !important;
                 }
                 .woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
-                    border: 2px solid <?php echo get_theme_mod('op_method_hover', '#5399ad'); ?> !important;
+                    border: 2px solid <?php echo get_theme_mod('paytrail_method_hover', '#5399ad'); ?> !important;
                 }
             </style>
         <?php
@@ -177,83 +177,83 @@ final class Plugin {
      */
     public function checkout_customizations( $wp_customize ) {
         // Settings
-        $wp_customize->add_setting( 'op_group_background' , array(
+        $wp_customize->add_setting( 'paytrail_group_background' , array(
             'default'   => '#ebebeb',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_group_text' , array(
+        $wp_customize->add_setting( 'paytrail_group_text' , array(
             'default'   => '#515151',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_group_highlighted_background' , array(
+        $wp_customize->add_setting( 'paytrail_group_highlighted_background' , array(
             'default'   => '#33798d',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_group_highlighted_text' , array(
+        $wp_customize->add_setting( 'paytrail_group_highlighted_text' , array(
             'default'   => '#ffffff',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_group_hover_background' , array(
+        $wp_customize->add_setting( 'paytrail_group_hover_background' , array(
             'default'   => '#d0d0d0',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_group_hover_text' , array(
+        $wp_customize->add_setting( 'paytrail_group_hover_text' , array(
             'default'   => '#313131',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_method_highlighted' , array(
+        $wp_customize->add_setting( 'paytrail_method_highlighted' , array(
             'default'   => '#33798d',
             'transport' => 'refresh',
         ) );
-        $wp_customize->add_setting( 'op_method_hover' , array(
+        $wp_customize->add_setting( 'paytrail_method_hover' , array(
             'default'   => '#5399ad',
             'transport' => 'refresh',
         ) );
         // Section
-        $wp_customize->add_section( 'op_checkout_customize_section' , array(
+        $wp_customize->add_section( 'paytrail_checkout_customize_section' , array(
             'title'      => __( 'Payment page personalization', 'paytrail-for-woocommerce' ),
             'priority'   => 30,
         ) );
         // Controls
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_bgcolor', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_bgcolor', array(
             'label'      => __( 'Payment method group background', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_background',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_background',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_fgcolor', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_fgcolor', array(
             'label'      => __( 'Payment method group text', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_text',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_text',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_bgcolor_selected', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_bgcolor_selected', array(
             'label'      => __( 'Selected payment method group background', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_highlighted_background',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_highlighted_background',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_fgcolor_selected', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_fgcolor_selected', array(
             'label'      => __( 'Selected payment method group text', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_highlighted_text',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_highlighted_text',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_bgcolor_hover', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_bgcolor_hover', array(
             'label'      => __( 'Payment method group background hover', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_hover_background',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_hover_background',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_fgcolor_hover', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_fgcolor_hover', array(
             'label'      => __( 'Payment method group text hover', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_group_hover_text',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_group_hover_text',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_bordercolor_selected', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_bordercolor_selected', array(
             'label'      => __( 'Selected payment method', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_method_highlighted',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_method_highlighted',
         ) ) );
-        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'op_bordercolor_hover', array(
+        $wp_customize->add_control( new \WP_Customize_Color_Control( $wp_customize, 'paytrail_bordercolor_hover', array(
             'label'      => __( 'Payment method hover', 'paytrail-for-woocommerce' ),
-            'section'    => 'op_checkout_customize_section',
-            'settings'   => 'op_method_hover',
+            'section'    => 'paytrail_checkout_customize_section',
+            'settings'   => 'paytrail_method_hover',
         ) ) );
     }
 
@@ -345,15 +345,15 @@ final class Plugin {
     }
 
     /**
-     * Ensure that the PHP version is at least 7.0.0.
+     * Ensure that the PHP version is at least 7.3.
      *
      * @return string|null
      */
     public static function check_php_version() : ?string {
-        if ( ! version_compare( PHP_VERSION, '7.1.0', '>=' ) ) {
+        if ( ! version_compare( PHP_VERSION, '7.3.0', '>=' ) ) {
             return sprintf(
                 // translators: The placeholder contains the current PHP version.
-                esc_html__( 'Paytrail payment gateway plugin requires a PHP version of at least 7.1. You are currently running version %1$s.', 'paytrail-for-woocommerce' ),
+                esc_html__( 'Paytrail payment gateway plugin requires a PHP version of at least 7.3. You are currently running version %1$s.', 'paytrail-for-woocommerce' ),
                 esc_html( PHP_VERSION )
             );
         }

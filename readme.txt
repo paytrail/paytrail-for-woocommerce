@@ -1,6 +1,6 @@
 === Paytrail for WooCommerce ===
 Contributors: loueranta, henrykhelskygeniem
-Donate link: https://www.paytrail.fi/
+Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 5.8
@@ -9,15 +9,15 @@ Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-[Paytrail](https://www.paytrail.fi) is a payment gateway that offers 20+ payment methods for Finnish customers.
+[Paytrail](https://www.paytrail.com) is a payment gateway that offers 20+ payment methods for Finnish customers.
 
 == Description ==
 
-[Paytrail](https://www.paytrail.fi) is a payment gateway that offers 20+ payment methods for Finnish customers.
+[Paytrail](https://www.paytrail.com) is a payment gateway that offers 20+ payment methods for Finnish customers.
 
 The payment gateway provides 20+ popular payment methods for Finnish customers with one simple integration. The provided payment methods include but are not limited to credit cards, online banking and mobile payments. 
 
-To use this extension, you need to sign up for a Paytrail account. Transaction fees will be charged for every transaction. Transaction cost may vary from merchant to merchant, based on what is agreed upon with Paytrail when negotiating your contract. For more information and to register, please visit [our website](https://www.paytrail.fi)  (in Finnish only) or contact [asiakaspalvelu@paytrail.fi](mailto:asiakaspalvelu@paytrail.fi) directly.
+To use this extension, you need to sign up for a Paytrail account. Transaction fees will be charged for every transaction. Transaction cost may vary from merchant to merchant, based on what is agreed upon with Paytrail when negotiating your contract. For more information and to register, please visit [our website](https://www.paytrail.com)  (in Finnish only) or contact [asiakaspalvelu@paytrail.com](mailto:asiakaspalvelu@paytrail.com) directly.
 
 We employ the industry's best security practices and tools to maintain bank-level security for merchants and end customers. Paytrail is PCI DSS Level I and GDPR compliant. 
 
@@ -76,7 +76,7 @@ Follow these easy steps to install the plugin:
 
 = Where do I get the required keys to install the plugin? =
 
-Head over to [paytrail.fi](https://www.paytrail.fi) and register for the service (currently in Finnish only) to obtain the necessary keys.
+Head over to [paytrail.com](https://www.paytrail.com) and register for the service (currently in Finnish only) to obtain the necessary keys.
 
 == Changelog ==
 
