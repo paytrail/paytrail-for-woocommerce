@@ -59,10 +59,10 @@ msgstr "Maksutavan hover"
 #: plugin.php:366
 #, php-format
 msgid ""
-"Paytrail gateway plugin requires a PHP version of at least 7.1. You are "
+"Paytrail gateway plugin requires a PHP version of at least 7.3. You are "
 "currently running version %1$s."
 msgstr ""
-"Paytrail-maksutapalisäosa vaatii vähintään PHP-version 7.1. Tällä hetkellä "
+"Paytrail-maksutapalisäosa vaatii vähintään PHP-version 7.3. Tällä hetkellä "
 "käytössäsi on versio %1$s."
 
 #: plugin.php:381
@@ -391,5 +391,5 @@ msgid "Paytrail"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "https://www.checkout.fi/"
+msgid "https://www.paytrail.com/"
 msgstr ""

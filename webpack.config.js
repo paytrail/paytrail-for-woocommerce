@@ -32,7 +32,7 @@ const config = {
     output: {
         path: path.resolve( './assets/dist' ),
         filename: '[name].js',
-        library: 'checkout_finland',
+        library: 'paytrail',
         libraryTarget: 'umd',
         umdNamedDefine: true
     },

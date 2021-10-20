@@ -36,7 +36,7 @@
         "dev": "webpack",
         "build": "webpack -p"
     },
-    "homepage": "https://github.com/paytrail/paytrail-finland-for-woocommerce",
-    "author": "Paytrail <asiakaspalvelu@paytrail.fi> (https://www.paytrail.fi)",
+    "homepage": "https://github.com/paytrail/paytrail-for-woocommerce",
+    "author": "Paytrail <asiakaspalvelu@paytrail.fi> (https://www.paytrail.com)",
     "license": "MIT"
 }

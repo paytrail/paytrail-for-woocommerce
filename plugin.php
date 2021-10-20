@@ -10,7 +10,7 @@
  * WC requires at least: 3.0
  * WC tested up to: 5.7
  * Author: Paytrail
- * Author URI: https://www.paytrail.fi/
+ * Author URI: https://www.paytrail.com/
  * Text Domain: paytrail-for-woocommerce
  * Domain Path: /languages
  * License: MIT
@@ -33,7 +33,7 @@ final class Plugin {
     /**
      * WooCommerce payment gateway ID.
      */
-    public const GATEWAY_ID = 'checkout_finland';
+    public const GATEWAY_ID = 'paytrail';
 
     /**
      * Merchant ID for the test mode.

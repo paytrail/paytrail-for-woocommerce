@@ -102,7 +102,7 @@ final class Gateway extends \WC_Payment_Gateway
     /**
      * Paytrail SDK Client instance
      *
-     * @var \CheckoutFinland\SDK\Client
+     * @var \Paytrail\SDK\Client
      */
     protected $client = null;
 
@@ -1830,7 +1830,7 @@ final class Gateway extends \WC_Payment_Gateway
         $this->log( $log_message . PHP_EOL . $exception->getTraceAsString(), 'error' );
 
         // You can use this filter to modify the error message.
-        $error = apply_filters( 'checkout_finland_error_message', $message, $exception );
+        $error = apply_filters( 'paytrail_error_message', $message, $exception );
 
         if ( $die === true ) {
             wp_die( esc_html( $error ), '', esc_html( $exception->getCode() ) );
@@ -1854,7 +1854,7 @@ final class Gateway extends \WC_Payment_Gateway
         );
 
         // You can use this filter to modify the error message.
-        $message = apply_filters( 'checkout_finland_signature_error', $message, $exception );
+        $message = apply_filters( 'paytrail_signature_error', $message, $exception );
 
         $this->error( $exception, $message, $die );
     }

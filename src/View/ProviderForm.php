@@ -38,12 +38,12 @@ array_walk( $data['groups'], function( $group ) {
         if ($key === 0) {
 
             echo <<<EOL
-            .payment_method_checkout_finland .provider-group-title.$group_id i {
+            .payment_method_paytrail .provider-group-title.$group_id i {
                 background: url($group_icon) no-repeat;
                 background-size: 28px 28px;
                 background-position-y: center;
             }
-            .payment_method_checkout_finland .provider-group.selected .provider-group-title.$group_id i {
+            .payment_method_paytrail .provider-group.selected .provider-group-title.$group_id i {
                 background: url($group_icon) no-repeat;
                 background-size: 28px 28px;
                 background-position-y: center;
@@ -85,8 +85,8 @@ EOL;
 // add class to handle different theme layouts 2 or 5 items per row
 echo "
 <script>
-    if (typeof initOpcheckout === 'function'){
-        initOpcheckout();
+    if (typeof initPaytrail === 'function'){
+        initPaytrail();
     }
 </script>
 ";

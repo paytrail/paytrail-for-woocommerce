@@ -15,12 +15,12 @@ let startTime;
 let timeout = false;
 const handleResize = function() {
     const container = document.getElementById('payment');
-    const checkoutContainer = document.getElementsByClassName('payment_method_checkout_finland');
+    const paytrailContainer = document.getElementsByClassName('payment_method_paytrail');
     if (new Date() - startTime < delta) {
         setTimeout(handleResize, delta)
     } else {
         timeout = false;
-        handleSize(checkoutContainer[0], Math.round(container.offsetWidth));
+        handleSize(paytrailContainer[0], Math.round(container.offsetWidth));
     }
 };
 window.initOpcheckout = () => {
