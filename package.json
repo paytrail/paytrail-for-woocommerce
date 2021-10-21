@@ -37,6 +37,6 @@
         "build": "webpack -p"
     },
     "homepage": "https://github.com/paytrail/paytrail-for-woocommerce",
-    "author": "Paytrail <asiakaspalvelu@paytrail.fi> (https://www.paytrail.com)",
+    "author": "Paytrail <asiakaspalvelu@paytrail.com> (https://www.paytrail.com)",
     "license": "MIT"
 }
