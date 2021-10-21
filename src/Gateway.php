@@ -153,7 +153,7 @@ final class Gateway extends \WC_Payment_Gateway
             $this->secret_key  = $this->get_option( 'secret_key' );
         }
 
-        $platformName = 'woocommerce-' . \Paytrail\WooCommercePaymentGateway\Plugin::$version;
+        $platformName = 'paytrail-for-woocommerce-' . \Paytrail\WooCommercePaymentGateway\Plugin::$version;
 
         // Create SDK client instance
         $this->client = new Client(
