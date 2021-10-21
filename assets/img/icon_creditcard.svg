@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34px" height="32px" viewBox="0 0 34 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
+    <title>Icon_credit_card</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Icon_credit_card" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-4" transform="translate(2.000000, 6.000000)" stroke="#515151">
+            <rect id="Rectangle" stroke-width="2" x="1" y="1" width="28" height="18" rx="3"></rect>
+            <line x1="3" y1="6" x2="28" y2="6" id="Line" stroke-width="4" stroke-linecap="square"></line>
+        </g>
+    </g>
+</svg>

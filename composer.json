@@ -1,0 +1,69 @@
+{
+    "name": "paytrail/paytrail-for-woocommerce",
+    "type": "wordpress-plugin",
+    "description": "Paytrail for Woocommerce is a payment gateway that offers 20+ payment methods for Finnish customers.",
+    "authors": [
+        {
+            "name": "Miika Arponen",
+            "email": "miika.arponen@geniem.com",
+            "homepage": "http://github.com/nomafin",
+            "role": "Developer"
+        },
+        {
+            "name": "Ville Siltala",
+            "email": "ville.siltala@geniem.com",
+            "homepage": "http://github.com/villesiltala",
+            "role": "Developer"
+        },
+        {
+            "name": "Onni Hakala",
+            "email": "onni.hakala@op.fi",
+            "homepage": "https://github.com/onnimonni",
+            "role": "Developer"
+        },
+        {
+            "name": "Henryk Helsky",
+            "email": "henryk.helsky@geniem.com",
+            "homepage": "https://github.com/traone",
+            "role": "Developer"
+        },
+        {
+            "name": "Ville Pietarinen",
+            "email": "ville.pietarinen@geniem.com",
+            "homepage": "https://github.com/villepietarinen",
+            "role": "Developer"
+        },
+        {
+            "name": "Kimmo Kava",
+            "email": "kimmo.kava@ambientia.fi",
+            "homepage": "https://github.com/ambkimmok",
+            "role": "Developer"
+        },
+        {
+            "name": "Joonas Loueranta",
+            "email": "joonas.loueranta@checkout.fi",
+            "homepage": "https://github.com/loueranta",
+            "role": "Manager"
+        }
+    ],
+    "support": {
+        "email": "asiakaspalvelu@checkout.fi",
+        "issues": "https://github.com/paytrail/paytrail-for-woocommerce/issues",
+        "source": "https://github.com/paytrail/paytrail-for-woocommerce"
+    },
+    "keywords": [
+        "wordpress", "woocommerce", "payment gateway", "paytrail"
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {"Paytrail\\WooCommercePaymentGateway\\": "src/"}
+    },
+    "require": {
+        "php": ">=7.3",
+        "composer/installers": ">=1.0.12",
+        "paytrail/paytrail-php-sdk": ">=1",
+        "ext-mbstring": "*",
+        "symfony/polyfill-intl-idn": "v1.20.0",
+        "symfony/polyfill-intl-normalizer": "v1.20.0"
+    }
+}
