@@ -63,7 +63,7 @@ Choose whether you want the payment provider selection to happen on the checkout
 
 ### Merchant ID and Secret key
 
-Your Paytrail credentials. You can obtain the keys by registering at our [website](https://www.paytrail.com) or contact [asiakaspalvelu@paytrail.com](mailto:asiakaspalvelu@checkout.fi) directly.
+Your Paytrail credentials. You can obtain the keys by registering at our [website](https://www.paytrail.com) or contact [asiakaspalvelu@paytrail.com](mailto:asiakaspalvelu@paytrail.com) directly.
 
 ### Fallback Country
 
