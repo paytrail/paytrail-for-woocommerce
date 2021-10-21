@@ -23,7 +23,7 @@ const handleResize = function() {
         handleSize(paytrailContainer[0], Math.round(container.offsetWidth));
     }
 };
-window.initOpcheckout = () => {
+window.initPaytrailcheckout = () => {
     const providerGroups = document.getElementsByClassName('provider-group');
     if (providerGroups.length === 1) {
         Array.from(providerGroups).map(providerGroup => {
@@ -74,7 +74,7 @@ window.initOpcheckout = () => {
     handleResize()
 }
 document.addEventListener('DOMContentLoaded', function(event) {
-    initOpcheckout();
+    initPaytrailcheckout();
 });
 window.addEventListener('resize', function() {
     startTime = new Date();
