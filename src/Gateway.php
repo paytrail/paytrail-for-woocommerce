@@ -1614,6 +1614,7 @@ final class Gateway extends \WC_Payment_Gateway
 
         $item->setVatPercentage( $tax_rate )
             ->setProductCode( $this->get_item_product_code( $order_item ) )
+            ->setDeliveryDate( apply_filters( 'paytrail_delivery_date', date( 'Y-m-d' ) ) )
             ->setDescription( $this->get_item_description( $order_item ) )
             ->setStamp( (string) $order_item->get_id() );
 
