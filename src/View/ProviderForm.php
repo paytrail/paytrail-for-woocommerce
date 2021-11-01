@@ -7,6 +7,12 @@
 if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
+$allowed_html = array(
+    'a'      => array(
+        'href'  => array(),
+        'title' => array(),
+    )
+);
 
 wp_enqueue_style( 'paytrail-woocommerce-payment-fields' );
 wp_enqueue_script( 'paytrail-woocommerce-payment-fields' );
@@ -22,7 +28,7 @@ if ( ! empty( $data['error'] ) ) {
 
 // Terms
 $terms_link = $data['terms'];
-echo '<div class="checkout-terms-link">' . $terms_link . '</div>';
+echo '<div class="checkout-terms-link">' . wp_kses($terms_link,$allowed_html) . '</div>';
 
 array_walk( $data['groups'], function( $group ) {
     echo '<div class="provider-group">';
@@ -53,12 +59,12 @@ EOL;
         
     }
     echo '</style>';
-    echo '<div class="provider-group-title ' . $group['id']  . '">';
+    echo '<div class="provider-group-title ' . esc_html($group['id'])  . '">';
     echo '<i></i>';
     echo esc_html( $group['name'] );
     echo '</div>';
     echo '<div class="provider-list">';
-    echo implode( ', ', $providers_list );
+    echo esc_html(implode( ', ', $providers_list ));
     echo '</div>';
     echo '</div>';
     echo '<ul class="paytrail-woocommerce-payment-fields hidden">';
@@ -66,9 +72,9 @@ EOL;
         array_walk( $group['providers'], function ($provider) {
             echo '<li class="paytrail-woocommerce-payment-fields--list-item">';
             echo '<label>';
-            echo '<input class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . $provider->getId() . '">';
+            echo '<input class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . esc_attr($provider->getId()) . '">';
             echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper">';
-            echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . $provider->getSvg() . '">';
+            echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . esc_url($provider->getSvg()) . '">';
             echo '</div>';
             echo '</label>';
             echo '</li>';

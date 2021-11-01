@@ -85,7 +85,7 @@ class Router
                 $controller = new Callback();
                 break;
             default:
-                echo 'Route did not match';
+                echo esc_html('Route did not match');
         }
 
         $controller->execute($action);

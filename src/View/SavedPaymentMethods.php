@@ -29,7 +29,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
        href="#"><?php esc_html_e('Delete selected card', 'paytrail-for-woocommerce') ?></a>
 <?php endif; ?>
 <a class="paytrail-for-woocommerce-tokenized-payment-method-links add-card-button button"
-   href="<?php echo $add_card_form_url ?>">
+   href="<?php echo esc_url($add_card_form_url) ?>">
     <span class="paytrail-for-woocommerce-tokenized-payment-add-card-button dashicons dashicons-plus"></span>
     <?php esc_html_e('Add new card', 'paytrail-for-woocommerce') ?>
 </a>
@@ -61,7 +61,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
         jQuery.ajax({
             type: 'POST',
             contentType: 'application/json',
-            url: '<?php echo $delete_card_url ?>',
+            url: '<?php echo esc_url_raw($delete_card_url) ?>',
             data: JSON.stringify({token_id: cardTokenId}),
             success: function (response) {
                 if (response.success) {

@@ -11,4 +11,4 @@ if (!$data['description']) {
     return;
 }
 ?>
-<p><?php echo $data['description'] ?> </p>
+<p><?php echo esc_html($data['description']) ?> </p>
