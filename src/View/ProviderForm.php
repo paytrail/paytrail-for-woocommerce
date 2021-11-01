@@ -25,7 +25,7 @@ $terms_link = $data['terms'];
 echo '<div class="checkout-terms-link">' . $terms_link . '</div>';
 
 array_walk( $data['groups'], function( $group ) {
-    echo '<div class="provider-group">';
+    echo '<div class="paytrail-provider-group">';
     $providers_list = [];
     //var_dump($group['providers']);
     echo '<style type="text/css">';
@@ -38,12 +38,12 @@ array_walk( $data['groups'], function( $group ) {
         if ($key === 0) {
 
             echo <<<EOL
-            .payment_method_paytrail .provider-group-title.$group_id i {
+            .payment_method_paytrail .paytrail-provider-group-title.$group_id i {
                 background: url($group_icon) no-repeat;
                 background-size: 28px 28px;
                 background-position-y: center;
             }
-            .payment_method_paytrail .provider-group.selected .provider-group-title.$group_id i {
+            .payment_method_paytrail .paytrail-provider-group.selected .paytrail-provider-group-title.$group_id i {
                 background: url($group_icon) no-repeat;
                 background-size: 28px 28px;
                 background-position-y: center;
@@ -53,7 +53,7 @@ EOL;
         
     }
     echo '</style>';
-    echo '<div class="provider-group-title ' . $group['id']  . '">';
+    echo '<div class="paytrail-provider-group-title ' . $group['id']  . '">';
     echo '<i></i>';
     echo esc_html( $group['name'] );
     echo '</div>';
