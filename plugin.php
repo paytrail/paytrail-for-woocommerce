@@ -143,22 +143,22 @@ final class Plugin {
     public function paytrail_checkout_customize_css() {
         ?>
             <style type="text/css">
-                .provider-group {
+                .paytrail-provider-group {
                     background-color: <?php echo get_theme_mod('paytrail_group_background', '#ebebeb'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_text', '#515151'); ?> !important;
                 }
-                .provider-group.selected {
+                .paytrail-provider-group.selected {
                     background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
-                .provider-group.selected div {
+                .paytrail-provider-group.selected div {
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
-                .provider-group:hover {
+                .paytrail-provider-group:hover {
                     background-color: <?php echo get_theme_mod('paytrail_group_hover_background', '#d0d0d0'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_hover_text', '#515151'); ?> !important;
                 }
-                .provider-group.selected:hover {
+                .paytrail-provider-group.selected:hover {
                     background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }

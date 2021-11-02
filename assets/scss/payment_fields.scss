@@ -1,4 +1,4 @@
-.provider-group {
+.paytrail-provider-group {
     background-color: #ebebeb;
     padding: 8px 12px;
     margin: 10px 0;
@@ -65,7 +65,7 @@
         background-color: #33798d;
         color: #ffffff;
 
-        .provider-group-title {
+        .paytrail-provider-group-title {
             color: #ffffff;
 
             i {
@@ -94,10 +94,10 @@
         }
     }
 }
-.provider-group:hover {
+.paytrail-provider-group:hover {
     background-color: #d0d0d0;
 }
-.provider-group.selected:hover {
+.paytrail-provider-group.selected:hover {
     background-color: #33798d;
 }
 
@@ -270,6 +270,6 @@
 .col-narrow .provider-list {
     display: none;
 }
-.col-narrow .provider-group-title {
+.col-narrow .paytrail-provider-group-title {
     margin-bottom: 4px;
 }
