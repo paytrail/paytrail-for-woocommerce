@@ -20,7 +20,7 @@ if (\Paytrail\WooCommercePaymentGateway\Helper::getIsChangeSubscriptionPaymentMe
 
 $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 ?>
-<div class="provider-group-title mobile paytrail-for-woocommerce-tokenized-payment-methods-saved-payment-methods-title">
+<div class="paytrail-provider-group-title mobile paytrail-for-woocommerce-tokenized-payment-methods-saved-payment-methods-title">
     <?php esc_html_e('Pay with saved card', 'paytrail-for-woocommerce') ?>
 </div>
 <?php if ($has_methods) : ?>
@@ -41,7 +41,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 
     function openTokenizedCardProviderGroupSelection() {
         jQuery("input.paytrail-for-woocommerce-tokenized-payment-method-input[type='radio']").each(function () {
-            let creditCardProviderGroup = jQuery('.provider-group-title.creditcard').parent();
+            let creditCardProviderGroup = jQuery('.paytrail-provider-group-title.creditcard').parent();
 
             if (jQuery(this).prop('checked')) {
                 jQuery(creditCardProviderGroup).closest(creditCardProviderGroup).addClass('selected');

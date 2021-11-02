@@ -24,15 +24,15 @@ const handleResize = function() {
     }
 };
 window.initPaytrail = () => {
-    const providerGroups = document.getElementsByClassName('provider-group');
-    if (providerGroups.length === 1) {
-        Array.from(providerGroups).map(providerGroup => {
+    const paytrailProviderGroups = document.getElementsByClassName('paytrail-provider-group');
+    if (paytrailProviderGroups.length === 1) {
+        Array.from(paytrailProviderGroups).map(providerGroup => {
             providerGroup.style = 'display: none;'
             const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
             Array.from(fields).map(field => field.classList.remove('hidden'))
         })
-    } else if (providerGroups.length > 1) {
-        Array.from(providerGroups).map(providerGroup => {
+    } else if (paytrailProviderGroups.length > 1) {
+        Array.from(paytrailProviderGroups).map(providerGroup => {
             providerGroup.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (this.classList.contains('selected')) {
@@ -41,7 +41,7 @@ window.initPaytrail = () => {
                     return;
                 }
                 // Clear active state
-                const active = document.getElementsByClassName('provider-group selected');
+                const active = document.getElementsByClassName('paytrail-provider-group selected');
                 if (active.length !== 0) {
                     active[0].classList.remove('selected');
                 }
