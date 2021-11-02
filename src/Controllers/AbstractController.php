@@ -12,7 +12,7 @@ abstract class AbstractController
         if (method_exists($this, $action)) {
             $this->$action();
         } else {
-            echo 'Not found';
+            echo esc_html('Not found');
             return;
         }
     }

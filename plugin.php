@@ -163,10 +163,10 @@ final class Plugin {
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
                 .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {                    
-                    border: 2px solid <?php echo get_theme_mod('paytrail_method_highlighted', '#33798d'); ?> !important;
+                    border: 2px solid <?php esc_html_e( get_theme_mod('paytrail_method_highlighted', '#33798d')); ?> !important;
                 }
                 .woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
-                    border: 2px solid <?php echo get_theme_mod('paytrail_method_hover', '#5399ad'); ?> !important;
+                    border: 2px solid <?php esc_html_e( get_theme_mod('paytrail_method_hover', '#5399ad')); ?> !important;
                 }
             </style>
         <?php
