@@ -59,7 +59,7 @@ EOL;
         
     }
     echo '</style>';
-    echo '<div class="paytrail-provider-group-title ' . $group['id']  . '">';
+    echo '<div class="paytrail-provider-group-title ' . esc_attr($group['id'])  . '">';
     echo '<i></i>';
     echo esc_html( $group['name'] );
     echo '</div>';
