@@ -78,6 +78,9 @@ Head over to our [website](https://www.paytrail.com) and register for the servic
 
 == Changelog ==
 
+= 1.0.4 =
+- Updated lock files
+
 = 1.0.3 =
 * Added wordpress.org assets
 
