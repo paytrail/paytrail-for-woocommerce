@@ -129,34 +129,20 @@
                 "zend",
                 "zikula"
             ],
-            "funding": [
-                {
-                    "url": "https://packagist.com",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/composer",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
-                }
-            ],
             "time": "2021-09-13T08:21:20+00:00"
         },
         {
             "name": "paytrail/paytrail-php-sdk",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paytrail/paytrail-php-sdk.git",
-                "reference": "1d10fbeee7142aab73438257fc3c48d4c4366e60"
+                "reference": "a050a7913cff8be200555c7e49289939818496d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/1d10fbeee7142aab73438257fc3c48d4c4366e60",
-                "reference": "1d10fbeee7142aab73438257fc3c48d4c4366e60",
+                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/a050a7913cff8be200555c7e49289939818496d7",
+                "reference": "a050a7913cff8be200555c7e49289939818496d7",
                 "shasum": ""
             },
             "require": {
@@ -203,7 +189,7 @@
                 "payment service provider",
                 "paytrail"
             ],
-            "time": "2021-10-08T15:19:00+00:00"
+            "time": "2021-10-29T10:49:27+00:00"
         },
         {
             "name": "psr/http-message",
@@ -363,20 +349,6 @@
                 "portable",
                 "shim"
             ],
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
             "time": "2020-10-23T14:02:19+00:00"
         },
         {
@@ -444,20 +416,6 @@
                 "portable",
                 "shim"
             ],
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
             "time": "2020-10-23T14:02:19+00:00"
         },
         {
@@ -517,20 +475,6 @@
                 "portable",
                 "shim"
             ],
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
             "time": "2021-05-27T09:17:38+00:00"
         }
     ],
@@ -544,6 +488,5 @@
         "php": ">=7.3",
         "ext-mbstring": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "platform-dev": []
 }
