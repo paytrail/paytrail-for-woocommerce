@@ -147,16 +147,16 @@
         },
         {
             "name": "paytrail/paytrail-php-sdk",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paytrail/paytrail-php-sdk.git",
-                "reference": "1d10fbeee7142aab73438257fc3c48d4c4366e60"
+                "reference": "a050a7913cff8be200555c7e49289939818496d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/1d10fbeee7142aab73438257fc3c48d4c4366e60",
-                "reference": "1d10fbeee7142aab73438257fc3c48d4c4366e60",
+                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/a050a7913cff8be200555c7e49289939818496d7",
+                "reference": "a050a7913cff8be200555c7e49289939818496d7",
                 "shasum": ""
             },
             "require": {
@@ -203,7 +203,7 @@
                 "payment service provider",
                 "paytrail"
             ],
-            "time": "2021-10-08T15:19:00+00:00"
+            "time": "2021-10-29T10:49:27+00:00"
         },
         {
             "name": "psr/http-message",
