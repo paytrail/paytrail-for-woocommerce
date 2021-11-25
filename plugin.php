@@ -128,7 +128,7 @@ final class Plugin {
         load_plugin_textdomain( 'paytrail-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
         // Register customizations
-        add_action( 'customize_register', [ $this, 'checkout_customizations' ] );
+        add_action( 'customize_register', [ $this, 'paytrail_customizations' ] );
         // Add custom styles
         add_action( 'wp_head', [ $this, 'paytrail_checkout_customize_css' ] );
         // Enable WP Dashicons on frontend
@@ -273,8 +273,6 @@ final class Plugin {
                 return;
             }
 
-            self::$instance->change_gateway_for_tokenized_cards();
-
             // Check if Composer has been initialized in this directory.
             // Otherwise we just use global composer autoloading.
             if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
@@ -293,28 +291,6 @@ final class Plugin {
         }
 
         return self::$instance;
-    }
-
-    /**
-     * Run checks for old token ID's.
-     *
-     * Corrects the token ID's from old plugin releases
-     *
-     */ 
-    protected function change_gateway_for_tokenized_cards() {
-        $version = floatval(self::$version);
-        if ($version > 1.1){
-            return;   
-        }
-        $old_tokens = \WC_Payment_Tokens::get_tokens(['gateway_id'=>'checkout_finland']);
-        if (empty( $old_tokens ) ) {
-            return;
-        }
-        foreach ($old_tokens as $token) {
-            $token->set_gateway_id( 'paytrail');
-            $token->save();
-        }
- 
     }
 
     /**
