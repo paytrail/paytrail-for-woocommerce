@@ -128,7 +128,7 @@ final class Plugin {
         load_plugin_textdomain( 'paytrail-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
         // Register customizations
-        add_action( 'customize_register', [ $this, 'paytrail_customizations' ] );
+        add_action( 'customize_register', [ $this, 'checkout_customizations' ] );
         // Add custom styles
         add_action( 'wp_head', [ $this, 'paytrail_checkout_customize_css' ] );
         // Enable WP Dashicons on frontend
