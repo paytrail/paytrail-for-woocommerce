@@ -245,6 +245,16 @@ final class Gateway extends \WC_Payment_Gateway
                 // translators: %s: URL
                 'description' => sprintf( __( 'This enables logging all payment gateway events. The log will be written in %s. Recommended only for debugging purposes as this might save personal data.', 'paytrail-for-woocommerce' ), '<code>' . \WC_Log_Handler_File::get_log_file_path( Plugin::GATEWAY_ID ) . '</code>' ),
             ],
+            // Update tokens if enabled
+            'tokenize'       => [
+                'title'       => __( 'Update tokens', 'paytrail-for-woocommerce' ),
+                'type'        => 'checkbox',
+                'label'       => __( 'Enable token update', 'paytrail-for-woocommerce' ),
+                'default'     => 'no',
+                // translators: %s: URL
+                'description' => __( 'Choose this to update card token information from Checkout Finland into Paytrail when saving settings. </br> <b>CAUTION:</b> This action cannot be reverted.', 'paytrail-for-woocommerce'),
+            ],
+            
             // Alternative text + description to show on the Checkout page
             'custom_provider_name' => [
                 'title'       => __( 'Payment provider title', 'paytrail-for-woocommerce' ),
@@ -308,6 +318,18 @@ final class Gateway extends \WC_Payment_Gateway
             }
 
             $this->logger->clear( Plugin::GATEWAY_ID );
+        }
+
+        // Update tokens if checkbx was checked
+        if ( 'yes' === $this->get_option( 'tokenize', 'yes' ) ) {
+            
+            $old_tokens = \WC_Payment_Tokens::get_tokens(['gateway_id'=>'checkout_finland']);
+            if (!empty( $old_tokens ) ) {
+                foreach ($old_tokens as $token) {
+                    $token->set_gateway_id( 'paytrail');
+                    $token->save();
+                }
+            }
         }
 
         return $saved;

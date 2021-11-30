@@ -123,6 +123,18 @@ msgstr ""
 "kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain "
 "virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja."
 
+#: src/Gateway.php:233
+msgid "Update tokens"
+msgstr "Tokenien päivitys"
+
+#: src/Gateway.php:235
+msgid "Enable token update"
+msgstr "Ota tokenien päivitys käyttöön"
+
+#: src/Gateway.php:242
+msgid "Choose this to update card token information from Checkout Finland into Paytrail when saving settings. </br> <b>CAUTION:</b> This action cannot be reverted."
+msgstr "Valitse tämä päivittääksesi kortti tokenit Checkoutista Paytrailiin tallentaessasi asetukset. </br> <b>HUOMIO:</b> Tätä muutosta ei voi peruuttaa."
+
 #: src/Gateway.php:242
 msgid "Payment provider title"
 msgstr "Maksupalveluntarjoajan otsikko"
