@@ -132,8 +132,8 @@ msgid "Enable token update"
 msgstr "Ota tokenien päivitys käyttöön"
 
 #: src/Gateway.php:242
-msgid "Choose this to update card token information from Checkout Finland into Paytrail when saving settings. </br> <b>CAUTION:</b> This action cannot be reverted."
-msgstr "Valitse tämä päivittääksesi kortti tokenit Checkoutista Paytrailiin tallentaessasi asetukset. </br> <b>HUOMIO:</b> Tätä muutosta ei voi peruuttaa."
+msgid "Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. </br> <b>CAUTION:</b> This action cannot be reverted."
+msgstr "Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi asetukset. </br> <b>HUOM:</b> Tätä muutosta ei voi peruuttaa."
 
 #: src/Gateway.php:242
 msgid "Payment provider title"

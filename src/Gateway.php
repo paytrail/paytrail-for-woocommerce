@@ -252,7 +252,7 @@ final class Gateway extends \WC_Payment_Gateway
                 'label'       => __( 'Enable token update', 'paytrail-for-woocommerce' ),
                 'default'     => 'no',
                 // translators: %s: URL
-                'description' => __( 'Choose this to update card token information from Checkout Finland into Paytrail when saving settings. </br> <b>CAUTION:</b> This action cannot be reverted.', 'paytrail-for-woocommerce'),
+                'description' => __( 'Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. </br> <b>CAUTION:</b> This action cannot be reverted.'),
             ],
             
             // Alternative text + description to show on the Checkout page
