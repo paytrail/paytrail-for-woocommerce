@@ -123,6 +123,18 @@ msgstr ""
 "kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain "
 "virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja."
 
+#: src/Gateway.php:233
+msgid "Update tokens"
+msgstr "Tokenien päivitys"
+
+#: src/Gateway.php:235
+msgid "Enable token update"
+msgstr "Ota tokenien päivitys käyttöön"
+
+#: src/Gateway.php:242
+msgid "Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. </br> <b>CAUTION:</b> This action cannot be reverted."
+msgstr "Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi asetukset. </br> <b>HUOM:</b> Tätä muutosta ei voi peruuttaa."
+
 #: src/Gateway.php:242
 msgid "Payment provider title"
 msgstr "Maksupalveluntarjoajan otsikko"
