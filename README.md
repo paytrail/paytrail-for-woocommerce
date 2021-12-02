@@ -41,9 +41,25 @@ $ composer require paytrail/paytrail-for-woocommerce
 }
 ```
 2. Activate the plugin.
-3. Go to WooCommerce Settings and open Payments tab.
+3. Go to WooCommerce Settings and open `Payments` tab.
 4. Enable Paytrail for WooCommerce with the toggle switch.
 5. Configure your own Checkout Finland payment service settings.
+
+## Updating from Checkout Finland
+
+***Checkout Finland for WooCommerce plugin has been deprecated.*** <br />
+All of its functionality now exists as the rebranded Paytrail for WooCommerce plugin.
+
+### Update instructions
+1. Install Paytrail for WooCommerce *(see previous chapter)*
+2. Go to WooCommerce Settings and open `Payments` tab
+3. Disable the old Checkout Finland for WooCommerce payment method
+
+***Warning!*** Removing previous plugin results in payments made with Checkout Finland not refundable through WooCommerce. Payments can still be refunded through Paytrail’s Extranet.
+
+Please also note that the module configurations will not carry over from the old plugin. You will need to reapply them yourself. This also applies to the payment page customizations. Certain classes, functions and CSS classes have also been renamed and any third party customizations will have to be revised.
+
+You can move card tokens from the old plugin by enabling Token migration in the new plugin's settings.
 
 ## Configuration
 
@@ -68,6 +84,10 @@ Your Paytrail credentials. You can obtain the keys by registering at our [websit
 ### Fallback Country
 
 Setup fallback country to be used if no country is provided from Woocommerce checkout. Use only if billing_country/shipping_country is removed from checkout fields.
+
+### Token migration ###
+
+Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. 
 
 ## Router
 
