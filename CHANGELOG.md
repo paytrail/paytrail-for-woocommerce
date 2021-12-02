@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.6] - 2021-12-02
 ### Added
-- Added token migration functionality and upgrade instructions for old Checkout Finland plugin
+- Added token migration functionality and upgrade instructions from old Checkout Finland plugin
 
 ## [1.0.5] - 2021-11-25
 ### Fixed
