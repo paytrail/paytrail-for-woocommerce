@@ -127,13 +127,13 @@ msgstr ""
 msgid "Update tokens"
 msgstr "Tokenien päivitys"
 
-#: src/Gateway.php:235
+#: src/Gateway.php:254
 msgid "Enable token update"
 msgstr "Ota tokenien päivitys käyttöön"
 
-#: src/Gateway.php:242
-msgid "Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. </br> <b>CAUTION:</b> This action cannot be reverted."
-msgstr "Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi asetukset. </br> <b>HUOM:</b> Tätä muutosta ei voi peruuttaa."
+#: src/Gateway.php:257
+msgid "Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. This will also update tokens for the current WooCommerce Subscriptions orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot be reverted."
+msgstr "Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi asetukset. Samalla päivitetään myös WooCommerce Subscriptions -tilausten käyttämä token, mikäli kyseinen lisäosa on käytössä. </br> <b>HUOM:</b> Tätä muutosta ei voi peruuttaa."
 
 #: src/Gateway.php:242
 msgid "Payment provider title"
