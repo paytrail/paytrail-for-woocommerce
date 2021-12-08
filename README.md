@@ -59,7 +59,7 @@ All of its functionality now exists as the rebranded Paytrail for WooCommerce pl
 
 Please also note that the module configurations will not carry over from the old plugin. You will need to reapply them yourself. This also applies to the payment page customizations. Certain classes, functions and CSS classes have also been renamed and any third party customizations will have to be revised.
 
-You can move card tokens from the old plugin by enabling Token migration in the new plugin's settings.
+You can move card tokens from the old plugin by enabling Token migration in the new plugin's settings. This will also update tokens for the WooCommerce Subscriptions orders, if module is in use.
 
 ## Configuration
 
