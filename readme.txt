@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 5.8
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -58,7 +58,7 @@ The plugin supports card tokenization that enables logged-in customers to save c
 
 * OP Osta laskulla
 * OP Lasku
-* Collector Bank / Walley
+* Walley (Collector Bank)
 * Jousto
 * AfterPay
 
@@ -77,6 +77,9 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.0.7 =
+- Added token migration functionality for WooCommerce Subscriptions orders
 
 = 1.0.6 =
 - Added token migration functionality and upgrade instructions from old Checkout Finland plugin
