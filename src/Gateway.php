@@ -21,6 +21,8 @@ use Paytrail\SDK\Client;
 use Paytrail\SDK\Request\EmailRefundRequest;
 use Paytrail\SDK\Model\Provider;
 use Paytrail\SDK\Response\GetTokenResponse;
+use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
+use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use WC_Order;
 use WC_Order_Item;
 use WC_Order_Item_Product;
@@ -322,14 +324,10 @@ final class Gateway extends \WC_Payment_Gateway
 
         // Update tokens if checkbx was checked
         if ( 'yes' === $this->get_option( 'tokenize', 'yes' ) ) {
-            
-            $old_tokens = \WC_Payment_Tokens::get_tokens(['gateway_id'=>'checkout_finland']);
-            if (!empty( $old_tokens ) ) {
-                foreach ($old_tokens as $token) {
-                    $token->set_gateway_id( 'paytrail');
-                    $token->save();
-                }
-            }
+            $token_migration = new PaymentTokenMigration();
+            $token_migration->execute();
+            $subscription_migration = new PaymentSubscriptionMigration();
+            $subscription_migration->execute();
         }
 
         return $saved;
