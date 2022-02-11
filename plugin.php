@@ -45,7 +45,7 @@ final class Plugin {
      */
     public const TEST_SECRET_KEY = 'SAIPPUAKAUPPIAS';
 
-    public const PAYMENT_METHOD_IMG_URL = 'https://payment.paytrail.com/static/img/payment-methods';
+    public const PAYMENT_METHOD_IMG_URL = 'https://static.paytrail.com/static/img/payment-methods';
 
     public const BASE_URL = 'paytrail/';
 
