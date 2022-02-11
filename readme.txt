@@ -3,8 +3,8 @@ Contributors: loueranta
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
-Tested up to: 5.8
-Stable tag: 1.0.7.2
+Tested up to: 5.9
+Stable tag: 1.0.8
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,9 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.0.8 =
+- Update payment method image url
 
 = 1.0.7 =
 - Added token migration functionality for WooCommerce Subscriptions orders
