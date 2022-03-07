@@ -651,11 +651,17 @@ final class Gateway extends \WC_Payment_Gateway
                 break;
             case 'pending':
                 $this->log('Paytrail: handle_payment_response, case = pending', 'debug');
+                if (!$this->validate_order_payment_process_status($order)) {
+                    break;
+                }
                 $order->update_status( 'on-hold' );
                 $order->add_order_note( __( 'Payment pending.', 'paytrail-for-woocommerce' ) );
                 break;
             default:
                 $this->log('Paytrail: handle_payment_response, case = failed', 'debug');
+                if (!$this->validate_order_payment_process_status($order)) {
+                    break;
+                }
                 $order->update_status( 'failed' );
                 $order->add_order_note( __( 'Payment failed.', 'paytrail-for-woocommerce' ) );
                 break;
@@ -679,6 +685,16 @@ final class Gateway extends \WC_Payment_Gateway
 
         if ( $order_status === 'completed' || $order_status === 'processing' ) {
             $this->log('Paytrail: validate_order_payment_processing, order already processed '.$order->get_id(), 'debug');
+            // This order has already been processed.
+            return false;
+        }
+        return true;
+    }
+    protected function validate_order_payment_process_status(WC_Order $order): bool
+    {
+        $order_status = $order->get_status();
+
+        if ( $order_status === 'completed' || $order_status === 'processing' ) {
             // This order has already been processed.
             return false;
         }
