@@ -116,12 +116,9 @@ msgstr "Ota lokitus käytöön"
 #: src/Gateway.php:238
 #, php-format
 msgid ""
-"This enables logging all payment gateway events. The log will be written in "
-"%s. Recommended only for debugging purposes as this might save personal data."
+"This enables logging all payment gateway events. The log will be written in %s. Recommended only for debugging purposes as this might save personal data. All logs can be viewed here: %2$s"
 msgstr ""
-"Tämä asetus käynnistää kaikkien maksutapahtumien lokituksen. Loki "
-"kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain "
-"virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja."
+"Tämä asetus käynnistää kaikkien maksutapahtumien lokituksen. Loki kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja. Lokeja voit selata täältä: %2$s"
 
 #: src/Gateway.php:233
 msgid "Update tokens"

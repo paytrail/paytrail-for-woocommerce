@@ -245,7 +245,7 @@ final class Gateway extends \WC_Payment_Gateway
                 'label'       => __( 'Enable logging', 'paytrail-for-woocommerce' ),
                 'default'     => 'no',
                 // translators: %s: URL
-                'description' => sprintf( __( 'This enables logging all payment gateway events. The log will be written in %s. Recommended only for debugging purposes as this might save personal data.', 'paytrail-for-woocommerce' ), '<code>' . \WC_Log_Handler_File::get_log_file_path( Plugin::GATEWAY_ID ) . '</code>' ),
+                'description' => sprintf( __( 'This enables logging all payment gateway events. The log will be written in %1$s. Recommended only for debugging purposes as this might save personal data. All logs can be viewed here: %2$s', 'paytrail-for-woocommerce' ), '<code>' . \WC_Log_Handler_File::get_log_file_path( Plugin::GATEWAY_ID ) . '</code>', '<a target="_blank" href="/wp-admin/admin.php?page=wc-status&tab=logs">Logs</a>' ),
             ],
             // Update tokens if enabled
             'tokenize'       => [
