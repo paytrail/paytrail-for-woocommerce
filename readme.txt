@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 5.9
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,11 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.0.9 =
+- Added direct link to WooCommerce logs from the settings page
+- Improvements to order status checking
+- Better logging for status changes and references
 
 = 1.0.8 =
 - Update payment method image url
