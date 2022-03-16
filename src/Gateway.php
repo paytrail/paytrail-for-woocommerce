@@ -551,8 +551,12 @@ final class Gateway extends \WC_Payment_Gateway
         $order_id         = filter_input( INPUT_GET, 'order_id' );
         $reference        = filter_input( INPUT_GET, 'checkout-reference' );
 
-        if ((!$status || !$reference) && !$refund_callback && !$refund_unique_id) {
-            $this->log('Paytrail: check_paytrail_response, no status or reference found for reference: '.$reference, 'debug');
+        if (!$reference && !$refund_callback && !$refund_unique_id) {
+            $this->log('Paytrail: check_paytrail_response, no reference found for reference: '.$reference, 'debug');
+            return;
+        }
+        if (!$status && !$refund_callback && !$refund_unique_id) {
+            $this->log('Paytrail: check_paytrail_response, no status found. '.$reference, 'debug');
             return;
         }
         $sleepTime = rand(0,3);
