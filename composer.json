@@ -25,9 +25,14 @@
     "require": {
         "php": ">=7.3",
         "composer/installers": ">=1.0.12",
-        "paytrail/paytrail-php-sdk": ">=1",
+        "paytrail/paytrail-php-sdk": ">=2",
         "ext-mbstring": "*",
         "symfony/polyfill-intl-idn": "v1.20.0",
         "symfony/polyfill-intl-normalizer": "v1.20.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     }
 }
