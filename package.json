@@ -5,7 +5,7 @@
     "private": true,
     "dependencies": {
         "babel-runtime": "^6.23.0",
-        "npm": "^8.1.2"
+        "npm": "^8.11.0"
     },
     "devDependencies": {
         "ajv": "^6.11.0",
