@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2022-06-02
 ### Changed
-- Updated PHP-SDK version
+- Updated Paytrail PHP-SDK version
 - Removed symphony packages & composer installers
 
 ## [1.0.9] - 2022-03-16
