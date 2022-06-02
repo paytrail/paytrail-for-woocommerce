@@ -3,8 +3,8 @@ Contributors: loueranta
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
-Tested up to: 5.9
-Stable tag: 1.0.9
+Tested up to: 6.0
+Stable tag: 1.1.0
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,10 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.1.0 =
+- Updated Paytrail PHP-SDK version
+- Removed symphony packages & composer installers
 
 = 1.0.9 =
 - Added direct link to WooCommerce logs from the settings page
