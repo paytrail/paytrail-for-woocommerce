@@ -331,16 +331,16 @@
         },
         {
             "name": "paytrail/paytrail-php-sdk",
-            "version": "2.0.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paytrail/paytrail-php-sdk.git",
-                "reference": "687c0b2104ffc6305729655caca4120f425a8663"
+                "reference": "2beb174d1a5ad8f127aec4993d8455f452996033"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/687c0b2104ffc6305729655caca4120f425a8663",
-                "reference": "687c0b2104ffc6305729655caca4120f425a8663",
+                "url": "https://api.github.com/repos/paytrail/paytrail-php-sdk/zipball/2beb174d1a5ad8f127aec4993d8455f452996033",
+                "reference": "2beb174d1a5ad8f127aec4993d8455f452996033",
                 "shasum": ""
             },
             "require": {
@@ -382,9 +382,9 @@
             ],
             "support": {
                 "issues": "https://github.com/paytrail/paytrail-php-sdk/issues",
-                "source": "https://github.com/paytrail/paytrail-php-sdk/tree/2.0.0"
+                "source": "https://github.com/paytrail/paytrail-php-sdk/tree/2.1.1"
             },
-            "time": "2022-05-20T10:15:12+00:00"
+            "time": "2022-06-06T12:41:17+00:00"
         },
         {
             "name": "psr/http-client",
