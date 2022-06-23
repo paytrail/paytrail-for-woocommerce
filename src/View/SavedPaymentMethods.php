@@ -38,7 +38,6 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
     jQuery(document).ready(function () {
         openTokenizedCardProviderGroupSelection();
     });
-
     function openTokenizedCardProviderGroupSelection() {
         jQuery("input.paytrail-for-woocommerce-tokenized-payment-method-input[type='radio']").each(function () {
             let creditCardProviderGroup = jQuery('.paytrail-provider-group-title.creditcard').parent();
@@ -56,7 +55,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 
     jQuery(".paytrail-for-woocommerce-tokenized-payment-method-links.delete-card-button").click(function (evt) {
         evt.preventDefault();
-        let cardTokenId = jQuery("input[name='wc-checkout_finland-payment-token']:checked").val();
+        let cardTokenId = jQuery("input[name='wc-paytrail-payment-token']:checked").val();
 
         jQuery.ajax({
             type: 'POST',
