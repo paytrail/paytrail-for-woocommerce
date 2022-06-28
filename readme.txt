@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,9 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.2.1 =
+- Fixed an issue which prevented deleting saved card
 
 = 1.2.0 =
 - Updated Paytrail PHP-SDK to 2.2 version
