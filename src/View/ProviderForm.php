@@ -80,7 +80,7 @@ EOL;
             echo '</li>';
         });
     }
-    if (is_user_logged_in() && $group['id'] == 'creditcard') {
+    if ($group['id'] == 'creditcard') {
         (new \Paytrail\WooCommercePaymentGateway\Gateway)->render_saved_payment_methods();
     }
     echo '</ul>';
