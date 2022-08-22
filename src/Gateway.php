@@ -212,6 +212,7 @@ final class Gateway extends \WC_Payment_Gateway
         $method_info = [
             'title' => __('Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
             'description' => __('Paytrail for WooCommerce - the most comprehensive suite of payment methods in the market with a single contract', 'paytrail-for-woocommerce'),
+            'save_card' => 1,
         ];
         return $method_info;
     }
@@ -271,6 +272,14 @@ final class Gateway extends \WC_Payment_Gateway
                 'label'       => __( 'Used on the Checkout page title', 'paytrail-for-woocommerce' ),
                 'default'     => 'Paytrail for WooCommerce',
                 'description' => __( 'Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce' )
+            ],
+            // Whether to show 'you can save your card details by logging in' text
+            'save_card_text_selection' => [
+                'title'       => __( 'Saving card description', 'paytrail-for-woocommerce' ),
+                'type'        => 'checkbox',
+                'label'       => __( 'Enable enable "you save card details by logging in" text for customer without an account', 'paytrail-for-woocommerce' ),
+                'default'     => 'no',
+                'description' => __( 'Choose whether you want to show the text for all users without an account in the checkout', 'paytrail-for-woocommerce' ),
             ],
             // Whether to show the payment provider wall or choose the method in the store
             'provider_selection' => [
