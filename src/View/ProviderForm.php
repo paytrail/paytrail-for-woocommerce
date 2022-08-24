@@ -29,9 +29,14 @@ if ( ! empty( $data['error'] ) ) {
 // Terms
 $terms_link = $data['terms'];
 echo '<div class="checkout-terms-link">' . wp_kses($terms_link,$allowed_html) . '</div>';
-
 array_walk( $data['groups'], function( $group ) {
+if (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() && $group['id'] == 'creditcard') {
     echo '<div class="paytrail-provider-group">';
+} elseif (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
+    echo '<div class="paytrail-provider-group" style="display:none;">';
+} else {
+    echo '<div class="paytrail-provider-group">';
+}
     $providers_list = [];
     //var_dump($group['providers']);
     echo '<style type="text/css">';
@@ -80,8 +85,15 @@ EOL;
             echo '</li>';
         });
     }
-    if (is_user_logged_in() && $group['id'] == 'creditcard') {
+    if  (is_user_logged_in() && $group['id'] == 'creditcard') {
         (new \Paytrail\WooCommercePaymentGateway\Gateway)->render_saved_payment_methods();
+    } elseif (get_option( 'users_can_register' ) == 1){
+        $mypage_link = get_permalink( wc_get_page_id( 'myaccount' ) );
+        echo '<p class="add-card-login-description">';
+        echo sprintf(__('You can save your card details for next time by <a href="%s">logging in to the store or by creating an account.</a>'), $mypage_link);
+        echo '</p>';
+    } else {
+
     }
     echo '</ul>';
 });

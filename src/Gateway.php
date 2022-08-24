@@ -212,6 +212,7 @@ final class Gateway extends \WC_Payment_Gateway
         $method_info = [
             'title' => __('Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
             'description' => __('Paytrail for WooCommerce - the most comprehensive suite of payment methods in the market with a single contract', 'paytrail-for-woocommerce'),
+            'save_card' => 1,
         ];
         return $method_info;
     }
