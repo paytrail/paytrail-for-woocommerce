@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.0
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,12 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.2.3 =
+- Updated various libraries
+- PHP-SDK version updated to 2.3
+- Fixed language selection issue
+- Checkout page login text tweak
 
 = 1.2.2 =
 - Added login and registration instructions for guest users, so they can save card details
