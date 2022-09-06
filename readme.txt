@@ -79,6 +79,7 @@ Head over to our [website](https://www.paytrail.com) and register for the servic
 == Changelog ==
 
 = 1.2.3 =
+- Make it possible to tweak paytrail order items via apply_filters
 - Updated various libraries
 - PHP-SDK version updated to 2.3
 - Fixed language selection issue
