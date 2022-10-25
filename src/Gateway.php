@@ -1723,15 +1723,15 @@ final class Gateway extends \WC_Payment_Gateway
      */
     protected function get_item_tax_rate( WC_Order_Item $item, WC_Order $order )
     {
-        $total     = $order->get_line_total( $item, false );
-        $tax_total = $order->get_line_tax( $item );
+        $total_without_tax     = $order->get_line_total( $item, false, false );
+        $total_with_tax     = $order->get_line_total( $item, true, false );
+        $tax_total = $total_with_tax - $total_without_tax;
 
         // Not taxes set.
         if ( $tax_total === 0.0 ) {
             return 0;
         }
-
-        $tax_rate = round( ( $tax_total / $total ) * 100 );
+        $tax_rate = round( ( $tax_total / $total_without_tax) * 100);
 
         return (int) $tax_rate;
     }
