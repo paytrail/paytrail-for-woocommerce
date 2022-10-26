@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.0
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,9 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.2.4 =
+- Fixed an issue with rounding taxes for small amounts
 
 = 1.2.3 =
 - Make it possible to tweak paytrail order items via apply_filters
