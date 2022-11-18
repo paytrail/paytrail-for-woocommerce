@@ -24,6 +24,13 @@ class Helper
         if (!function_exists('wcs_cart_contains_renewal')) {
             return false;
         }
+        if (class_exists('\WC_Subscriptions_Admin') ){
+            $accept_manual_renewals = ( 'no' !== get_option( \WC_Subscriptions_Admin::$option_prefix . '_accept_manual_renewals', 'no' ) );
+            if ($accept_manual_renewals == true){
+                return false;
+            }
+        }
+
         return (
             \WC_Subscriptions_Cart::cart_contains_subscription() ||
             wcs_cart_contains_renewal() ||
