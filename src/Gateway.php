@@ -82,10 +82,10 @@ final class Gateway extends \WC_Payment_Gateway
         'subscription_suspension',
         'subscription_reactivation',
         'subscription_amount_changes',
-	    'subscription_date_changes',
+        'subscription_date_changes',
         'subscription_payment_method_change',
         'subscription_payment_method_change_customer',
-	    'subscription_payment_method_change_admin',
+        'subscription_payment_method_change_admin',
         'multiple_subscriptions'
     ];
 
