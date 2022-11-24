@@ -82,10 +82,10 @@ final class Gateway extends \WC_Payment_Gateway
         'subscription_suspension',
         'subscription_reactivation',
         'subscription_amount_changes',
-	'subscription_date_changes',
+        'subscription_date_changes',
         'subscription_payment_method_change',
         'subscription_payment_method_change_customer',
-	'subscription_payment_method_change_admin',
+        'subscription_payment_method_change_admin',
         'multiple_subscriptions'
     ];
 
@@ -623,9 +623,6 @@ final class Gateway extends \WC_Payment_Gateway
 
                 $transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
 
-                // Mark payment completed and store the transaction ID.
-                $order->payment_complete( $transaction_id );
-
                 if ( ! $this->use_provider_selection() ) {
                     $this->log('Paytrail: handle_payment_response, use_provider_selection = false for order '.$order->get_id(), 'debug');
                     // Get the chosen payment provider and save it to the order
@@ -672,6 +669,9 @@ final class Gateway extends \WC_Payment_Gateway
 
                     $order->add_order_note( $order_note );
                 }
+
+                // Mark payment completed and store the transaction ID.
+                $order->payment_complete( $transaction_id );
 
                 // Clear the cart.
                 WC()->cart->empty_cart();
@@ -1728,7 +1728,7 @@ final class Gateway extends \WC_Payment_Gateway
         $tax_total = $total_with_tax - $total_without_tax;
 
         // Not taxes set.
-        if ( $tax_total === 0.0 ) {
+        if ( $tax_total === 0.0 || $total_without_tax === 0.0 || $total_with_tax === 0.0) {
             return 0;
         }
         $tax_rate = round( ( $tax_total / $total_without_tax) * 100);
