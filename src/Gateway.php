@@ -1334,8 +1334,21 @@ final class Gateway extends \WC_Payment_Gateway
 
             $callbacks = $this->create_redirect_url( $order );
 
-            $url->setSuccess( $callbacks->getSuccess() . '?refund_callback=success&refund_unique_id=' . $refund_unique_id . '&order_id=' . $order_id )
-                ->setCancel( $callbacks->getSuccess() . '?refund_callback=cancel&refund_unique_id=' . $refund_unique_id . '&order_id=' . $order_id );
+            $success_callback = add_query_arg(
+                array(
+                    'refund_callback' => 'success',
+                    'refund_unique_id' => $refund_unique_id,
+                    'order_id' => $order_id
+                ), $callbacks->getSuccess());
+            $cancel_callback = add_query_arg(
+                array(
+                    'refund_callback' => 'cancel',
+                    'refund_unique_id' => $refund_unique_id,
+                    'order_id' => $order_id
+                ), $callbacks->getSuccess());
+
+            $url->setSuccess( $success_callback )
+                ->setCancel( $cancel_callback );
 
             $refund->setCallbackUrls( $url );
 
