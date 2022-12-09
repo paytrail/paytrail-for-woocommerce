@@ -1741,7 +1741,7 @@ final class Gateway extends \WC_Payment_Gateway
         $tax_total = $total_with_tax - $total_without_tax;
 
         // Not taxes set.
-        if ( $tax_total === 0.0 || $total_without_tax === 0.0 || $total_with_tax === 0.0) {
+        if ( $tax_total == 0.0 || $total_without_tax == 0.0 || $total_with_tax == 0.0) {
             return 0;
         }
         $tax_rate = round( ( $tax_total / $total_without_tax) * 100);
