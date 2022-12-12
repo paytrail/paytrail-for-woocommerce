@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2022-12-12
+### Fixed
+- Loosened comparisons on the condition related to tax calculations when taxes amount to zero
+
 ## [1.3.0] - 2022-12-08
 ### Added
 - Add support for manual renewals of Subscriptions
