@@ -102,3 +102,7 @@ Permalinks disabled:
 
     Success: /index.php?paytrail-payment-service-route=callback&paytrail-payment-service-action=index
     Cancel: /index.php?paytrail-payment-service-route=callback&paytrail-payment-service-action=index
+
+---
+
+**_Disclaimer:_** *This open source plugin is provided to help merchants get started with our payment service. However, we do not offer any warranty or guarantee that the plugin will work as intended and provide limited support for it. Use at your own risk.*
