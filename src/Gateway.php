@@ -1529,7 +1529,8 @@ final class Gateway extends \WC_Payment_Gateway
         $customer->setEmail( $order->get_billing_email() ?? null )
             ->setFirstName( $order->get_billing_first_name() ?? null )
             ->setLastName( $order->get_billing_last_name() ?? null )
-            ->setPhone( $order->get_billing_phone() ?? null );
+            ->setPhone( $order->get_billing_phone() ?? null )
+            ->setCompanyName( $order->get_billing_company() ?? null);
 
         return $customer;
     }
