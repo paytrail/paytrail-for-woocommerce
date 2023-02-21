@@ -1182,6 +1182,9 @@ final class Gateway extends \WC_Payment_Gateway
         $payment->setRedirectUrls( $this->create_redirect_url( $order ) );
         $payment->setCallbackUrls( $this->create_callback_url());
 
+        // Set callback delay to the payment request
+        $payment->setCallbackDelay (3);
+
         return $payment;
     }
 
