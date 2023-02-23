@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -77,6 +77,10 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.3.2 =
+- Added 3 second delay to Paytrail API callbacks to avoid race condition in cluster environments
+- Company name field added to API calls when available
 
 = 1.3.1 =
 - Loosened comparisons on the condition related to tax calculations when taxes amount to zero
