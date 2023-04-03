@@ -623,6 +623,15 @@ final class Gateway extends \WC_Payment_Gateway
 
                 $transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
 
+                // If this transaction has already been processed, don't process again
+                if( $order->get_transaction_id() === $transaction_id ) {
+                    $this->log('Paytrail: handle_payment_response, transaction id '.$transaction_id.' already processed for order '.$order->get_id(), 'debug');
+                    return false;
+                }
+
+                // Save transient to avoid race condition between redirect and callback processing
+                \set_transient( 'checkout_transaction_id_processing_'.$transaction_id, "yes", 60 );
+
                 if ( ! $this->use_provider_selection() ) {
                     $this->log('Paytrail: handle_payment_response, use_provider_selection = false for order '.$order->get_id(), 'debug');
                     // Get the chosen payment provider and save it to the order
@@ -675,6 +684,10 @@ final class Gateway extends \WC_Payment_Gateway
 
                 // Clear the cart.
                 WC()->cart->empty_cart();
+
+                // Delete transient
+                \delete_transient( 'checkout_transaction_id_processing_'.$transaction_id );
+
                 break;
             case 'pending':
                 $this->log('Paytrail: handle_payment_response, case = pending', 'debug');
@@ -697,9 +710,10 @@ final class Gateway extends \WC_Payment_Gateway
 
     /**
      * @param WC_Order $order
+     * @param bool $retry Whether to try again after 15 seconds if order is being processed
      * @return bool
      */
-    protected function validate_order_payment_processing(WC_Order $order): bool
+    protected function validate_order_payment_processing(WC_Order $order, bool $retry = true): bool
     {
         $transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
 
@@ -715,6 +729,24 @@ final class Gateway extends \WC_Payment_Gateway
             // This order has already been processed.
             return false;
         }
+
+        // If the transaction is currently being processed, wait for 15 seconds and check again
+        if ( "yes" === \get_transient( 'checkout_transaction_id_processing_'.$transaction_id ) ) {
+            $this->log('Paytrail: validate_order_payment_processing, order is currently being processed '.$order->get_id(), 'debug');
+
+            if( true === $retry ) {
+                $this->log('Paytrail: validate_order_payment_processing, waiting for 15 seconds '.$order->get_id(), 'debug');
+                sleep( 15 );
+
+                return $this->validate_order_payment_processing( $order, false );
+            }
+
+            $this->log('Paytrail: validate_order_payment_processing, not trying again '.$order->get_id(), 'debug');
+            return false;
+        }
+
+        $this->log('Paytrail: validate_order_payment_processing, order is valid '.$order->get_id(), 'debug');
+
         return true;
     }
     protected function validate_order_payment_process_status(WC_Order $order): bool
