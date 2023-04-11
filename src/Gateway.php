@@ -1435,6 +1435,7 @@ final class Gateway extends \WC_Payment_Gateway
                                                     'paytrail-for-woocommerce'
                                                 )
                                             );
+                                            $order->update_status('failed');
                                             return false; // Return when an error occurred.
                                         // Default, should be 400.
                                         default:
@@ -1445,6 +1446,7 @@ final class Gateway extends \WC_Payment_Gateway
                                                     'paytrail-for-woocommerce'
                                                 )
                                             );
+                                            $order->update_status('failed');
                                             return false; // Return when an error occurred.
                                     }
                                 }
@@ -1458,6 +1460,7 @@ final class Gateway extends \WC_Payment_Gateway
                                         'paytrail-for-woocommerce'
                                     )
                                 );
+                                $order->update_status('failed');
                                 return false; // Return when an error occurred.
                         }
                     }
