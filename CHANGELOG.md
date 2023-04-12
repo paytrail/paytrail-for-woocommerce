@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2023-04-11
+### Added
+- Added update status to canceled on each error case when handling refunds
+### Fixed
+- Fixed possible race condition between redirect and callback payment processing
+- Home url cleaned with esc_url
+
 ## [1.3.2] - 2023-02-23
 ### Added
 - Added 3 second delay to Paytrail API callbacks to avoid race condition in cluster environments
