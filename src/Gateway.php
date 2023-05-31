@@ -21,6 +21,7 @@ use Paytrail\SDK\Client;
 use Paytrail\SDK\Request\EmailRefundRequest;
 use Paytrail\SDK\Model\Provider;
 use Paytrail\SDK\Response\GetTokenResponse;
+use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use WC_Order;
@@ -146,7 +147,7 @@ final class Gateway extends \WC_Payment_Gateway
 
         // Whether we are in test mode or not.
         $this->testmode = 'yes' === $this->get_option( 'testmode', 'no' );
-
+        
         // Set merchant ID and secret key either from the options or for test mode.
         if ( $this->testmode ) {
             $this->merchant_id = (int) Plugin::TEST_MERCHANT_ID;
@@ -158,6 +159,9 @@ final class Gateway extends \WC_Payment_Gateway
         }
 
         $platformName = 'paytrail-for-woocommerce-' . \Paytrail\WooCommercePaymentGateway\Plugin::$version;
+
+        // Check if transaction settlement is enabled
+        $this->transaction_settlement_enable = $this->get_option( 'settlement_enablement', 'no' ) === 'yes';
 
         // Create SDK client instance
         $this->client = new Client(
@@ -304,6 +308,18 @@ final class Gateway extends \WC_Payment_Gateway
                 'description' => __( 'Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce' ),
                 'options' => array_merge(['' => 'Select country'], WC()->countries->get_countries())
             ],
+            'settlement_enablement' => [
+				'title' => __( 'Enable specific settlements', 'paytrail-for-woocommerce' ),
+				'type' => 'checkbox',
+				'default' => 'no',
+				'description' => __( " ", 'paytrail-for-woocommerce' ),
+			],
+            'settlement_prefix' => [
+				'title' => __( 'Bank reference prefix', 'paytrail-for-woocommerce' ),
+				'type' => 'text',
+				'description' => __( 'Add Prefix', 'paytrail-for-woocommerce' ),
+				'default' => '10'
+			],
         ];
     }
 
@@ -409,6 +425,30 @@ final class Gateway extends \WC_Payment_Gateway
             exit;
         }
     }
+
+	/**
+	 * Calculate bank reference
+	 */
+	private function calculate_reference( $base ) {
+		$base = sprintf( '%s%s', $this->settlement_prefix, $base );
+		$base = trim( str_replace( ' ', '', $base ) );
+		$base = str_split( $base );
+		$reversed_base = array_reverse( $base );
+
+		$weights = array( 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7 );
+
+		$sum = 0;
+		for ( $i = 0; $i < count( $reversed_base ); $i++ ) {
+			$coefficient = array_shift( $weights );
+			$sum += intval( $reversed_base[$i] ) * $coefficient;
+		}
+
+		$checksum = ( $sum % 10 == 0 ) ? 0 : ( 10 - $sum % 10 );
+
+		$reference = sprintf( '%s%d', implode( '', $base ), $checksum );
+
+		return $reference;
+	}
 
     /**
      * @return bool
@@ -554,6 +594,11 @@ final class Gateway extends \WC_Payment_Gateway
         $order_id         = filter_input( INPUT_GET, 'order_id' );
         $reference        = filter_input( INPUT_GET, 'checkout-reference' );
 
+        	// Store information that transaction-specific settlement was used
+		if ( $this->transaction_settlement_enable ) {
+			update_post_meta( $order_id, '_paytrail_ppa_transaction_settlement', true );
+		}
+
         if (!$reference && !$refund_callback && !$refund_unique_id) {
             $this->log('Paytrail: check_paytrail_response, no reference found for reference: '.$reference, 'debug');
             return;
@@ -607,10 +652,15 @@ final class Gateway extends \WC_Payment_Gateway
 
         $orders = \wc_get_orders( [ 'checkout_reference' => $reference ] );
 
+        // Store information that transaction-specific settlement was used
+		if ( $this->transaction_settlement_enable ) {
+			update_post_meta( $order->get_id(), '_paytrail_ppa_transaction_settlement', true );
+		}
         if ( empty( $orders ) ) {
             $this->log('Paytrail: handle_payment_response, orders collection empty for reference: '.$reference, 'debug');
             return;
         }
+
         $order = $orders[0];
 
         switch ( $status ) {
@@ -1171,6 +1221,11 @@ final class Gateway extends \WC_Payment_Gateway
         // https://trello.com/c/i6GUZACP/83-reference-kentt%C3%A4%C3%A4n-woon-tilausnumero
         $reference = $order->get_order_number();
 
+        // Calculate bank reference for transaction-specific settlements
+		if ( $this->transaction_settlement_enable ) {
+			$reference = $this->calculate_reference( $reference );
+		}
+
         // Set WooCommerce order number as the payment reference
         $payment->setReference( $reference );
 
@@ -1671,7 +1726,7 @@ final class Gateway extends \WC_Payment_Gateway
 
         // Append 2nd address line to the address field if present
         $address->setStreetAddress( ( $order->{ 'get_' . $prefix . 'address_1' }() ?? '' . $address_suffix ) ?: null )
-            ->setPostalCode( $order->{ 'get_' . $prefix . 'postcode' }() ?? null )
+            ->setPostalCode( $order->{ 'get_' . $prefix . 'postcode' }() ?? ' ' )
             ->setCity( $order->{ 'get_' . $prefix . 'city' }() ?? null )
             ->setCounty( $order->{ 'get_' . $prefix . 'state' }() ?? null )
             ->setCountry( $order->{ 'get_' . $prefix . 'country' }() ?: $this->get_option( 'fallback_country', '' ) );
