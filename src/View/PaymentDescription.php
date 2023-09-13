@@ -4,11 +4,11 @@
  */
 
 // Ensure that the file is being run within the WordPress context.
-if ( ! defined( 'ABSPATH' ) ) {
-    die;
+if (! defined('ABSPATH')) {
+	die;
 }
 if (!$data['description']) {
-    return;
+	return;
 }
 ?>
-<p><?php echo esc_html($data['description']) ?> </p>
+<p><?php echo esc_html($data['description']); ?> </p>

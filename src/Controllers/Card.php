@@ -5,79 +5,77 @@
 
 namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
-use Paytrail\SDK\Exception\HmacException;
-use Paytrail\SDK\Exception\ValidationException;
 use Paytrail\WooCommercePaymentGateway\Gateway;
 use Paytrail\WooCommercePaymentGateway\Plugin;
 use WC_Payment_Tokens;
 use WP_Error;
 use WP_HTTP_Response;
-use Exception;
 
-class Card extends AbstractController
-{
-    protected function add()
-    {
-        $gateway = new Gateway();
-        try {
-            $gateway->add_card_form();
-        } catch (HmacException $e) {
-        } catch (ValidationException $e) {
-        }
-    }
+class Card extends AbstractController {
 
-    /**
-     * @return WP_Error|WP_HTTP_Response
-     * @throws Exception
-     */
-    protected function delete()
-    {
-        $this->validate_request();
+	protected function add() {
+		$gateway = new Gateway();
+		try {
+			$gateway->add_card_form();
+		} catch (\Exception $e) {
+			return null;
+		}
+	}
 
-        $body = file_get_contents("php://input");
-        $data = json_decode($body, true);
+	/**
+	 * Delete card token.
+	 *
+	 * @return WP_Error|WP_HTTP_Response
+	 * @throws Exception
+	 */
+	protected function delete() {
+		$this->validate_request();
 
-        if (!is_array($data)) {
-            throw new Exception('Failed to decode JSON object');
-        }
+		$body = file_get_contents('php://input');
+		$data = json_decode($body, true);
 
-        /** @var \WP_User $current_user */
-        $current_user = wp_get_current_user();
+		if (!is_array($data)) {
+			throw new Exception('Failed to decode JSON object');
+		}
 
-        $token_id = $data['token_id'];
+		// @var \WP_User $current_user
+		$current_user = wp_get_current_user();
 
-        if (!$current_user->ID || !$token_id) {
-            return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
-        }
+		$token_id = $data['token_id'];
 
-        $customer_tokens = WC_Payment_Tokens::get_customer_tokens($current_user->ID, Plugin::GATEWAY_ID);
-        $customer_token_ids = array_keys($customer_tokens);
+		if (!$current_user->ID || !$token_id) {
+			return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
+		}
 
-        if (!in_array($token_id, $customer_token_ids)) {
-            return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
-        }
+		$customer_tokens = WC_Payment_Tokens::get_customer_tokens($current_user->ID, Plugin::GATEWAY_ID);
+		$customer_token_ids = array_keys($customer_tokens);
 
-        try {
-            WC_Payment_Tokens::delete($token_id);
-            wc_add_notice(__('Card was deleted successfully', 'paytrail-for-woocommerce'), 'success');
-            wp_send_json_success($data);
-            return new WP_HTTP_Response(['type' => 'success'], 200);
-        } catch (\Exception $e) {
-            wc_add_notice(__('Card could not be deleted', 'paytrail-for-woocommerce'), 'error');
-            wp_send_json_error();
-            return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
-        }
-    }
+		if (!in_array($token_id, $customer_token_ids)) {
+			return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
+		}
 
-    private function validate_request()
-    {
-        if (strtoupper($_SERVER['REQUEST_METHOD']) != 'POST') {
-            throw new Exception('Only POST requests are allowed');
-        }
-        $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
-        if (stripos($content_type, 'application/json') === false) {
-            throw new Exception('Content-Type must be application/json');
-        }
-    }
+		try {
+			WC_Payment_Tokens::delete($token_id);
+			wc_add_notice(__('Card was deleted successfully', 'paytrail-for-woocommerce'), 'success');
+			wp_send_json_success($data);
+			return new WP_HTTP_Response(['type' => 'success'], 200);
+		} catch (\Exception $e) {
+			wc_add_notice(__('Card could not be deleted', 'paytrail-for-woocommerce'), 'error');
+			wp_send_json_error();
+			return new WP_Error('cant-delete', __('message', 'text-domain'), array('status' => 500));
+		}
+	}
+
+	private function validate_request() {
+		if (empty($_SERVER['REQUEST_METHOD'])) {
+			return;
+		}
+		if (strtoupper($_SERVER['REQUEST_METHOD']) != 'POST') {
+			throw new Exception('Only POST requests are allowed');
+		}
+		$content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+		if (stripos($content_type, 'application/json') === false) {
+			throw new Exception('Content-Type must be application/json');
+		}
+	}
 }
-
