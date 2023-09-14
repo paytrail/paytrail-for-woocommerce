@@ -476,7 +476,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		 *
 		 * @since 1.0
 		 */
-		echo apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this); // @codingStandardsIgnoreLine
+		echo esc_html(apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this)); // @codingStandardsIgnoreLine
 	}
 
 	/**
