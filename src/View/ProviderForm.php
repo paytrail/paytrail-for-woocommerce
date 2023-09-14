@@ -92,6 +92,7 @@ EOL
 	} elseif (get_option('users_can_register') == 1 && 'creditcard' == $group['id']) {
 		$mypage_link = get_permalink(wc_get_page_id('myaccount'));
 		echo '<p class="add-card-login-description">';
+		/* translators: %s - Logging link */
 		echo sprintf(__('You can save your card details for next time by <a href="%s">logging in to the store or by creating an account.</a>'), esc_html($mypage_link));
 		echo '</p>';
 	}
