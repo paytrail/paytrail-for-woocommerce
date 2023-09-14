@@ -70,10 +70,10 @@ class Card extends AbstractController {
 		if (empty($_SERVER['REQUEST_METHOD'])) {
 			return;
 		}
-		if (strtoupper($_SERVER['REQUEST_METHOD']) != 'POST') {
+		if ( WP_REST_Request::get_method() != 'POST' ) {
 			throw new Exception('Only POST requests are allowed');
 		}
-		$content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+		$content_type = WP_REST_Request::get_content_type();
 		if (stripos($content_type, 'application/json') === false) {
 			throw new Exception('Content-Type must be application/json');
 		}

@@ -1771,7 +1771,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	protected function get_item_description( WC_Order_Item $item) {
 		switch (get_class($item)) {
 			case WC_Order_Item_Product::class:
-				$description = $item->get_product()->get_name() ?: $item->get_product()->get_id();
+				$description = !empty($item->get_product()->get_name()) ? $item->get_product()->get_name() : $item->get_product()->get_id();
 				break;
 			default:
 				$description = $item->get_name();
