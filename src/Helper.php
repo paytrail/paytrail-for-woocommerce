@@ -11,6 +11,8 @@ use LogicException;
 class Helper {
 
 	/**
+	 * Check is subscriptions enabled
+	 *
 	 * @return bool
 	 */
 	public static function getIsSubscriptionsEnabled() {
@@ -25,7 +27,7 @@ class Helper {
 		}
 		if (class_exists('\WC_Subscriptions_Admin')) {
 			$accept_manual_renewals = ( 'no' !== get_option(\WC_Subscriptions_Admin::$option_prefix . '_accept_manual_renewals', 'no') );
-			if ($accept_manual_renewals == true) {
+			if (true == $accept_manual_renewals) {
 				return false;
 			}
 		}
@@ -37,9 +39,6 @@ class Helper {
 		);
 	}
 
-	/**
-	 * @return mixed
-	 */
 	public static function getIsChangeSubscriptionPaymentMethod() {
 		return filter_input(INPUT_GET, 'change_payment_method');
 	}
@@ -50,7 +49,7 @@ class Helper {
 	 * @param int|double $sum The sum to format.
 	 * @return integer
 	 */
-	public function handle_currency( $sum): int {
+	public function handle_currency( $sum) {
 		$currency = \get_woocommerce_currency();
 
 		switch ($currency) {
@@ -67,13 +66,13 @@ class Helper {
 	 *
 	 * @return integer
 	 */
-	public function get_cart_total(): int {
+	public function get_cart_total() {
 		$sum = WC()->cart->total;
 
 		return $this->handle_currency($sum);
 	}
 
-	public static function getLocale(): string {
+	public static function getLocale() {
 		$full_locale = get_locale();
 
 		$short_locale = substr($full_locale, 0, 2);

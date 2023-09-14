@@ -68,7 +68,7 @@ class Router {
 		if (!$route) {
 			return $template;
 		}
-		$action = get_query_var(self::ACTION_BASE_URL) ?? 'index';
+		$action = !empty(get_query_var(self::ACTION_BASE_URL)) ? get_query_var(self::ACTION_BASE_URL) : 'index';
 		switch ($route) {
 			case Plugin::ADD_CARD_REDIRECT_SUCCESS_URL:
 				$controller = new CardSuccess();

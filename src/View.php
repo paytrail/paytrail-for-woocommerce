@@ -57,11 +57,13 @@ class View {
 
 		$plugin_dir = $plugin_instance->get_plugin_dir();
 
+		$templateFile = $plugin_dir . '/src/View/' . $template . '.php';
+
 		// Check the existence of the template.
-		if (file_exists($plugin_dir . '/src/View/' . $template . '.php')) {
-			return $plugin_dir . '/src/View/' . $template . '.php';
+		if (file_exists($templateFile)) {
+			return $templateFile;
 		} else {
-			throw new \Exception('Template "' . $template . '" (' . $plugin_dir . '/src/View/' . $template . '.php' . ') could not be found.');
+			throw new \Exception("Template $template ($templateFile) could not be found.");
 		}
 	}
 }

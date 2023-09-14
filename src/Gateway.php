@@ -111,6 +111,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	protected $client = null;
 
 	/**
+	 * Helper instance
+	 *
 	 * @var Helper
 	 */
 	protected $helper = null;
@@ -132,8 +134,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->method_description = $this->method_info['description'];
 
 		// These strings may show in the frontend.
-		$this->title       = $this->get_option('custom_provider_name') ?? $this->method_info['title'];
-		$this->description = $this->get_option('custom_provider_description') ?? $this->method_info['description'];
+		$this->title       = !empty($this->get_option('custom_provider_name')) ? $this->get_option('custom_provider_name') : $this->method_info['title'];
+		$this->description = !empty($this->get_option('custom_provider_description')) ? $this->get_option('custom_provider_description') : $this->method_info['description'];
 
 		// Icon temporarily disabled for size issues
 		// $this->icon = Plugin::ICON_URL;
@@ -207,7 +209,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return array
 	 */
-	protected function get_method_info(): array {
+	protected function get_method_info() {
 		$method_info = [
 			'title' => __('Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
 			'description' => __('Paytrail for WooCommerce - the most comprehensive suite of payment methods in the market with a single contract', 'paytrail-for-woocommerce'),
@@ -356,6 +358,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Add card form
+	 *
 	 * @param string $context
 	 * @throws HmacException
 	 * @throws ValidationException
@@ -393,16 +397,18 @@ final class Gateway extends \WC_Payment_Gateway {
 		$add_card_form_request->setLanguage(Helper::getLocale());
 
 		// Create a addCardFormRequest via Paytrail SDK
-		/** @var \GuzzleHttp\Psr7\Response $response */
+		// @var \GuzzleHttp\Psr7\Response $response
 		$response = $this->client->createAddCardFormRequest($add_card_form_request);
 
-		if ($location = $response->getHeader('Location')) {
+		if ($location == $response->getHeader('Location')) {
 			wp_redirect($location[0]);
 			exit;
 		}
 	}
 
 	/**
+	 * Process card token
+	 *
 	 * @return bool
 	 * @throws HmacException
 	 * @throws ValidationException
@@ -418,6 +424,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Save card token
+	 *
 	 * @param GetTokenResponse $card_token
 	 */
 	private function save_card_token( GetTokenResponse $card_token) {
@@ -437,6 +445,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Add payment method
+	 *
 	 * @return array
 	 * @throws HmacException
 	 * @throws ValidationException
@@ -461,10 +471,17 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$html .= '</ul>';
 
+		/**
+		 * Show payment methods
+		 *
+		 * @since 1.0
+		 */
 		echo apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this); // @codingStandardsIgnoreLine
 	}
 
 	/**
+	 * Get token payment option
+	 *
 	 * @param $html
 	 * @param $token
 	 * @return string
@@ -492,6 +509,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get card display info
+	 *
 	 * @param $token
 	 * @return string
 	 */
@@ -508,13 +527,15 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get card image
+	 *
 	 * @param $token
 	 * @return string
 	 */
 	private function get_card_image( $token) {
 		$token_card_type = strtolower($token->get_card_type());
 
-		if ($token_card_type === 'amex') {
+		if ('amex' === $token_card_type) {
 			$token_card_type = 'american-express';
 		}
 
@@ -577,7 +598,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return void
 	 */
-	public function handle_payment_response( string $status) {
+	public function handle_payment_response( $status) {
 		// Check the HMAC
 		try {
 			$this->client->validateHmac(filter_input_array(INPUT_GET), '', filter_input(INPUT_GET, 'signature'));
@@ -630,7 +651,7 @@ final class Gateway extends \WC_Payment_Gateway {
 						// Get only the wanted payment provider object
 						$wanted_provider = $this->get_wanted_provider($providers, $payment_provider);
 						if (null !== $wanted_provider) {
-							$provider_name = $wanted_provider->getName() ?? ucfirst($wanted_provider->getId());
+							$provider_name = !empty($wanted_provider->getName()) ? $wanted_provider->getName() : ucfirst($wanted_provider->getId());
 						} else {
 							$provider_name = ucfirst($payment_provider);
 						}
@@ -691,11 +712,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Validate payment processing
+	 *
 	 * @param WC_Order $order
 	 * @param bool $retry Whether to try again after 15 seconds if order is being processed
 	 * @return bool
 	 */
-	protected function validate_order_payment_processing( WC_Order $order, bool $retry = true): bool {
+	protected function validate_order_payment_processing( WC_Order $order, $retry = true) {
 		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
 
 		if (!$transaction_id) {
@@ -705,7 +728,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$order_status = $order->get_status();
 
-		if ($order_status === 'completed' || $order_status === 'processing') {
+		if ('completed' === $order_status || 'processing' === $order_status) {
 			$this->log('Paytrail: validate_order_payment_processing, order already processed ' . $order->get_id(), 'debug');
 			// This order has already been processed.
 			return false;
@@ -730,10 +753,11 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		return true;
 	}
-	protected function validate_order_payment_process_status( WC_Order $order): bool {
+
+	protected function validate_order_payment_process_status( WC_Order $order) {
 		$order_status = $order->get_status();
 
-		if ($order_status === 'completed' || $order_status === 'processing') {
+		if ('completed' === $order_status || 'processing' === $order_status) {
 			// This order has already been processed.
 			return false;
 		}
@@ -745,7 +769,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return boolean
 	 */
-	protected function use_provider_selection(): bool {
+	protected function use_provider_selection() {
 		return 'yes' === $this->get_option('provider_selection', 'yes');
 	}
 
@@ -757,7 +781,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param string $order_id         Order ID.
 	 * @return void
 	 */
-	public function handle_refund_response( string $refund_callback, string $refund_unique_id, string $order_id) {
+	public function handle_refund_response( $refund_callback, $refund_unique_id, $order_id) {
 		// Remove the callback indicators from the GET array
 		$get = filter_input_array(INPUT_GET);
 
@@ -813,6 +837,11 @@ final class Gateway extends \WC_Payment_Gateway {
 				$order = \wc_get_order($order_id);
 				$order->add_order_note($order_note);
 
+				/**
+				 * Delete refund action
+				 *
+				 * @since 1.0
+				 */
 				do_action('woocommerce_refund_delete', $refund->get_id(), $order_id);
 				break;
 		}
@@ -842,7 +871,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_payment( $order_id) {
 		$this->log('Paytrail: process_payment', 'debug');
-		/** @var WC_Order $order */
+		// @var WC_Order $order
 		$order = wc_get_order($order_id);
 		$token_id = filter_input(INPUT_POST, 'wc-paytrail-payment-token');
 
@@ -946,6 +975,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Create payment
+	 *
 	 * @param PaymentRequest|CitPaymentRequest $payment
 	 * @param WC_Order $order
 	 * @param $payment_provider
@@ -990,7 +1021,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					'paytrail-for-woocommerce'
 				),
 				$response->getTransactionId(),
-				$wanted_provider->getName() ?? ucfirst($payment_provider)
+				!empty($wanted_provider->getName()) ? $wanted_provider->getName() : ucfirst($payment_provider)
 			);
 			$this->log('Paytrail: create_normal_payment, use_provider_selection = true, redirect', 'debug');
 			$order->add_order_note($message);
@@ -1020,6 +1051,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Create CIT payment
+	 *
 	 * @param CitPaymentRequest $payment
 	 * @param WC_Order $order
 	 * @throws HmacException
@@ -1071,7 +1104,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order->payment_complete($response->getTransactionId());
 		}
 
-		$redirect_url = $response->getThreeDSecureUrl() ?? $this->get_return_url($order);
+		$redirect_url = !empty($response->getThreeDSecureUrl()) ? $response->getThreeDSecureUrl() : $this->get_return_url($order);
 
 		return [
 			'result'   => 'success',
@@ -1080,6 +1113,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Create MIT payment
+	 *
 	 * @param MitPaymentRequest $payment
 	 * @param WC_Order $order
 	 * @return bool
@@ -1124,6 +1159,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Set payment data
+	 *
 	 * @param PaymentRequest|CitPaymentRequest|MitPaymentRequest $payment
 	 * @param WC_Order $order
 	 * @return mixed
@@ -1187,12 +1224,18 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get order items
+	 *
 	 * @param WC_Order|\WC_Subscription $order
 	 * @return array
 	 * @throws \Exception
 	 */
 	private function get_order_items( $order) {
-		// Get the items from the order
+		/**
+		 * Get the items from the order
+		 *
+		 * @since 1.0
+		 */
 		$order_items = apply_filters('woocommerce_paytrail_gateway_get_order_items', $order->get_items([ 'line_item', 'fee', 'shipping' ]), $order);
 		$order_total = $this->helper->handle_currency($order->get_total());
 
@@ -1204,7 +1247,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order_items
 		);
 
-		$sub_sum = array_sum(array_map(function ( Item $item): int {
+		$sub_sum = array_sum(array_map(function ( Item $item) {
 			return ( $item->getUnitPrice() * $item->getUnits() );
 		}, $items));
 
@@ -1213,7 +1256,6 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
-			$rounding_item->setDeliveryDate(date('Y-m-d'));
 			$rounding_item->setVatPercentage(0);
 			$rounding_item->setUnits(( $order_total - $sub_sum > 0 ) ? 1 : -1);
 			$rounding_item->setUnitPrice($diff);
@@ -1226,6 +1268,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get payment providers
+	 *
 	 * @param $providers
 	 * @param $payment_provider
 	 * @return mixed|null
@@ -1235,7 +1279,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		return
 			array_reduce(
 				$providers,
-				function ( $carry, $item = null) use ( $payment_provider): ?Provider {
+				function ( $carry, $item = null) use ( $payment_provider) {
 					if ($item && $item->getId() === $payment_provider) {
 						return $item;
 					}
@@ -1245,6 +1289,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Process scheduled payment
+	 *
 	 * @param $amount
 	 * @param WC_Order $order
 	 * @throws \Exception
@@ -1502,7 +1548,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			echo '<p>' . esc_html($providers['error']) . '</p>';
 			return;
 		}
-		$res['terms'] = $providers['terms'] ?? '';
+		$res['terms'] = !empty($providers['terms']) ? $providers['terms'] : '';
 		$res['groups'] = $providers['groups'];
 
 		$provider_form_view = new View('ProviderForm');
@@ -1524,14 +1570,18 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return \CheckoutFinland\SDK\Model\Customer
 	 */
-	protected function create_customer( \WC_Order $order): Customer {
+	protected function create_customer( \WC_Order $order) {
 		$customer = new Customer();
 
-		$customer->setEmail($order->get_billing_email() ?? null)
-			->setFirstName($order->get_billing_first_name() ?? null)
-			->setLastName($order->get_billing_last_name() ?? null)
-			->setPhone($order->get_billing_phone() ?? null)
-			->setCompanyName($order->get_billing_company() ?? null);
+		if (!$order) {
+			return $customer;
+		}
+
+		$customer->setEmail($order->get_billing_email())
+			->setFirstName($order->get_billing_first_name())
+			->setLastName($order->get_billing_last_name())
+			->setPhone($order->get_billing_phone())
+			->setCompanyName($order->get_billing_company());
 
 		return $customer;
 	}
@@ -1542,7 +1592,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param integer $payment_amount Payment amount in currency minor unit, eg. cents.
 	 * @return array
 	 */
-	protected function get_payment_providers( int $payment_amount): array {
+	protected function get_payment_providers( $payment_amount) {
 		try {
 			$providers = $this->client->getPaymentProviders($payment_amount);
 		} catch (HmacException $exception) {
@@ -1555,13 +1605,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Get the groupd list of payment providers
+	 * Get the grouped list of payment providers
 	 *
 	 * @param integer $payment_amount Payment amount in currency minor unit, eg. cents.
 	 * @param string $locale
 	 * @return array
 	 */
-	protected function get_grouped_payment_providers( int $payment_amount, string $locale): array {
+	protected function get_grouped_payment_providers( $payment_amount, $locale) {
 		$groups = [];
 
 		if ($this->helper::getIsSubscriptionsEnabled()) {
@@ -1585,7 +1635,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param \Exception $exception Exception to handle.
 	 * @return array
 	 */
-	protected function get_payment_providers_error_handler( \Exception $exception): array {
+	protected function get_payment_providers_error_handler( \Exception $exception) {
 
 		// Log the error message.
 		$this->log($exception->getMessage() . $exception->getTraceAsString(), 'error');
@@ -1595,8 +1645,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			'paytrail-for-woocommerce'
 		);
 
-		// You can use this filter to modify the error message.
-		$error     = apply_filters('paytrail_provider_form_error', $error);
+		/**
+		 * You can use this filter to modify the error message.
+		 *
+		 * @since 1.0
+		 */
+		$error = apply_filters('paytrail_provider_form_error', $error);
 		return [
 			'error' => $error,
 		];
@@ -1607,10 +1661,14 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @param \WC_Order $order The order to create the address object from.
 	 * @param string    $type  Whether we are creating an invoicing or a delivery address.
-	 * @return Address
+	 * @return Address|null
 	 */
-	protected function create_address( \WC_Order $order, string $type = 'invoicing'): ?Address {
+	protected function create_address( \WC_Order $order, $type = 'invoicing') {
 		$address = new Address();
+
+		if (!$order) {
+			return;
+		}
 
 		switch ($type) {
 			case 'delivery':
@@ -1625,11 +1683,15 @@ final class Gateway extends \WC_Payment_Gateway {
 			? null : ' ' . $order->{ 'get_' . $prefix . 'address_2' }();
 
 		// Append 2nd address line to the address field if present
-		$address->setStreetAddress(( $order->{ 'get_' . $prefix . 'address_1' }() ?? '' . $address_suffix ) ?: null)
-			->setPostalCode($order->{ 'get_' . $prefix . 'postcode' }() ?? null)
-			->setCity($order->{ 'get_' . $prefix . 'city' }() ?? null)
-			->setCounty($order->{ 'get_' . $prefix . 'state' }() ?? null)
-			->setCountry($order->{ 'get_' . $prefix . 'country' }() ?: $this->get_option('fallback_country', ''));
+		$address->setStreetAddress(( $order->{ 'get_' . $prefix . 'address_1' }() . $address_suffix ))
+			->setPostalCode($order->{ 'get_' . $prefix . 'postcode' }())
+			->setCity($order->{ 'get_' . $prefix . 'city' }())
+			->setCounty($order->{ 'get_' . $prefix . 'state' }())
+			->setCountry($order->{ 'get_' . $prefix . 'country' }());
+
+		if (empty($address->getCountry())) {
+			$address->setCountry($this->get_option('fallback_country', ''));
+		}
 
 		// If we have any of the listed properties, we are good to go
 		$has_values = array_filter(
@@ -1650,7 +1712,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return Item|null
 	 */
-	protected function create_item( WC_Order_Item $order_item, WC_Order $order): Item {
+	protected function create_item( WC_Order_Item $order_item, WC_Order $order) {
 		$item = new Item();
 
 		// Get the item total with taxes and without rounding.
@@ -1663,7 +1725,6 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$item->setVatPercentage($tax_rate)
 			->setProductCode($this->get_item_product_code($order_item))
-			->setDeliveryDate(apply_filters('paytrail_delivery_date', date('Y-m-d')))
 			->setDescription($this->get_item_description($order_item))
 			->setStamp((string) $order_item->get_id());
 
@@ -1677,11 +1738,11 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return string
 	 */
-	protected function get_item_product_code( WC_Order_Item $item): string {
+	protected function get_item_product_code( WC_Order_Item $item) {
 		$product_code = '';
 		switch (get_class($item)) {
 			case WC_Order_Item_Product::class:
-				$product_code = $item->get_product()->get_sku() ?: $item->get_product()->get_id();
+				$product_code = !empty($item->get_product()->get_sku()) ? $item->get_product()->get_sku() : $item->get_product()->get_id();
 				break;
 			case WC_Order_Item_Fee::class:
 				$product_code = __('fee', 'paytrail-for-woocommerce');
@@ -1691,6 +1752,12 @@ final class Gateway extends \WC_Payment_Gateway {
 				$product_code = __('shipping', 'paytrail-for-woocommerce');
 				break;
 		}
+
+		/**
+		 * Return item product code
+		 *
+		 * @since 1.0
+		 */
 		return apply_filters('paytrail_item_product_code', $product_code, $item);
 	}
 
@@ -1701,7 +1768,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return string
 	 */
-	protected function get_item_description( WC_Order_Item $item): string {
+	protected function get_item_description( WC_Order_Item $item) {
 		switch (get_class($item)) {
 			case WC_Order_Item_Product::class:
 				$description = $item->get_product()->get_name() ?: $item->get_product()->get_id();
@@ -1714,6 +1781,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		// Ensure the description is maximum of 1000 characters long.
 		$description = mb_substr($description, 0, 1000);
 
+		/**
+		 * Return item description
+		 *
+		 * @since 1.0
+		 */
 		return apply_filters('paytrail_item_description', $description, $item);
 	}
 
@@ -1731,7 +1803,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$tax_total = $total_with_tax - $total_without_tax;
 
 		// Not taxes set.
-		if ($tax_total == 0.0 || $total_without_tax == 0.0 || $total_with_tax == 0.0) {
+		if (0.0 == $tax_total || 0.0 == $total_without_tax || 0.0 == $total_with_tax) {
 			return 0;
 		}
 		$tax_rate = round(( $tax_total / $total_without_tax ) * 100);
@@ -1745,7 +1817,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param \WC_Order $order The order object.
 	 * @return CallbackUrl
 	 */
-	protected function create_redirect_url( \WC_Order $order): CallbackUrl {
+	protected function create_redirect_url( \WC_Order $order) {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess($this->get_return_url($order));
@@ -1759,7 +1831,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return CallbackUrl
 	 */
-	protected function create_callback_url(): CallbackUrl {
+	protected function create_callback_url() {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess(Router::get_url(Plugin::CALLBACK_URL, 'index'));
@@ -1775,7 +1847,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param array $query_vars Query vars from WC_Order_Query.
 	 * @return array
 	 */
-	public function handle_custom_searches( array $query, array $query_vars): array {
+	public function handle_custom_searches( $query, $query_vars) {
 		if (! empty($query_vars['checkout_reference'])) {
 			$query['meta_query'][] = [
 				'key'     => '_checkout_reference_' . esc_attr($query_vars['checkout_reference']),
@@ -1861,17 +1933,21 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param bool       $die       Defines if the process should be terminated.
 	 * @throws \Exception If the process is not killed, the error is passed on.
 	 */
-	protected function error( \Exception $exception, string $message, bool $die = true) {
+	protected function error( \Exception $exception, $message, $die = true) {
 		$glue = PHP_EOL . '- ';
 
 		$log_message = $message . $glue;
 
 		$this->log($log_message . PHP_EOL . $exception->getTraceAsString(), 'error');
 
-		// You can use this filter to modify the error message.
+		/**
+		 * You can use this filter to modify the error message.
+		 *
+		 * @since 1.0
+		 */
 		$error = apply_filters('paytrail_error_message', $message, $exception);
 
-		if ($die === true) {
+		if (true === $die) {
 			wp_die(esc_html($error), '', esc_html($exception->getCode()));
 		} else {
 			throw $exception;
@@ -1884,13 +1960,17 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param HmacException $exception The exception instance.
 	 * @param bool          $die       Defines if the process should be terminated.
 	 */
-	protected function signature_error( HmacException $exception, bool $die = true) {
+	protected function signature_error( HmacException $exception, $die = true) {
 		$message = __(
 			'An error occurred validating the signature.',
 			'paytrail-for-woocommerce'
 		);
 
-		// You can use this filter to modify the error message.
+		/**
+		 * You can use this filter to modify the error message.
+		 *
+		 * @since 1.0
+		 */
 		$message = apply_filters('paytrail_signature_error', $message, $exception);
 
 		$this->error($exception, $message, $die);
