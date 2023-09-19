@@ -8,94 +8,88 @@ namespace Paytrail\WooCommercePaymentGateway;
 use Exception;
 use LogicException;
 
-class Helper
-{
-    /**
-     * @return bool
-     */
-    public static function getIsSubscriptionsEnabled()
-    {
-        if (!class_exists('WC_Subscriptions_Cart')) {
-            return false;
-        }
-        if (!class_exists('WC_Subscriptions_Change_Payment_Gateway')) {
-            return false;
-        }
-        if (!function_exists('wcs_cart_contains_renewal')) {
-            return false;
-        }
-        if (class_exists('\WC_Subscriptions_Admin') ){
-            $accept_manual_renewals = ( 'no' !== get_option( \WC_Subscriptions_Admin::$option_prefix . '_accept_manual_renewals', 'no' ) );
-            if ($accept_manual_renewals == true){
-                return false;
-            }
-        }
+class Helper {
 
-        return (
-            \WC_Subscriptions_Cart::cart_contains_subscription() ||
-            wcs_cart_contains_renewal() ||
-            filter_input(INPUT_GET, 'change_payment_method')
-        );
-    }
+	/**
+	 * Check is subscriptions enabled
+	 *
+	 * @return bool
+	 */
+	public static function getIsSubscriptionsEnabled() {
+		if (!class_exists('WC_Subscriptions_Cart')) {
+			return false;
+		}
+		if (!class_exists('WC_Subscriptions_Change_Payment_Gateway')) {
+			return false;
+		}
+		if (!function_exists('wcs_cart_contains_renewal')) {
+			return false;
+		}
+		if (class_exists('\WC_Subscriptions_Admin')) {
+			$accept_manual_renewals = ( 'no' !== get_option(\WC_Subscriptions_Admin::$option_prefix . '_accept_manual_renewals', 'no') );
+			if (true == $accept_manual_renewals) {
+				return false;
+			}
+		}
 
-    /**
-     * @return mixed
-     */
-    public static function getIsChangeSubscriptionPaymentMethod()
-    {
-        return filter_input(INPUT_GET, 'change_payment_method');
-    }
+		return (
+			\WC_Subscriptions_Cart::cart_contains_subscription() ||
+			wcs_cart_contains_renewal() ||
+			filter_input(INPUT_GET, 'change_payment_method')
+		);
+	}
 
-    /**
-     * Currency specific formattings
-     *
-     * @param int|double $sum The sum to format.
-     * @return integer
-     */
-    public function handle_currency($sum): int
-    {
-        $currency = \get_woocommerce_currency();
+	public static function getIsChangeSubscriptionPaymentMethod() {
+		return filter_input(INPUT_GET, 'change_payment_method');
+	}
 
-        switch ($currency) {
-            default:
-                $sum = round($sum * 100);
-                break;
-        }
+	/**
+	 * Currency specific formattings
+	 *
+	 * @param int|double $sum The sum to format.
+	 * @return integer
+	 */
+	public function handle_currency( $sum) {
+		$currency = \get_woocommerce_currency();
 
-        return $sum;
-    }
+		switch ($currency) {
+			default:
+				$sum = round($sum * 100);
+				break;
+		}
 
-    /**
-     * Get current WooCommerce cart total.
-     *
-     * @return integer
-     */
-    public function get_cart_total(): int
-    {
-        $sum = WC()->cart->total;
+		return $sum;
+	}
 
-        return $this->handle_currency($sum);
-    }
+	/**
+	 * Get current WooCommerce cart total.
+	 *
+	 * @return integer
+	 */
+	public function get_cart_total() {
+		$sum = WC()->cart->total;
 
-    public static function getLocale(): string
-    {
-        $full_locale = get_locale();
+		return $this->handle_currency($sum);
+	}
 
-        $short_locale = substr( $full_locale, 0, 2 );
+	public static function getLocale() {
+		$full_locale = get_locale();
 
-        // Get and assign the WordPress locale
-        switch ( $short_locale ) {
-            case 'sv':
-                $locale = 'SV';
-                break;
-            case 'fi':
-                $locale = 'FI';
-                break;
-            default:
-                $locale = 'EN';
-                break;
-        }
-        return $locale;
-    }
+		$short_locale = substr($full_locale, 0, 2);
+
+		// Get and assign the WordPress locale
+		switch ($short_locale) {
+			case 'sv':
+				$locale = 'SV';
+				break;
+			case 'fi':
+				$locale = 'FI';
+				break;
+			default:
+				$locale = 'EN';
+				break;
+		}
+		return $locale;
+	}
 
 }

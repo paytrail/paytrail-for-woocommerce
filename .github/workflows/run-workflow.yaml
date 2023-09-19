@@ -1,0 +1,26 @@
+name: Run Checks
+
+on:
+  - push
+  - pull_request
+  - fork
+
+jobs:
+  run-checks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate Composer Files
+        run: composer validate --strict
+
+      - name: Run composer install
+        uses: php-actions/composer@v6
+        with:
+          php_version: 7.3
+
+      - name: Run linter
+        run: composer lint
