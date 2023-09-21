@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.2
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -56,6 +56,7 @@ The plugin supports card tokenization that enables logged-in customers to save c
 
 = B2C/B2B Invoices & Instalments =
 
+* Alisa Yrityslasku (B2B invoice)
 * OP Osta laskulla
 * OP Lasku
 * Walley (Collector Bank)
@@ -77,6 +78,9 @@ Follow these easy steps to install the plugin:
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
 
 == Changelog ==
+
+= 1.3.4 =
+- Added WP code linter tests
 
 = 1.3.3 =
 - Added update status to canceled on each error case when handling refunds
