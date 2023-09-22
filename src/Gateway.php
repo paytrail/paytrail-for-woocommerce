@@ -1237,7 +1237,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		 * @since 1.0
 		 */
 		$order_items = apply_filters('woocommerce_paytrail_gateway_get_order_items', $order->get_items([ 'line_item', 'fee', 'shipping' ]), $order);
-		$order_total = $this->helper->handle_currency($order->get_total());
+		$order_total = intval($this->helper->handle_currency($order->get_total()));
 
 		// Convert items to SDK Item objects.
 		$items = array_map(
@@ -1247,11 +1247,11 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order_items
 		);
 
-		$sub_sum = array_sum(array_map(function ( Item $item) {
+		$sub_sum = intval(array_sum(array_map(function ( Item $item) {
 			return ( $item->getUnitPrice() * $item->getUnits() );
-		}, $items));
+		}, $items)));
 
-		if ($sub_sum !== $order_total) {
+		if ($sub_sum != $order_total) {
 			$diff = absint($sub_sum - $order_total);
 
 			$rounding_item = new Item();
