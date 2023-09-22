@@ -1247,11 +1247,11 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order_items
 		);
 
-		$sub_sum = array_sum(array_map(function ( Item $item) {
+		$sub_sum = intval(array_sum(array_map(function ( Item $item) {
 			return ( $item->getUnitPrice() * $item->getUnits() );
-		}, $items));
+		}, $items)));
 
-		if ($sub_sum !== $order_total) {
+		if ($sub_sum != $order_total) {
 			$diff = absint($sub_sum - $order_total);
 
 			$rounding_item = new Item();
