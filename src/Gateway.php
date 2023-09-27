@@ -1251,13 +1251,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			return ( $item->getUnitPrice() * $item->getUnits() );
 		}, $items)));
 
-		if ($sub_sum != $order_total) {
-			$diff = absint($sub_sum - $order_total);
-
+		$diff = abs($sub_sum - $order_total);
+		if ($diff > 0) {
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
-			$rounding_item->setUnits(( $order_total - $sub_sum > 0 ) ? 1 : -1);
+			$rounding_item->setUnits(1);
 			$rounding_item->setUnitPrice($diff);
 			$rounding_item->setProductCode('rounding-row');
 
