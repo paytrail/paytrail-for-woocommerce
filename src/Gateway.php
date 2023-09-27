@@ -1251,7 +1251,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			return ( $item->getUnitPrice() * $item->getUnits() );
 		}, $items)));
 
-		$diff = abs($sub_sum - $order_total);
+		$diff = $order_total - $sub_sum;
 		if ($diff > 0) {
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
@@ -1261,6 +1261,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
+		} elseif ($diff < 0) {
+			// Add rounding error to last item price if sub sum is too high.
+			$lastItemKey = array_key_last($items);
+			$lastItem = $items[$lastItemKey];
+			$lastItem->setUnitPrice($lastItem->getUnitPrice() -1);
+			$items[$lastItemKey] = $lastItem;
 		}
 
 		return $items;
