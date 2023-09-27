@@ -1262,14 +1262,27 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$items[] = $rounding_item;
 		} elseif ($diff < 0) {
-			// Add rounding error to last item price if sub sum is too high.
-			$lastItemKey = array_key_last($items);
+			// Add rounding error to last not zero price item if sub sum is too high.
+			$lastItemKey = $this->getLastNonZeroItem($items, $diff);
 			$lastItem = $items[$lastItemKey];
-			$lastItem->setUnitPrice($lastItem->getUnitPrice() -1);
+			$lastItem->setUnitPrice($lastItem->getUnitPrice() - $diff);
 			$items[$lastItemKey] = $lastItem;
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Loop items from back and find first (last) non zero item to subtract difference.
+	 */
+	private function getLastNonZeroItem( $items, $diff ) {
+		$reversedItems = array_reverse($items);
+		foreach ($reversedItems as $key => $item) {
+			if (( $item->getUnitPrice() - $diff ) > 0) {
+				// Return on first non zero item
+				return $key;
+			}
+		}
 	}
 
 	/**
