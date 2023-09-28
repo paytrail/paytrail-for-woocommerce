@@ -471,12 +471,25 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$html .= '</ul>';
 
+		$kses_arr = [
+			'li' => ['class' => []],
+			'label' => ['for' => []],
+			'input' => [
+				'id' => [],
+				'type' => [],
+				'name' => [],
+				'class' => []
+			],
+			'div' => ['class' => []],
+			'ul' => ['class' => []]
+		];
+
 		/**
 		 * Show payment methods
 		 *
 		 * @since 1.0
 		 */
-		echo wp_kses_post(apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this));
+		echo wp_kses(apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this), $kses_arr);
 	}
 
 	/**
