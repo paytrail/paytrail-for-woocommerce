@@ -471,12 +471,25 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$html .= '</ul>';
 
+		$kses_arr = [
+			'li' => ['class' => []],
+			'label' => ['for' => []],
+			'input' => [
+				'id' => [],
+				'type' => [],
+				'name' => [],
+				'class' => []
+			],
+			'div' => ['class' => []],
+			'ul' => ['class' => []]
+		];
+
 		/**
 		 * Show payment methods
 		 *
 		 * @since 1.0
 		 */
-		echo esc_html(apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this)); // @codingStandardsIgnoreLine
+		echo wp_kses(apply_filters('wc_payment_gateway_form_saved_payment_methods_html', $html, $this), $kses_arr);
 	}
 
 	/**
@@ -1251,20 +1264,38 @@ final class Gateway extends \WC_Payment_Gateway {
 			return ( $item->getUnitPrice() * $item->getUnits() );
 		}, $items)));
 
-		if ($sub_sum != $order_total) {
-			$diff = absint($sub_sum - $order_total);
-
+		$diff = $order_total - $sub_sum;
+		if ($diff > 0) {
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
-			$rounding_item->setUnits(( $order_total - $sub_sum > 0 ) ? 1 : -1);
+			$rounding_item->setUnits(1);
 			$rounding_item->setUnitPrice($diff);
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
+		} elseif ($diff < 0) {
+			// Add rounding error to last not zero price item if sub sum is too high.
+			$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
+			$lastItem = $items[$lastItemKey];
+			$lastItem->setUnitPrice($lastItem->getUnitPrice() - $diff);
+			$items[$lastItemKey] = $lastItem;
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Loop items from back and find first (last) non zero item to subtract difference.
+	 */
+	private function getLastNonZeroItemKey( $items, $diff ) {
+		$reversedItems = array_reverse($items);
+		foreach ($reversedItems as $key => $item) {
+			if (( $item->getUnitPrice() - $diff ) > 0) {
+				// Return on first non zero item
+				return $key;
+			}
+		}
 	}
 
 	/**

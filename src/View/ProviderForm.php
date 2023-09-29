@@ -46,22 +46,18 @@ array_walk($data['groups'], function ( $group) {
 		// Styles for group icons
 		$group_id =  $group['id'];
 		$group_icon = $group['icon'];
-		if (0 === $key) {
-
-			echo esc_html(
-			<<<EOL
-			.payment_method_paytrail .paytrail-provider-group-title.$group_id i {
-				background: url($group_icon) no-repeat;
+		if (0 === $key) { ?>
+			.payment_method_paytrail .paytrail-provider-group-title.<?php echo esc_html($group_id); ?> i {
+				background: url(<?php echo esc_html($group_icon); ?>) no-repeat;
 				background-size: 28px 28px;
 				background-position-y: center;
 			}
-			.payment_method_paytrail .paytrail-provider-group.selected .paytrail-provider-group-title.$group_id i {
-				background: url($group_icon) no-repeat;
+			.payment_method_paytrail .paytrail-provider-group.selected .paytrail-provider-group-title.<?php echo esc_html($group_id); ?> i {
+				background: url(<?php echo esc_html($group_icon); ?>) no-repeat;
 				background-size: 28px 28px;
 				background-position-y: center;
 			}
-EOL
-);
+			<?php
 		}
 
 	}
