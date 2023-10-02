@@ -50,7 +50,7 @@ class Helper {
 	 * @return integer
 	 */
 	public function handle_currency( $sum) {
-		return intval(bcmul($sum, 10));
+		return intval(bcmul($sum, '100'));
 	}
 
 	/**
