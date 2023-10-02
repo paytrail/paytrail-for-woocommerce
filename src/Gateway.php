@@ -1272,7 +1272,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
 			$rounding_item->setUnits(1);
-			$rounding_item->setUnitPrice($diff);
+			$rounding_item->setUnitPrice(abs($diff));
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
@@ -1298,7 +1298,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
 			$rounding_item->setUnits(1);
-			$rounding_item->setUnitPrice($difference);
+			$rounding_item->setUnitPrice(abs($difference));
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
