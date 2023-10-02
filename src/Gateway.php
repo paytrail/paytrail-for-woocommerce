@@ -1312,7 +1312,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	private function getLastNonZeroItemKey( $items, $diff ) {
 		foreach ($items as $key => $item) {
-			if (( $item->getUnitPrice() - $diff ) > 0) {
+			if (( $item->getUnitPrice() + $diff ) > 0) {
 				// Return on first non zero item
 				return $key;
 			}
