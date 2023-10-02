@@ -1277,13 +1277,13 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$items[] = $rounding_item;
 		} elseif ($diff > 0) {
-			$items = $this->fixRoundingError($items, $diff);
+			$items = $this->fix_rounding_error($items, $diff);
 		}
 
 		return $items;
 	}
 
-	private function fixRoundingError( $items, $diff) {
+	private function fix_rounding_error( $items, $diff) {
 		// Subtract rounding error from first not zero price item if sub sum is too high.
 		$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
 		$lastItem = $items[$lastItemKey];
