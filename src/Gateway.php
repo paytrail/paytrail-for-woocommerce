@@ -1267,7 +1267,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$diff = $order_total - $sub_sum;
 
 		// If item total is negative, add positive amount for it.
-		if ($diff < 0) {
+		if ($diff > 0) {
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
@@ -1276,7 +1276,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
-		} elseif ($diff > 0) {
+		} elseif ($diff < 0) {
 			$items = $this->fix_rounding_error($items, $diff);
 		}
 
@@ -1287,7 +1287,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		// Subtract rounding error from first not zero price item if sub sum is too high.
 		$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
 		$lastItem = $items[$lastItemKey];
-		$lastItem->setUnitPrice($lastItem->getUnitPrice() - $diff);
+		$lastItem->setUnitPrice($lastItem->getUnitPrice() + $diff);
 		$items[$lastItemKey] = $lastItem;
 
 		// If item quantity is not one, there's still negative difference to fix.
