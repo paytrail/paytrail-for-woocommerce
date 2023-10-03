@@ -1265,21 +1265,43 @@ final class Gateway extends \WC_Payment_Gateway {
 		}, $items)));
 
 		$diff = $order_total - $sub_sum;
+
+		// If item total is negative, add positive amount for it.
 		if ($diff > 0) {
 			$rounding_item = new Item();
 			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
 			$rounding_item->setVatPercentage(0);
 			$rounding_item->setUnits(1);
-			$rounding_item->setUnitPrice($diff);
+			$rounding_item->setUnitPrice(abs($diff));
 			$rounding_item->setProductCode('rounding-row');
 
 			$items[] = $rounding_item;
 		} elseif ($diff < 0) {
-			// Subtract rounding error from first not zero price item if sub sum is too high.
-			$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
-			$lastItem = $items[$lastItemKey];
-			$lastItem->setUnitPrice($lastItem->getUnitPrice() - $diff);
-			$items[$lastItemKey] = $lastItem;
+			$items = $this->fix_rounding_error($items, $diff);
+		}
+
+		return $items;
+	}
+
+	private function fix_rounding_error( $items, $diff) {
+		// Subtract rounding error from first not zero price item if sub sum is too high.
+		$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
+		$lastItem = $items[$lastItemKey];
+		$lastItem->setUnitPrice($lastItem->getUnitPrice() + $diff);
+		$items[$lastItemKey] = $lastItem;
+
+		// If item quantity is not one, there's still negative difference to fix.
+		if ($lastItem->getUnits() > 1) {
+			$difference = ( $lastItem->getUnits() -1 )*$diff;
+
+			$rounding_item = new Item();
+			$rounding_item->setDescription(__('Rounding', 'paytrail-for-woocommerce'));
+			$rounding_item->setVatPercentage(0);
+			$rounding_item->setUnits(1);
+			$rounding_item->setUnitPrice(abs($difference));
+			$rounding_item->setProductCode('rounding-row');
+
+			$items[] = $rounding_item;
 		}
 
 		return $items;
@@ -1290,7 +1312,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	private function getLastNonZeroItemKey( $items, $diff ) {
 		foreach ($items as $key => $item) {
-			if (( $item->getUnitPrice() - $diff ) > 0) {
+			if (( $item->getUnitPrice() + $diff ) > 0) {
 				// Return on first non zero item
 				return $key;
 			}

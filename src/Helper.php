@@ -50,15 +50,7 @@ class Helper {
 	 * @return integer
 	 */
 	public function handle_currency( $sum) {
-		$currency = \get_woocommerce_currency();
-
-		switch ($currency) {
-			default:
-				$sum = round($sum * 100);
-				break;
-		}
-
-		return $sum;
+		return round($sum*100);
 	}
 
 	/**
