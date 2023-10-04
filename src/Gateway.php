@@ -400,8 +400,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		// @var \GuzzleHttp\Psr7\Response $response
 		$response = $this->client->createAddCardFormRequest($add_card_form_request);
 
-		if ($location == $response->getHeader('Location')) {
-			wp_redirect($location[0]);
+		if ($response->getHeader('Location')) {
+			wp_redirect($response->getHeader('Location')[0]);
 			exit;
 		}
 	}
