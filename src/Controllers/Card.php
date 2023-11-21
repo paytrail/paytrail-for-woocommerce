@@ -7,9 +7,11 @@ namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
 use Paytrail\WooCommercePaymentGateway\Gateway;
 use Paytrail\WooCommercePaymentGateway\Plugin;
+use Paytrail\WooCommercePaymentGateway\Exception;
 use WC_Payment_Tokens;
 use WP_Error;
 use WP_HTTP_Response;
+use WP_REST_Request;
 
 class Card extends AbstractController {
 
@@ -70,7 +72,8 @@ class Card extends AbstractController {
 		if (empty($_SERVER['REQUEST_METHOD'])) {
 			return;
 		}
-		if ( WP_REST_Request::get_method() != 'POST' ) {
+		$request = new WP_REST_Request();
+		if ( $request->get_method() != 'POST' ) {
 			throw new Exception('Only POST requests are allowed');
 		}
 		$content_type = WP_REST_Request::get_content_type();

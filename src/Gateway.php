@@ -478,6 +478,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'id' => [],
 				'type' => [],
 				'name' => [],
+				'value'=> [],
 				'class' => []
 			],
 			'div' => ['class' => []],
@@ -501,6 +502,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function get_token_payment_option_html( $html, $token) {
 		if (Plugin::GATEWAY_ID !== $token->get_gateway_id()) {
+			error_log('Not the expected gateway ID. Returning original HTML.');
 			return $html;
 		}
 		$html = sprintf(
@@ -929,7 +931,12 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$payment = new CitPaymentRequest();
 
-			$payment->setToken($token->get_token());
+			if ($token && method_exists($token, 'get_token')) {
+				$payment->setToken($token->get_token());
+			} else {
+				$this->log('Paytrail: Token value: ' . print_r($token, true), 'debug');
+			}
+			
 		} else {
 			$this->log('Paytrail: init PaymentRequest', 'debug');
 			$payment = new PaymentRequest();
