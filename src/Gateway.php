@@ -1858,7 +1858,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	protected function get_item_tax_rate( WC_Order_Item $item, WC_Order $order) {
 		$total_without_tax     = $order->get_line_total($item, false, false);
-		$total_with_tax     = $order->get_line_total($item, true, false);
+		$total_with_tax     = $order->get_line_total($item, true, true);
 		$tax_total = $total_with_tax - $total_without_tax;
 
 		// Not taxes set.
