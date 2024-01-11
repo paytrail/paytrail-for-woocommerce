@@ -1023,6 +1023,23 @@ final class Gateway extends \WC_Payment_Gateway {
 			// Log the error message if debug log is enabled.
 			$this->log($exception->getMessage() . $exception->getTraceAsString(), 'error');
 			new \WP_Error($exception->getCode(), $exception->getMessage());
+
+			//Add error messages to be displayed to the user by Woocommerce
+			$exceptionError = $exception->getMessage();
+			$jsonData = json_decode($exceptionError, true);
+
+			//The API may return JSON data in the message rather than plain string
+			if ($jsonData && isset($jsonData['message'])) {
+				wc_add_notice ($jsonData['message'], 'error');
+				//The API can return multiple error messages so add each of these messages
+				if (isset($jsonData['meta']) && is_array($jsonData['meta'])) {
+					foreach ($jsonData['meta'] as $meta) {
+						wc_add_notice ($meta, 'error');
+					}
+				}
+			} else {
+				wc_add_notice (ucwords($exceptionError), 'error');
+			}
 		}
 
 		if (!isset($response) || null === $response) {
