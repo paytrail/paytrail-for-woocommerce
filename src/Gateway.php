@@ -573,6 +573,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$refund_unique_id = filter_input(INPUT_GET, 'refund_unique_id');
 		$order_id         = filter_input(INPUT_GET, 'order_id');
 		$reference        = filter_input(INPUT_GET, 'checkout-reference');
+		$cancel_order     = filter_input(INPUT_GET, 'cancel_order');
+		$pay_for_order    = filter_input(INPUT_GET, 'pay_for_order');
 
 		if (!$status && !$reference && !$refund_callback && !$refund_unique_id) {
 			//no log to reduce number of log entries
@@ -586,6 +588,25 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		if (!$status && $reference && !$refund_callback && !$refund_unique_id) {
 			$this->log('Paytrail: check_paytrail_response, no status found for reference ' . $reference, 'debug');
+			return;
+		}
+
+		if ($cancel_order) {
+			//Do not attempt to process further. Woo Commerce will cancel the order
+			$this->log('Paytrail: check_paytrail_response, cancel_order is true. Order will be cancelled. Reference: ' . $reference, 'debug');
+			return;
+		}
+
+		if ($pay_for_order) {
+			//Do not attempt to process further, the customer will be shown a page to choose payment methods
+			wc_clear_notices();
+			$message = __(
+				'Payment failed or was cancelled. Please try again',
+				'paytrail-for-woocommerce'
+			);
+
+			wc_add_notice( $message, 'notice');
+			$this->log('Paytrail: check_paytrail_response, pay_for_order is true. Payment page will be shown. Reference: ' . $reference, 'debug');
 			return;
 		}
 
@@ -1904,8 +1925,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess($this->get_return_url($order));
-		$callback->setCancel($order->get_cancel_order_url_raw());
-
+		//Customers choosing cancel option will be shown a payment page to allow re-attempt to pay
+		$callback->setCancel($order->get_checkout_payment_url());
 		return $callback;
 	}
 
