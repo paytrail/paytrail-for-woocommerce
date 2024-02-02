@@ -1618,7 +1618,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		if ($refunds) {
 			array_walk(
 				$refunds,
-				function ($refund) {
+				function ( $refund) {
 					$meta = $refund->get_meta('_checkout_refund_processing');
 					if ($meta) {
 						echo '<style>';
