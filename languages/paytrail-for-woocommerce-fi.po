@@ -406,3 +406,87 @@ msgstr ""
 #. Author URI of the plugin
 msgid "https://www.paytrail.com/"
 msgstr ""
+
+#: src/Gateway.php
+msgid "Get started with Paytrail"
+msgstr "Aloita Paytrailin käyttö"
+
+#: src/Gateway.php
+msgid "To start accepting payments with Paytrail, you need an account."
+msgstr "Tarvitset tilin ottaaksesi vastaan maksuja Paytraililla."
+
+#: src/Gateway.php
+msgid "I need an account"
+msgstr "Minulla ei ole vielä tiliä"
+
+#: src/Gateway.php
+msgid "You can start our fast on-boarding process by clicking the register button"
+msgstr "Voit aloittaa palveluumma rekisteröitymisen painamalla Luo tili -nappia"
+
+#: src/Gateway.php
+msgid "Register now"
+msgstr "Luo tili"
+
+#: src/Gateway.php
+msgid "Or <a href="%s" target="_blank">contact sales</a>"
+msgstr "Tai ota yhteyttä <a href="%s" target="_blank">myyntiin</a>"
+
+#: src/Gateway.php
+msgid "I already have an account"
+msgstr "Minulla on jo tili"
+
+#: src/Gateway.php
+msgid "Add credentials"
+msgstr "Lähetä"
+
+#: src/Gateway.php
+msgid "Credentials can be found in the <a href="%s" target="_blank">merchant panel</a>"
+msgstr "Tunnukset löytyvät <a href="%s" target="_blank">kauppiaspaneelista</a>"
+
+#: src/Gateway.php
+msgid "<b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>"
+msgstr "<b>Tarvitsetko apua?</b> Älä epäröi ottaa yhteyttä <a href="%s" target="_blank" style="color:#fff;">asiakaspalveluumme!</a>"
+
+#. src/Gateway.php
+msgid "I just want to try it"
+msgstr "Haluan vain kokeilla"
+
+#. src/Gateway.php
+msgid "Activate the test mode and try out the test credentials for various payment methods from our API documentation"
+msgstr "Aktivoi testitila ja kokaile maksupalveluiden testitunnuksia, jotka löytyvät API-dokumentaatiostamme"
+
+#. src/Gateway.php
+msgid "First Name"
+msgstr "Etunimi"
+
+#. src/Gateway.php
+msgid "Last Name:"
+msgstr "Sukunimi:"
+
+#. src/Gateway.php
+msgid "Phone:"
+msgstr "Puhelin:"
+
+#. src/Gateway.php
+msgid "Site URL:"
+msgstr "Sivuston URL"
+
+#. src/Gateway.php
+msgid "Company Name:"
+msgstr "Yrityksen nimi:"
+
+#. src/Gateway.php
+msgid "Shop Address:"
+msgstr "Kaupan osoite:"
+
+#. src/Gateway.php
+msgid "Shop City:"
+msgstr "Kaupunki:"
+
+#. src/Gateway.php
+msgid "Shop Postcode:"
+msgstr "Postikoodi:"
+
+#. src/Gateway.php
+msgid "Close"
+msgstr "Sulje"

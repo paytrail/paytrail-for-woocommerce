@@ -202,7 +202,178 @@ final class Gateway extends \WC_Payment_Gateway {
 		add_filter('woocommerce_admin_order_items_after_refunds', [ $this, 'refund_items' ], 10, 1);
 		add_filter('woocommerce_order_data_store_cpt_get_orders_query', [ $this, 'handle_custom_searches' ], 10, 2);
 		add_filter('woocommerce_payment_gateway_get_saved_payment_method_option_html', [ $this, 'get_token_payment_option_html' ], 10, 2);
+
+		add_action('admin_footer', [$this, 'display_user_data_form']);
+		add_action('admin_notices', [$this, 'admin_notices']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
 	}
+
+/**
+     * Display the user_data_form as an overlay
+     */
+    public function display_user_data_form() {
+		$merchant_id = $this->get_option('merchant_id');
+
+		$current_screen = get_current_screen();
+		$is_paytrail_settings_page = (
+			!$test_mode_enabled &&
+			$current_screen && $current_screen->id === 'woocommerce_page_wc-settings' &&
+			isset($_GET['tab']) && $_GET['tab'] === 'checkout' &&
+			isset($_GET['section']) && $_GET['section'] === 'paytrail'
+		);
+		// Check if merchant_id is already submitted
+		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
+			return;
+		}
+
+		if ($is_paytrail_settings_page) {
+		?>
+		<div id="paytrail-overlay-container">
+			<div class="paytrail-intro-container">
+				<div class="paytrail-intro-header">
+					<div style="padding:25px;">
+						<div class="paytrail-intro-logo-container">
+						<img style="max-width:100px" src="https://www.paytrail.com/hubfs/images/Banners_and_logos/logo-white.svg"/>
+						</div>
+						<div class="paytrail-intro-title-container">
+							<h2><?php esc_html_e('Get started with Paytrail', 'paytrail-for-woocommerce'); ?></h2>
+							<p><?php esc_html_e('To start accepting payments with Paytrail, you need an account.', 'paytrail-for-woocommerce'); ?></p>
+						</div>
+					</div>
+				</div>
+				<div style="width:calc(50% - 2px);background-color:#fff;;border:1px solid #D92D83;">
+					<div style="padding:25px 90px;text-align:center;">
+						<h3 style="font-size:20px;"><?php esc_html_e('I need an account', 'paytrail-for-woocommerce'); ?></h3>
+						<p style="font-size:15px;line-height:1.2;"><?php esc_html_e('You can start our fast on-boarding process by clicking the register button', 'paytrail-for-woocommerce'); ?></p>
+						<button class="modern-button" id="open-lightbox"><?php esc_html_e('Register now', 'paytrail-for-woocommerce'); ?></button>
+						<?php
+						$sales_link = 'https://www.paytrail.com/en/contact-us';
+						?>
+						<p style="font-size:15px;">
+							<?php echo sprintf(__('Or <a href="%s" target="_blank">contact sales</a>'), esc_html($sales_link)); ?>
+						</p>
+					</div>
+				</div>
+				<div style="width:calc(50% - 2px);background-color:#F3C0D9;border:1px solid #D92D83;align-items:center;display:flex;">
+						<div style="padding:25px 90px;text-align:center;">
+							<h3 style="font-size:20px;"><?php esc_html_e('I already have an account', 'paytrail-for-woocommerce'); ?></h3>
+							<button class="modern-button" id="credentials"><?php esc_html_e('Add credentials', 'paytrail-for-woocommerce'); ?></button>
+							<?php
+							$merchant_link = 'https://merchant.paytrail.com/';
+							?>
+							<p style="font-size:15px;">
+								<?php echo sprintf(__('Credentials can be found in the <a href="%s" target="_blank">merchant panel</a>'), esc_html($merchant_link)); ?>
+							</p>
+						</div>
+				</div>
+				<div classs="paytrail-intro-support" style="display:flex;align-items: center;justify-content:center;width:100%;background-color:#D92D83;">
+				<?php
+				$customer_service_link = 'https://www.paytrail.com/en/customer-service#merchants/';
+				?>
+				<h2 style="font-weight:300;color:#fff;">
+				<?php echo sprintf(__('<b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>'), esc_html($customer_service_link)); ?>
+				</h2>
+				</div>
+				<div classs="paytrail-intro-footer" style="display:flex;align-items: center;justify-content:center;padding-top:25px;padding-bottom:25px;width:calc(100% - 2px);background-color:#fff;;border:1px solid #D92D83;">
+					<div style="display:inline-block;width:24%;text-align:center;font-size:0px;">
+						<p style="font-weight:bold;font-size:15px;margin-bottom:0px;margin-top:0px;"><?php esc_html_e('I just want to try it', 'paytrail-for-woocommerce'); ?></p>
+					</div><div style="display:inline-block;width:50%;font-size:0px;">
+						<p style="font-size:14px;"><?php esc_html_e('Activate the test mode and try out the test credentials for various payment methods from our API documentation', 'paytrail-for-woocommerce'); ?></p>
+					</div><div style="display:inline-block;width:25%;font-size:0px;text-align:center">
+						<button class="modern-button gray" id="test-mode-button"><?php esc_html_e('Test mode', 'paytrail-for-woocommerce'); ?></button>
+					</div>
+				</div>
+			</div>
+		</div>
+        <?php
+		}
+        $this->user_data_form(); // Output the user_data_form content
+    }
+	 /**
+     * Function to display the form
+     */
+    public function user_data_form() {
+        $current_user = wp_get_current_user();
+		$user_email = $current_user->user_email;
+		$first_name = $current_user->first_name;
+		$last_name = $current_user->last_name;
+
+		if (class_exists('WooCommerce')) {
+			$wc_billing_data = get_user_meta($current_user->ID, 'billing', true);
+			$company_name = isset($wc_billing_data['company']) ? $wc_billing_data['company'] : '';
+			$phone_number = isset($wc_billing_data['phone']) ? $wc_billing_data['phone'] : '';
+
+			// Fetch shop's address using WC_Countries
+			$wc_countries = WC()->countries;
+			$shop_address = $wc_countries->get_base_address();
+			$shop_city = $wc_countries->get_base_city();
+			$shop_postcode = $wc_countries->get_base_postcode();
+		} else {
+			$company_name = '';
+			$phone_number = '';
+			$shop_address = '';
+			$shop_city = '';
+			$shop_postcode = '';
+		}
+
+	
+		$site_url = esc_url(get_site_url());
+	
+		?>
+		<div class="wrap" style="display:none">
+			<div class="paytrail-registration-container">
+				<form id="user-data-form" method="get" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+					<p>To begin the Paytrail registration process, please review the following information:</p>
+					<div class="form-columns">
+						<div class="form-column">
+							<div class="form-group">
+								<label for="firstname"><?php esc_html_e('First Name', 'paytrail-for-woocommerce'); ?>:</label>
+								<input type="text" name="firstname" id="firstname" value="<?php echo esc_attr($first_name); ?>" placeholder="First Name">
+							</div>
+							<div class="form-group">
+								<label for="lastname"><?php esc_html_e('Last Name:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="lastname" id="lastname" value="<?php echo esc_attr($last_name); ?>" placeholder="Last Name">
+							</div>
+							<div class="form-group">
+								<label for="email"><?php esc_html_e('Email:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="email" id="email" value="<?php echo esc_attr($user_email); ?>" placeholder="Email">
+							</div>
+							<div class="form-group">
+								<label for="puhelinnumero"><?php esc_html_e('Phone:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="puhelinnumero" id="puhelinnumero" value="<?php echo esc_attr($phone_number); ?>" placeholder="Phone number">
+							</div>
+						</div>
+						<div class="form-column">
+							<div class="form-group">
+								<label for="verkkokaupan_www_osoite"><?php esc_html_e('Site URL:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="verkkokaupan_www_osoite" id="verkkokaupan_www_osoite" value="<?php echo esc_attr($site_url); ?>" placeholder="Site URL">
+							</div>
+							<div class="form-group">
+								<label for="company"><?php esc_html_e('Company Name:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="company" id="company" value="<?php echo esc_attr($company_name); ?>" placeholder="Company Name">
+							</div>
+							<div class="form-group">
+								<label for="address"><?php esc_html_e('Shop Address:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="address" id="address" value="<?php echo esc_attr($shop_address); ?>" placeholder="Shop Address">
+							</div>
+							<div class="form-group">
+								<label for="city"><?php esc_html_e('Shop City:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="city" id="city" value="<?php echo esc_attr($shop_city); ?>" placeholder="Shop City">
+							</div>
+							<div class="form-group">
+								<label for="postinumero"><?php esc_html_e('Shop Postcode:', 'paytrail-for-woocommerce'); ?></label>
+								<input type="text" name="postinumero" id="postinumero" value="<?php echo esc_attr($shop_postcode); ?>" placeholder="Shop Postcode">
+							</div>
+						</div>
+					</div>
+					<input type="submit" style=" background-color: #D92D83;color: #fff;border:none;padding:5px 15px;border-radius:10px;font-size:14px;;margin-right: 8px;text-transform:uppercase;font-weight: bold;" class="button-primary" value="Submit">
+				</form>
+				<button id="close-lightbox"><?php esc_html_e('Close', 'paytrail-for-woocommerce'); ?></button>
+			</div>
+		</div> 
+		<?php
+    }
 
 	/**
 	 * Returns the payment method description string.
@@ -224,6 +395,12 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	protected function set_form_fields() {
+		$merchant_id_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+    	$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+		$enable_test_mode_disabled = (
+			!empty($this->get_option('merchant_id')) ||
+			!empty($this->get_option('secret_key'))
+		);
 		$this->form_fields = [
 			// Whether the payment gateway is enabled.
 			'enabled'     => [
@@ -231,13 +408,6 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type'    => 'checkbox',
 				'label'   => __('Enable Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
 				'default' => 'yes',
-			],
-			// Whether test mode is enabled
-			'testmode'    => [
-				'title'   => __('Test mode', 'paytrail-for-woocommerce'),
-				'type'    => 'checkbox',
-				'label'   => __('Enable test mode', 'paytrail-for-woocommerce'),
-				'default' => 'no',
 			],
 			// Whether debug mode is enabled
 			'debug'       => [
@@ -281,18 +451,29 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'yes',
 				'description' => __('Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce'),
 			],
+			// Whether test mode is enabled
+			'enable_test_mode' => [
+				'title'       => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'type'        => 'checkbox',
+				'label'       => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'default'     => 'no',
+				'description' => __('Enable test mode to process payments in the test environment.', 'paytrail-for-woocommerce'),
+				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
+			],
 			// Paytrail credentials
 			'merchant_id' => [
 				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
 				'type'    => 'text',
 				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
 				'default' => '',
+				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked
 			],
 			'secret_key'  => [
 				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
 				'type'    => 'password',
 				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
 				'default' => '',
+				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
 			],
 			'fallback_country'  => [
 				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
@@ -332,6 +513,34 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		return $saved;
 	}
+
+	/**
+	 * Display a notice when test mode is enabled.
+	 */
+	public function display_test_mode_notice() {
+		// Check if test mode is enabled
+		$test_mode_enabled = $this->get_option('enable_test_mode', 'no') === 'yes';
+
+		// Check if the notice should be displayed
+		if ($test_mode_enabled) {
+			?>
+			<div class="notice notice-warning">
+				<p><?php
+					_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
+					echo ' ' . sprintf(__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'), '<a href="https://www.paytrail.com/en/get-started" target="_blank">' . __('here', 'paytrail-for-woocommerce') . '</a>');
+				?></p>
+        	</div>
+			<?php
+		}
+	}
+
+	/**
+	 * Callback to display the notice on the admin page.
+	 */
+	public function admin_notices() {
+		$this->display_test_mode_notice();
+	}
+
 
 	/**
 	 * Receipt page to redirect user forward.
@@ -1932,25 +2141,53 @@ final class Gateway extends \WC_Payment_Gateway {
 		return $query;
 	}
 
+	public function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+	
+		// Check if the current screen is the WooCommerce settings page
+		if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
+			// Enqueue the introScripts only on the WooCommerce settings page
+			wp_enqueue_script('introScripts');
+		}
+	}
+	public function enqueue_admin_styles() {
+        $screen = get_current_screen();
+        
+        // Check if the current screen is the WooCommerce settings page
+        if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
+            // Enqueue the style 'paytrail-woocommerce-payment-fields'
+            wp_enqueue_style('introStyles');
+        }
+    }
+
 	/**
-	 * Register payment fields scripts
+	 * Register scripts for the plugin.
 	 *
 	 * @return void
 	 */
 	protected function register_scripts() {
 		$plugin_instance = Plugin::instance();
-
 		$plugin_dir_url = $plugin_instance->get_plugin_dir_url();
-
 		$plugin_version = $plugin_instance->get_plugin_info()['Version'];
 
+		// Register your existing script
 		wp_register_script(
 			'paytrail-woocommerce-payment-fields',
 			$plugin_dir_url . 'assets/dist/main.js',
 			[],
 			$plugin_version
 		);
+
+		// Register the new script for the user data form
+		wp_register_script(
+			'introScripts',
+			$plugin_dir_url . 'assets/dist/introScripts.js',
+			['jquery'], // Dependency on jQuery
+			$plugin_version,
+			true // Enqueue in the footer
+		);
 	}
+
 
 	/**
 	 * Register payment fields styles
@@ -1959,13 +2196,11 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	protected function register_styles() {
 		$plugin_instance = Plugin::instance();
-
 		$plugin_dir_url = $plugin_instance->get_plugin_dir_url();
-
 		$plugin_version = $plugin_instance->get_plugin_info()['Version'];
 
 		wp_register_style(
-			'paytrail-woocommerce-payment-fields',
+			'introStyles',
 			$plugin_dir_url . 'assets/dist/main.css',
 			[],
 			$plugin_version
