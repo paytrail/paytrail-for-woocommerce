@@ -1,5 +1,5 @@
 const webpack           = require( 'webpack' );
-const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path              = require( 'path' ); // This resolves into the absolute path of the theme root.
 const env               = process.env.NODE_ENV;
 
@@ -27,8 +27,10 @@ const sassLoader = {
 
 const config = {
     entry: {
-        main: './assets/js/main.js'
+        main: './assets/js/main.js',
+        introScripts: './assets/js/paytrail-intro-scripts.js'  // Add this line for your new file
     },
+    
     output: {
         path: path.resolve( './assets/dist' ),
         filename: '[name].js',
@@ -43,15 +45,15 @@ const config = {
     },
     plugins: [
 
-        // Extract all css into one file.
-        new ExtractTextPlugin( '[name].css', {
-            allChunks: true
-        }),
-
         // Provide jQuery instance for all modules.
         new webpack.ProvidePlugin({
             jQuery: 'jquery'
-        })
+        }),
+
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[id].css',
+          }),
     ],
     module: {
         rules: [
@@ -83,18 +85,23 @@ const config = {
             },
             {
                 test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    use: [ cssLoader, postCss ]
-                })
+                use: [
+                MiniCssExtractPlugin.loader,
+                'css-loader',
+                'postcss-loader',
+                ],
             },
             {
                 test: /\.scss$/,
                 include: [
-                    path.resolve( __dirname, 'assets/scss' )
+                    path.resolve(__dirname, 'assets/scss'),
                 ],
-                use: ExtractTextPlugin.extract({
-                    use: [ cssLoader, postCss, sassLoader ]
-                })
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    'postcss-loader',
+                    'sass-loader',
+                ],
             },
             {
                 test: /\.(woff(2)?|eot|ttf|otf)(\?[a-z0-9=\.]+)?$/,

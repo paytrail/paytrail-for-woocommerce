@@ -1,5 +1,6 @@
 // Require main style file here for concatenation.
 require( __dirname + '/../scss/payment_fields.scss' );
+require( __dirname + '/../scss/introStyles.scss' );
 const handleSize = function(elem, size) {
     if (size < 600) {
         elem.classList.remove('col-wide');

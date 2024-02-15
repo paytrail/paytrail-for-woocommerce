@@ -135,6 +135,33 @@ final class Plugin {
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
         } );
+
+        // Enqueue jQuery
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
+
+        // Enqueue jQuery UI
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery_ui'));
+    }
+
+     /**
+     * Enqueue jQuery from WordPress core
+     */
+    public function enqueue_jquery() {
+        wp_enqueue_script('jquery');
+    }
+
+    /**
+     * Enqueue jQuery UI from WordPress core
+     */
+    public function enqueue_jquery_ui() {
+        // Enqueue jQuery UI Core
+        wp_enqueue_script('jquery-ui-core');
+
+        // Enqueue jQuery UI Dialog
+        wp_enqueue_script('jquery-ui-dialog');
+
+        // Add jQuery UI styles
+        wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
     }
 
     /**
