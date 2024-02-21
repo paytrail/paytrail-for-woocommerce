@@ -9,63 +9,31 @@ Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-[Paytrail](https://www.paytrail.com) is a payment gateway that offers 20+ payment methods for Finnish customers.
+Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
 
 == Description ==
 
-[Paytrail](https://www.paytrail.com) is a payment gateway that offers 20+ payment methods for Finnish customers.
+Accept all popular payment methods for Finnish B2C and B2B customers with one agreement and one plugin. 
 
-The payment gateway provides 20+ popular payment methods for Finnish customers with one simple integration. The provided payment methods include but are not limited to credit cards, online banking and mobile payments. 
+[Paytrail](https://www.paytrail.com) provides you with:
 
-To use this extension, you need to sign up for a Paytrail account. Transaction fees will be charged for every transaction. Transaction cost may vary from merchant to merchant, based on what is agreed upon with Paytrail when negotiating your contract. For more information and to register, please visit [our website](https://www.paytrail.com) or contact [asiakaspalvelu@paytrail.com](mailto:asiakaspalvelu@paytrail.com) directly.
+* **A trusted and popular Finnish payment service with 17 years of e-commerce experience** that is supported all over Finland and many European countries. 20 000+ online businesses and services including the Finnish State Treasury ‘s Suomi.fi payment service entrust us to handle their transactions.
+* **Popular payment methods in Finland to increase conversion rates:** online banks, cards, mobile, Buy now, Pay later and PayPal. Detailed payment method information can be found on [our website](https://www.paytrail.com/en/payment-methods).
+* **Tokenization and Subscriptions.** The plugin supports card tokenization which allows customers to store their credit card information securely and reliably for later use or with the use of [WooCommerce Subscriptions](https://woocommerce.com/products/woocommerce-subscriptions/) for recurring payments.
+* **Fast, reliable payouts** that are made at the same time regardless of payment method used. 
+* **Accessible, friendly, and fast customer service.** Our customer service team replies to all requests from our customers and our customers’ customers.
+* **Reliable and compliant service** with an [uptime of 99.98%](https://status.paytrail.com/). Local and EU regulatory requirements and updates are always made on time.
+* **Easy monitoring and detailed reporting.** Track and analyze transactions, create refunds and payment links, and download detailed reports for accounting purposes.
 
-We employ the industry's best security practices and tools to maintain bank-level security for merchants and end customers. Paytrail is PCI DSS Level I and GDPR compliant. 
+To use this plugin, first [register for a Paytrail account](https://www.paytrail.com/en/order-service). 
 
-Upon checkout, customers are redirected to the Paytrail payment service. The customer enters his or her payment information directly into our secure environment so that the web shop never comes into contact with the customers payment data. Once the payment process is complete, customers will redirected back to your store. Tokenization is used to run transactions with stored payment information. No confidential card data is ever stored on your server.
-
-Supported payment methods include:
-
-= Finnish Online Banking =
-
-* OP
-* Nordea
-* Danske Bank
-* Aktia
-* Handelsbanken
-* Oma Säästöpankki
-* POP Pankki
-* S-Pankki
-* Säästöpankki
-* Ålandsbanken
-
-= Mobile Payments =
-
-* MobilePay
-* Pivo
-* Siirto
-* Apple Pay
-
-= International Credit Cards =
-
-* Visa
-* Mastercard
-* American Express
-
-The plugin supports card tokenization that enables logged-in customers to save card details during checkout process in order to reuse them in future checkouts or with [WooCommerce Subscriptions](https://woocommerce.com/products/woocommerce-subscriptions/) recurring payments.
-
-= B2C/B2B Invoices & Instalments =
-
-* OP Lasku 
-* OP Tililuotto
-* Jousto
-* Walley
-* Alisa Yrityslasku
+For pricing, please [visit our website](https://www.paytrail.com/en/pricing).
 
 == Installation ==
 
 Follow these easy steps to install the plugin:
 
-1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
+1. Install the plugin through the WordPress plugins screen directly, or upload the plugin files to the `/wp-content/plugins` directory.
 1. Activate the plugin through the 'Plugins' screen in WordPress
 1. Use the WooCommerce -> Settings -> Payments screen to configure the plugin
 
@@ -74,6 +42,17 @@ Follow these easy steps to install the plugin:
 = Where do I get the required keys to install the plugin? =
 
 Head over to our [website](https://www.paytrail.com) and register for the service to obtain the necessary keys.
+
+= How can I test Paytrail's payment service? =
+
+You can test our payment services in your online store before signing an agreement. Payments made using test credentials will not be processed.
+To test the payment service, the test credentials below should be placed in the payment settings of your e-commerce platform. Compatible platforms and links to platform-specific installation instructions are compiled on Paytrail’s [website](https://www.paytrail.com/en/compatible-platforms). If necessary, ask the technical partner of your online business for instructions. Payments to the test merchant account will not be forwarded.
+
+Test credentials:
+* Merchant ID: 375917
+* Secret key: SAIPPUAKAUPPIAS
+
+With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
 
