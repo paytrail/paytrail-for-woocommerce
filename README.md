@@ -5,15 +5,21 @@
 **Required WooCommerce version:** 3.5<br>
 **Required PHP version:** 7.3
 
-**[Paytrail](https://www.paytrail.com)** is a payment gateway that offers 20+ payment methods for Finnish customers.
+Accept all popular payment methods for Finnish B2C and B2B customers with one agreement and one plugin. 
 
-The payment gateway provides all the popular payment methods with one simple integration. The provided payment methods include but are not limited to credit cards, online banking and mobile payments.
+[Paytrail](https://www.paytrail.com) provides you with:
 
-To use this extension, you need to sign up for a Checkout Finland account. Transaction fees will be charged for every transaction. Transaction cost may vary from merchant to merchant, based on what is agreed upon with Checkout Finland when negotiating your contract. For more information and to register, please visit [our website](https://www.paytrail.com) or contact [asiakaspalvelu@paytrail.com](mailto:asiakaspalvelu@paytrail.com) directly.
+* **A trusted and popular Finnish payment service with 17 years of e-commerce experience** that is supported all over Finland and many European countries. 20 000+ online businesses and services including the Finnish State Treasury ‘s Suomi.fi payment service entrust us to handle their transactions.
+* **Popular payment methods in Finland to increase conversion rates:** online banks, cards, mobile, Buy now, Pay later and PayPal. Detailed payment method information can be found on [our website](https://www.paytrail.com/en/payment-methods).
+* **Tokenization and Subscriptions.** The plugin supports card tokenization which allows customers to store their credit card information securely and reliably for later use or with the use of [WooCommerce Subscriptions](https://woocommerce.com/products/woocommerce-subscriptions/) for recurring payments.
+* **Fast, reliable payouts** that are made at the same time regardless of payment method used. 
+* **Accessible, friendly, and fast customer service.** Our customer service team replies to all requests from our customers and our customers’ customers.
+* **Reliable and compliant service** with an [uptime of 99.98%](https://status.paytrail.com/). Local and EU regulatory requirements and updates are always made on time.
+* **Easy monitoring and detailed reporting.** Track and analyze transactions, create refunds and payment links, and download detailed reports for accounting purposes.
 
-We employ the industry's best security practices and tools to maintain bank-level security for merchants and end customers. Paytrail is PCI DSS Level I and GDPR compliant. 
+To use this plugin, first [register for a Paytrail account](https://www.paytrail.com/en/order-service). 
 
-Upon checkout, customers are redirected to the Paytrail payment service. The customer enters his or her payment information directly into our secure environment so that the web shop never comes into contact with the customers payment data. Once the payment process is complete, customers will redirected back to your store. Tokenization is used to run transactions with stored payment information. No confidential card data is ever stored on your server.
+For pricing, please [visit our website](https://www.paytrail.com/en/pricing).
 
 ## Installation
 
