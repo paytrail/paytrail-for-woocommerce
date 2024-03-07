@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Paytrail WooCommerce Payment Gateway\n"
 "POT-Creation-Date: 2020-07-20 09:56+0000\n"
-"PO-Revision-Date: 2021-10-15 13:41+0300\n"
+"PO-Revision-Date: 2024-01-16 10:47+0300\n"
 "Last-Translator: \n"
 "Language-Team: Finnish\n"
 "Language: fi\n"
@@ -340,8 +340,8 @@ msgid "An error occurred validating the signature."
 msgstr "Allekirjoituksen vahvistamisessa tapahtui virhe."
 
 #: src/Gateway.php:1117
-msgid "You can save your card details for next time by <a href="%s">logging in to the store or by creating an account.</a>"
-msgstr "Voit tallentaa kortin tiedot seuraavaa kertaa varten <a href="%s">kirjautumalla kauppaan tai luomalla uuden tunnuksen.</a>"
+msgid "You can save your card details for next time by <a href=\"%s\">logging in to the store or by creating an account.</a>"
+msgstr "Voit tallentaa kortin tiedot seuraavaa kertaa varten <a href=\"%s\">kirjautumalla kauppaan tai luomalla uuden tunnuksen.</a>"
 
 #: src/Controllers/Card.php:62
 msgid "Card was deleted successfully"
@@ -406,3 +406,7 @@ msgstr ""
 #. Author URI of the plugin
 msgid "https://www.paytrail.com/"
 msgstr ""
+
+#: src/Gateway.php:604
+msgid "Payment failed or was cancelled. Please try again"
+msgstr "Maksu epäonnistui tai se peruutettiin. Yritä uudelleen"

@@ -254,3 +254,7 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://www.paytrail.com"
 msgstr ""
+
+#: src/Gateway.php:604
+msgid "Payment failed or was cancelled. Please try again"
+msgstr ""
