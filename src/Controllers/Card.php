@@ -69,11 +69,13 @@ class Card extends AbstractController {
 	}
 
 	private function validate_request() {
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		if (!isset($_SERVER['REQUEST_METHOD']) || 'POST' !== strtoupper($_SERVER['REQUEST_METHOD'])) {
 			throw new Exception('Only POST requests are allowed');
 		}
+	
 		$content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
-		if (stripos($content_type, 'application/json') === false) {
+	
+		if (false === stripos($content_type, 'application/json')) {
 			throw new Exception('Content-Type must be application/json');
 		}
 	}
