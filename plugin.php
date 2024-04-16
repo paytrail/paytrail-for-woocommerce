@@ -135,6 +135,11 @@ final class Plugin {
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
         } );
+	    add_action( 'before_woocommerce_init', function() {
+		    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			    \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		    }
+	    } );
     }
 
     /**
@@ -162,7 +167,7 @@ final class Plugin {
                     background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
-                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {                    
+                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {
                     border: 2px solid <?php esc_html_e( get_theme_mod('paytrail_method_highlighted', '#33798d')); ?> !important;
                 }
                 .woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
