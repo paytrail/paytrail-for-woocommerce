@@ -32,7 +32,7 @@
 				$merchant_link = 'https://merchant.paytrail.com/';
 				?>
 				<p style="font-size:15px;">
-					<?php echo sprintf(__('Credentials can be found in the <a href="%s" target="_blank">merchant panel</a>'), esc_html($merchant_link)); ?>
+					<?php /* translators: Credentials can be found in the <a href="%s" target="_blank">merchant panel</a> */ echo sprintf(__('Credentials can be found in the <a href="%s" target="_blank">merchant panel</a>'), esc_html($merchant_link)); ?>
 				</p>
 			</div>
 		</div>
@@ -41,7 +41,7 @@
 			$customer_service_link = 'https://www.paytrail.com/en/customer-service#merchants/';
 			?>
 			<h2 style="font-weight:300;color:#fff;">
-				<?php echo sprintf(__('<b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>'), esc_html($customer_service_link)); ?>
+				<?php /* translators: <b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a> */ echo sprintf(__('<b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>'), esc_html($customer_service_link)); ?>
 			</h2>
 		</div>
 		<div classs="paytrail-intro-footer" style="display:flex;align-items: center;justify-content:center;padding-top:25px;padding-bottom:25px;width:calc(100% - 2px);background-color:#fff;;border:1px solid #D92D83;">
