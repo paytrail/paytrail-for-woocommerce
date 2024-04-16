@@ -6,27 +6,27 @@
 					<img style="max-width:100px" src="https://www.paytrail.com/hubfs/images/Banners_and_logos/logo-white.svg"/>
 				</div>
 				<div class="paytrail-intro-title-container">
-					<h2><?php esc_html_e('Get started with Paytrail', 'paytrail-for-woocommerce'); ?></h2>
-					<p><?php esc_html_e('To start accepting payments with Paytrail, you need an account.', 'paytrail-for-woocommerce'); ?></p>
+					<h2><?php /* translators: Get started with Paytrail */ esc_html_e('Get started with Paytrail', 'paytrail-for-woocommerce'); ?></h2>
+					<p><?php /* translators: To start accepting payments with Paytrail, you need an account. */ esc_html_e('To start accepting payments with Paytrail, you need an account.', 'paytrail-for-woocommerce'); ?></p>
 				</div>
 			</div>
 		</div>
 		<div style="width:calc(50% - 2px);background-color:#fff;;border:1px solid #D92D83;">
 			<div style="padding:25px 90px;text-align:center;">
-				<h3 style="font-size:20px;"><?php esc_html_e('I need an account', 'paytrail-for-woocommerce'); ?></h3>
+				<h3 style="font-size:20px;"><?php /* translators: I need an account */ esc_html_e('I need an account', 'paytrail-for-woocommerce'); ?></h3>
 				<p style="font-size:15px;line-height:1.2;"><?php esc_html_e('You can start our fast on-boarding process by clicking the register button', 'paytrail-for-woocommerce'); ?></p>
 				<button class="modern-button" id="open-lightbox"><?php esc_html_e('Register now', 'paytrail-for-woocommerce'); ?></button>
 				<?php
 				$sales_link = 'https://www.paytrail.com/en/contact-us';
 				?>
 				<p style="font-size:15px;">
-					<?php echo sprintf(__('Or <a href="%s" target="_blank">contact sales</a>'), esc_html($sales_link)); ?>
+					<?php /* translators: Or <a href="%s" target="_blank">contact sales</a> */ echo sprintf(__('Or <a href="%s" target="_blank">contact sales</a>'), esc_html($sales_link)); ?>
 				</p>
 			</div>
 		</div>
 		<div style="width:calc(50% - 2px);background-color:#F3C0D9;border:1px solid #D92D83;align-items:center;display:flex;">
 			<div style="padding:25px 90px;text-align:center;">
-				<h3 style="font-size:20px;"><?php esc_html_e('I already have an account', 'paytrail-for-woocommerce'); ?></h3>
+				<h3 style="font-size:20px;"><?php /* translators: I already have an account */ esc_html_e('I already have an account', 'paytrail-for-woocommerce'); ?></h3>
 				<button class="modern-button" id="credentials"><?php esc_html_e('Add credentials', 'paytrail-for-woocommerce'); ?></button>
 				<?php
 				$merchant_link = 'https://merchant.paytrail.com/';

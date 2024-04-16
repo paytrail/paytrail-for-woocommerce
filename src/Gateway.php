@@ -218,10 +218,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		$current_screen = get_current_screen();
 		$is_paytrail_settings_page = (
 			!$test_mode_enabled &&
-			$current_screen && $current_screen->id === 'woocommerce_page_wc-settings' &&
-			isset($_GET['tab']) && $_GET['tab'] === 'checkout' &&
-			isset($_GET['section']) && $_GET['section'] === 'paytrail'
+			$current_screen && 'woocommerce_page_wc-settings' === $current_screen->id &&
+			isset($_GET['tab']) && 'checkout' === $_GET['tab'] &&
+			isset($_GET['section']) && 'paytrail' === $_GET['section']
 		);
+		
 		// Check if merchant_id is already submitted
 		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
 			return;
@@ -439,8 +440,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			<div class="notice notice-warning">
 				<p>
 				<?php
-					_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
-					echo ' ' . sprintf(__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'), '<a href="https://www.paytrail.com/en/get-started" target="_blank">' . __('here', 'paytrail-for-woocommerce') . '</a>');
+					esc_html_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
+					echo ' ' . sprintf(
+						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
+						__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
+						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
+					);
 				?>
 				</p>
 			</div>
@@ -2112,7 +2117,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$screen = get_current_screen();
 	
 		// Check if the current screen is the WooCommerce settings page
-		if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
+		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the introScripts only on the WooCommerce settings page
 			wp_enqueue_script('introScripts');
 		}
@@ -2149,7 +2154,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$screen = get_current_screen();
 		
 		// Check if the current screen is the WooCommerce settings page
-		if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
+		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the style 'paytrail-woocommerce-payment-fields'
 			wp_enqueue_style('introStyles');
 		}
