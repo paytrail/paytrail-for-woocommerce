@@ -113,6 +113,10 @@ final class Plugin {
         'Text Domain',
         'Domain Path',
     ];
+    public function enqueue_jquery() {
+        // Enqueue jQuery script
+        wp_enqueue_script('jquery');
+    }
 
     /**
      * Constructor function
@@ -135,11 +139,51 @@ final class Plugin {
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
         } );
-	    add_action( 'before_woocommerce_init', function() {
-		    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-			    \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-		    }
-	    } );
+
+        // Enqueue jQuery
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
+        add_action('admin_enqueue_scripts', array($this, 'enque_jquery_scripts'));
+    }
+
+    /**
+     * Register intro scripts
+     */
+    public static function register_intro_scripts() {
+        // Get plugin directory URL
+        $plugin_instance = Plugin::instance();
+		$plugin_dir_url = $plugin_instance->get_plugin_dir_url();
+		$plugin_version = $plugin_instance->get_plugin_info()['Version'];
+    
+        // Register the custom script
+        wp_register_script(
+            'introScripts',
+            $plugin_dir_url . 'assets/dist/introScripts.js',
+            ['jquery'], // Dependency on jQuery
+            $plugin_version,
+            true // Enqueue in the footer
+        );
+    
+        // Enqueue the custom script
+        wp_enqueue_script('introScripts');
+    }
+
+    /**
+     * Enqueue jQuery UI from WordPress core
+     */
+    public function enque_jquery_scripts($hook) {
+        if ($hook == 'woocommerce_page_wc-settings' && isset($_GET['tab']) && $_GET['tab'] == 'checkout' && isset($_GET['section']) && $_GET['section'] == 'paytrail') {
+
+        wp_enqueue_script('jquery');
+        // Enqueue jQuery UI Core
+        wp_enqueue_script('jquery-ui-core');
+        // Enqueue jQuery UI Dialog
+        wp_enqueue_script('jquery-ui-dialog');
+        // Add jQuery UI styles
+        wp_enqueue_style('jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+        // Enqueue intro scripts
+        self::register_intro_scripts();
+
+        }
     }
 
     /**
@@ -167,7 +211,7 @@ final class Plugin {
                     background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
-                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {
+                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {                    
                     border: 2px solid <?php esc_html_e( get_theme_mod('paytrail_method_highlighted', '#33798d')); ?> !important;
                 }
                 .woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
