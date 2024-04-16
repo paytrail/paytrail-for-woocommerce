@@ -203,73 +203,75 @@ final class Gateway extends \WC_Payment_Gateway {
 		add_filter('woocommerce_order_data_store_cpt_get_orders_query', [ $this, 'handle_custom_searches' ], 10, 2);
 		add_filter('woocommerce_payment_gateway_get_saved_payment_method_option_html', [ $this, 'get_token_payment_option_html' ], 10, 2);
 		add_action('admin_footer', [$this, 'display_user_data_form']);
-        add_action('admin_notices', [$this, 'admin_notices']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
+		add_action('admin_notices', [$this, 'admin_notices']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
+
 	}
 
 	/**
-     * Display the user_data_form as an overlay
-     */
-    public function display_user_data_form() {
-        $merchant_id = $this->get_option('merchant_id');
+	 * Display the user_data_form as an overlay
+	 */
+	public function display_user_data_form() {
+		$merchant_id = $this->get_option('merchant_id');
 
-        $current_screen = get_current_screen();
-        $is_paytrail_settings_page = (
-            !$test_mode_enabled &&
-            $current_screen && $current_screen->id === 'woocommerce_page_wc-settings' &&
-            isset($_GET['tab']) && $_GET['tab'] === 'checkout' &&
-            isset($_GET['section']) && $_GET['section'] === 'paytrail'
-        );
-        // Check if merchant_id is already submitted
-        if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
-            return;
-        }
+		$current_screen = get_current_screen();
+		$is_paytrail_settings_page = (
+			!$test_mode_enabled &&
+			$current_screen && $current_screen->id === 'woocommerce_page_wc-settings' &&
+			isset($_GET['tab']) && $_GET['tab'] === 'checkout' &&
+			isset($_GET['section']) && $_GET['section'] === 'paytrail'
+		);
+		// Check if merchant_id is already submitted
+		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
+			return;
+		}
 
-        if ($is_paytrail_settings_page) {
-            $template_path = plugin_dir_path(__FILE__) . 'View/Intro-form.php';
-            if (file_exists($template_path)) {
-                include_once $template_path;
-            }
-        }
-        $this->user_data_form(); // Output the user_data_form content
-    }
+		if ($is_paytrail_settings_page) {
+			$template_path = plugin_dir_path(__FILE__) . 'View/Intro-form.php';
+			if (file_exists($template_path)) {
+				include_once $template_path;
+			}
+		}
+		$this->user_data_form(); // Output the user_data_form content
+	}
 
-    /**
-     * Function to display the form
-     */
-    public function user_data_form() {
-        $current_user = wp_get_current_user();
-        $user_email = $current_user->user_email;
-        $first_name = $current_user->first_name;
-        $last_name = $current_user->last_name;
+	/**
+	 * Function to display the form
+	 */
+	public function user_data_form() {
+		$current_user = wp_get_current_user();
+		$user_email = $current_user->user_email;
+		$first_name = $current_user->first_name;
+		$last_name = $current_user->last_name;
 
-        if (class_exists('WooCommerce')) {
-            $wc_billing_data = get_user_meta($current_user->ID, 'billing', true);
-            $company_name = isset($wc_billing_data['company']) ? $wc_billing_data['company'] : '';
-            $phone_number = isset($wc_billing_data['phone']) ? $wc_billing_data['phone'] : '';
+		if (class_exists('WooCommerce')) {
+			$wc_billing_data = get_user_meta($current_user->ID, 'billing', true);
+			$company_name = isset($wc_billing_data['company']) ? $wc_billing_data['company'] : '';
+			$phone_number = isset($wc_billing_data['phone']) ? $wc_billing_data['phone'] : '';
 
-            // Fetch shop's address using WC_Countries
-            $wc_countries = WC()->countries;
-            $shop_address = $wc_countries->get_base_address();
-            $shop_city = $wc_countries->get_base_city();
-            $shop_postcode = $wc_countries->get_base_postcode();
-        } else {
-            $company_name = '';
-            $phone_number = '';
-            $shop_address = '';
-            $shop_city = '';
-            $shop_postcode = '';
-        }
+			// Fetch shop's address using WC_Countries
+			$wc_countries = WC()->countries;
+			$shop_address = $wc_countries->get_base_address();
+			$shop_city = $wc_countries->get_base_city();
+			$shop_postcode = $wc_countries->get_base_postcode();
+		} else {
+			$company_name = '';
+			$phone_number = '';
+			$shop_address = '';
+			$shop_city = '';
+			$shop_postcode = '';
+		}
 
 
-        $site_url = esc_url(get_site_url());
+		$site_url = esc_url(get_site_url());
 
-        $template_path = plugin_dir_path(__FILE__) . 'View/User-data-form.php';
-        if (file_exists($template_path)) {
-            include_once $template_path;
-        }
-    }
+		$template_path = plugin_dir_path(__FILE__) . 'View/User-data-form.php';
+		if (file_exists($template_path)) {
+			include_once $template_path;
+		}
+	}
+
 
 	/**
 	 * Returns the payment method description string.
@@ -292,7 +294,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	protected function set_form_fields() {
 		$merchant_id_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
-    	$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+		$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
 		$enable_test_mode_disabled = (
 			!empty($this->get_option('merchant_id')) ||
 			!empty($this->get_option('secret_key'))
@@ -435,11 +437,13 @@ final class Gateway extends \WC_Payment_Gateway {
 		if ($test_mode_enabled) {
 			?>
 			<div class="notice notice-warning">
-				<p><?php
+				<p>
+				<?php
 					_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
 					echo ' ' . sprintf(__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'), '<a href="https://www.paytrail.com/en/get-started" target="_blank">' . __('here', 'paytrail-for-woocommerce') . '</a>');
-				?></p>
-        	</div>
+				?>
+				</p>
+			</div>
 			<?php
 		}
 	}
@@ -2142,14 +2146,14 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	public function enqueue_admin_styles() {
-        $screen = get_current_screen();
-        
-        // Check if the current screen is the WooCommerce settings page
-        if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
-            // Enqueue the style 'paytrail-woocommerce-payment-fields'
-            wp_enqueue_style('introStyles');
-        }
-    }
+		$screen = get_current_screen();
+		
+		// Check if the current screen is the WooCommerce settings page
+		if ($screen && $screen->id === 'woocommerce_page_wc-settings') {
+			// Enqueue the style 'paytrail-woocommerce-payment-fields'
+			wp_enqueue_style('introStyles');
+		}
+	}
 
 	/**
 	 * Insert new message to the log.
