@@ -139,6 +139,12 @@ final class Plugin {
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
         } );
+        
+        add_action( 'before_woocommerce_init', function() {
+            if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+            }
+        } );
 
         // Enqueue jQuery
         add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
