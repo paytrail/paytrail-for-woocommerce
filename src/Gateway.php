@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Paytrail for Woocommerce payment gateway class
@@ -522,11 +521,11 @@ final class Gateway extends \WC_Payment_Gateway
         }
         $html = sprintf(
             '<li class="woocommerce-SavedPaymentMethods-token paytrail-for-woocommerce-tokenized-payment-method">
-				<label for="wc-%1$s-payment-token-%2$s">
-				<input id="wc-%1$s-payment-token-%2$s" type="radio" name="wc-%1$s-payment-token" value="%2$s" class="paytrail-for-woocommerce-tokenized-payment-method-input" %6$s />
-				<div class="paytrail-for-woocommerce-tokenized-payment-method-title" title="%4$s">%5$s%3$s</div>
-				</label>
-			</li>',
+              <label for="wc-%1$s-payment-token-%2$s">
+              <input id="wc-%1$s-payment-token-%2$s" type="radio" name="wc-%1$s-payment-token" value="%2$s" class="paytrail-for-woocommerce-tokenized-payment-method-input" %6$s />
+              <div class="paytrail-for-woocommerce-tokenized-payment-method-title" title="%4$s">%5$s%3$s</div>
+              </label>
+            </li>',
             esc_attr($this->id),
             esc_attr($token->get_id()),
             $this->get_display_name($token),
@@ -992,9 +991,7 @@ final class Gateway extends \WC_Payment_Gateway
 
         // Save the wanted payment provider to the order
         $order->update_meta_data('_checkout_payment_provider', $payment_provider);
-
-
-
+      
         // Create a payment via Paytrail SDK
         try {
             if ($is_token_payment) {
@@ -2162,9 +2159,6 @@ final class Gateway extends \WC_Payment_Gateway
         return $item;
     }
 
-
-
-
     protected function getOnlyRefundItem($products, $order)
     {
 
@@ -2200,7 +2194,4 @@ final class Gateway extends \WC_Payment_Gateway
 
         return $Items;
     }
-
-}
-
-                    
+}                 
