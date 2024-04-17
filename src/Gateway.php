@@ -380,7 +380,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'title' => __( 'Enable specific settlements', 'paytrail-for-woocommerce' ),
 				'type' => 'checkbox',
 				'default' => 'no',
-				'description' => __( "This setting is required only if you are using transaction-by-transaction settlements in Paytrail.", 'paytrail-for-woocommerce' ),
+				'description' => __( 'This setting is required only if you are using transaction-by-transaction settlements in Paytrail.', 'paytrail-for-woocommerce' ),
 			],
 			'settlement_prefix' => [
 				'title' => __( 'Bank reference prefix', 'paytrail-for-woocommerce' ),
@@ -495,7 +495,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$sum += intval( $reversed_base[$i] ) * $coefficient;
 		}
 
-		$checksum = ( $sum % 10 == 0 ) ? 0 : ( 10 - $sum % 10 );
+		$checksum = ( 0 == ( $sum % 10 ) ) ? 0 : ( 10 - ( $sum % 10 ) );
 
 		$reference = sprintf( '%s%d', implode( '', $base ), $checksum );
 
