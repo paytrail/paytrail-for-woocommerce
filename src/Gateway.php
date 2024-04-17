@@ -624,6 +624,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$refund_unique_id = filter_input(INPUT_GET, 'refund_unique_id');
 		$order_id         = filter_input(INPUT_GET, 'order_id');
 		$reference        = filter_input(INPUT_GET, 'checkout-reference');
+		$cancel_order     = filter_input(INPUT_GET, 'cancel_order');
+		$pay_for_order    = filter_input(INPUT_GET, 'pay_for_order');
 
 		if (!$reference && !$refund_callback && !$refund_unique_id) {
 			$this->log('Paytrail: check_paytrail_response, no reference found for reference: ' . $reference, 'debug');
@@ -633,6 +635,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log('Paytrail: check_paytrail_response, no status found. ' . $reference, 'debug');
 			return;
 		}
+
 		$sleepTime = rand(0, 3);
 		$sleepTimeCallback = rand(3, 6);
 
@@ -719,7 +722,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					$payment_amount   = filter_input(INPUT_GET, 'checkout-amount');
 
 					$order->update_meta_data('_checkout_payment_provider', $payment_provider);
-
+					$order->save();
 					$providers = $this->get_payment_providers($payment_amount);
 
 					if (! empty($providers['error'])) {
@@ -888,12 +891,11 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		switch ($refund_callback) {
 			case 'success':
-				$amount = get_post_meta($refund->get_id(), '_checkout_refund_amount', true);
-				$reason = get_post_meta($refund->get_id(), '_checkout_refund_reason', true);
+				$amount = $refund->get_meta('_checkout_refund_amount');
+				$reason = $refund->get_meta('_checkout_refund_reason');
 
 				$refund->set_amount($amount);
 				$refund->set_reason($reason);
-				$refund->save();
 
 				$order = \wc_get_order($order_id);
 
@@ -901,7 +903,8 @@ final class Gateway extends \WC_Payment_Gateway {
 					__('Refund process completed.', 'paytrail-for-woocommerce')
 				);
 
-				update_post_meta($refund->get_id(), '_checkout_refund_processing', false);
+				$refund->update_meta_data('_checkout_refund_processing', false);
+				$refund->save();
 				break;
 			case 'cancel':
 				$refund->delete(true);
@@ -1028,19 +1031,16 @@ final class Gateway extends \WC_Payment_Gateway {
       
         $this->set_order_item_stamp($payment, $order);
 
-		$this->log('Paytrail: process_payment, update_post_meta', 'debug');
+		$this->log('Paytrail: process_payment, order update_meta_data', 'debug');
 		// Save the reference for possible later use.
-		update_post_meta($order->get_id(), '_checkout_reference', $payment->getReference());
-
+		$order->update_meta_data('_checkout_reference', $payment->getReference());
 		// Save it also as a key for fast indexed searches.
-		update_post_meta($order->get_id(), '_checkout_reference_' . $payment->getReference(), true);
-
+		$order->update_meta_data('_checkout_reference_' . $payment->getReference(), true);
 		// Save the wanted payment provider to the order
 		$order->update_meta_data('_checkout_payment_provider', $payment_provider);
-     
-		try {
 
-            if ($is_token_payment) {
+		try {
+      if ($is_token_payment) {
 				return $this->create_cit_payment($payment, $order);
 			} else {
 				return $this->create_normal_payment($payment, $order, $payment_provider);
@@ -1092,6 +1092,23 @@ final class Gateway extends \WC_Payment_Gateway {
 			// Log the error message if debug log is enabled.
 			$this->log($exception->getMessage() . $exception->getTraceAsString(), 'error');
 			new \WP_Error($exception->getCode(), $exception->getMessage());
+
+			//Add error messages to be displayed to the user by Woocommerce
+			$exceptionError = $exception->getMessage();
+			$jsonData = json_decode($exceptionError, true);
+
+			//The API may return JSON data in the message rather than plain string
+			if ($jsonData && isset($jsonData['message'])) {
+				wc_add_notice ($jsonData['message'], 'error');
+				//The API can return multiple error messages so add each of these messages
+				if (isset($jsonData['meta']) && is_array($jsonData['meta'])) {
+					foreach ($jsonData['meta'] as $meta) {
+						wc_add_notice ($meta, 'error');
+					}
+				}
+			} else {
+				wc_add_notice (ucwords($exceptionError), 'error');
+			}
 		}
 
 		if (!isset($response) || null === $response) {
@@ -1547,11 +1564,11 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->set_base_payment_data($payment, $order);
 
 			// Save the reference for possible later use.
-			update_post_meta($order->get_id(), '_checkout_reference', $payment->getReference());
+			$order->update_meta_data('_checkout_reference', $payment->getReference());
 
 			// Save it also as a key for fast indexed searches.
-			update_post_meta($order->get_id(), '_checkout_reference_' . $payment->getReference(), true);
-
+			$order->update_meta_data('_checkout_reference_' . $payment->getReference(), true);
+			$order->save();
 			$this->create_mit_payment($payment, $order);
 		} catch (\Exception $exception) {
 			// Log the error message if debug log is enabled.
@@ -1642,16 +1659,8 @@ final class Gateway extends \WC_Payment_Gateway {
 			add_action(
 				'woocommerce_order_refunded',
 				function ( $order_id, $refund_id) use ( $order, $refund, $reason, $transaction_id, $amount, $price, $refund_unique_id) {
-					$refund_object = new \WC_Order_Refund($refund_id);
-                  
-                    $refunded_items = $refund_object->get_items();
-                  
-                    $itemList = $this->getOnlyRefundItem($refunded_items,$order);
-                  
-                    $refund->setItems(array_filter($itemList));
-
 					try {
-                     $this->client->refund($refund, $transaction_id);
+              $this->client->refund($refund, $transaction_id);
 					} catch (\Exception $e) {
                         
 						switch ($e->getCode()) {
@@ -1708,14 +1717,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					}
 
 					$reason = $refund_object->get_reason();
-                    //add_post_meta($refund_object->get_id(),'order_item_response',$refund_object);  
-					update_post_meta($refund_object->get_id(), '_checkout_refund_amount', $amount);
-					update_post_meta($refund_object->get_id(), '_checkout_refund_reason', $reason);
-					update_post_meta($refund_object->get_id(), '_checkout_refund_unique_id', $refund_unique_id);
-					update_post_meta($refund_object->get_id(), '_checkout_refund_processing', true);
-
 					$refund_object->set_amount(0);
-
 					$refund_object->set_reason($reason . ' Refund is still being processed. The status and the amount (' . $price . ') of the refund will update when the processing is completed.');
 
 					$refund_object->save();
@@ -1742,15 +1744,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function refund_items( $order_id) {
 		$order = new \WC_Order($order_id);
-
 		$refunds = $order->get_refunds();
 
 		if ($refunds) {
 			array_walk(
 				$refunds,
 				function ( $refund) {
-					$meta = get_post_meta($refund->get_id(), '_checkout_refund_processing', true);
-
+					$meta = $refund->get_meta('_checkout_refund_processing');
 					if ($meta) {
 						echo '<style>';
 						echo '[data-order_refund_id=' . esc_html($refund->get_id()) . '] span.amount {';
@@ -2053,8 +2053,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess($this->get_return_url($order));
-		$callback->setCancel($order->get_cancel_order_url_raw());
-
+		//Customers choosing cancel option will be shown a payment page to allow re-attempt to pay
+		$callback->setCancel($order->get_checkout_payment_url());
 		return $callback;
 	}
 
