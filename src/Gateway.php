@@ -202,7 +202,77 @@ final class Gateway extends \WC_Payment_Gateway {
 		add_filter('woocommerce_admin_order_items_after_refunds', [ $this, 'refund_items' ], 10, 1);
 		add_filter('woocommerce_order_data_store_cpt_get_orders_query', [ $this, 'handle_custom_searches' ], 10, 2);
 		add_filter('woocommerce_payment_gateway_get_saved_payment_method_option_html', [ $this, 'get_token_payment_option_html' ], 10, 2);
+		add_action('admin_footer', [$this, 'display_user_data_form']);
+		add_action('admin_notices', [$this, 'admin_notices']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
+
 	}
+
+	/**
+	 * Display the user_data_form as an overlay
+	 */
+	public function display_user_data_form() {
+		$merchant_id = $this->get_option('merchant_id');
+
+		$current_screen = get_current_screen();
+		$is_paytrail_settings_page = (
+			!$test_mode_enabled &&
+			$current_screen && 'woocommerce_page_wc-settings' === $current_screen->id &&
+			isset($_GET['tab']) && 'checkout' === $_GET['tab'] &&
+			isset($_GET['section']) && 'paytrail' === $_GET['section']
+		);
+		
+		// Check if merchant_id is already submitted
+		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
+			return;
+		}
+
+		if ($is_paytrail_settings_page) {
+			$template_path = plugin_dir_path(__FILE__) . 'View/Intro-form.php';
+			if (file_exists($template_path)) {
+				include_once $template_path;
+			}
+		}
+		$this->user_data_form(); // Output the user_data_form content
+	}
+
+	/**
+	 * Function to display the form
+	 */
+	public function user_data_form() {
+		$current_user = wp_get_current_user();
+		$user_email = $current_user->user_email;
+		$first_name = $current_user->first_name;
+		$last_name = $current_user->last_name;
+
+		if (class_exists('WooCommerce')) {
+			$wc_billing_data = get_user_meta($current_user->ID, 'billing', true);
+			$company_name = isset($wc_billing_data['company']) ? $wc_billing_data['company'] : '';
+			$phone_number = isset($wc_billing_data['phone']) ? $wc_billing_data['phone'] : '';
+
+			// Fetch shop's address using WC_Countries
+			$wc_countries = WC()->countries;
+			$shop_address = $wc_countries->get_base_address();
+			$shop_city = $wc_countries->get_base_city();
+			$shop_postcode = $wc_countries->get_base_postcode();
+		} else {
+			$company_name = '';
+			$phone_number = '';
+			$shop_address = '';
+			$shop_city = '';
+			$shop_postcode = '';
+		}
+
+
+		$site_url = esc_url(get_site_url());
+
+		$template_path = plugin_dir_path(__FILE__) . 'View/User-data-form.php';
+		if (file_exists($template_path)) {
+			include_once $template_path;
+		}
+	}
+
 
 	/**
 	 * Returns the payment method description string.
@@ -224,6 +294,12 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	protected function set_form_fields() {
+		$merchant_id_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+		$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+		$enable_test_mode_disabled = (
+			!empty($this->get_option('merchant_id')) ||
+			!empty($this->get_option('secret_key'))
+		);
 		$this->form_fields = [
 			// Whether the payment gateway is enabled.
 			'enabled'     => [
@@ -232,12 +308,75 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'   => __('Enable Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
 				'default' => 'yes',
 			],
+			// Credentials
+			'credentials_title' => [
+				'title' => __('Credentials', 'paytrail-for-woocommerce'),
+				'type' => 'title',
+			],
+			// Paytrail credentials
+			'merchant_id' => [
+				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
+				'type'    => 'text',
+				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
+				'default' => '',
+				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked
+			],
+			'secret_key'  => [
+				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
+				'type'    => 'password',
+				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
+				'default' => '',
+				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
+			],
 			// Whether test mode is enabled
-			'testmode'    => [
-				'title'   => __('Test mode', 'paytrail-for-woocommerce'),
-				'type'    => 'checkbox',
-				'label'   => __('Enable test mode', 'paytrail-for-woocommerce'),
-				'default' => 'no',
+			'enable_test_mode' => [
+				'title'       => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'type'        => 'checkbox',
+				'label'       => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'default'     => 'no',
+				'description' => __('Enable test mode to process payments in the test environment.', 'paytrail-for-woocommerce'),
+				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
+			],
+			// General settings
+			'general_settings_title' => [
+				'title' => __('General settings', 'paytrail-for-woocommerce'),
+				'type' => 'title',
+			],
+			// Whether to show the payment provider wall or choose the method in the store
+			'provider_selection' => [
+				'title'       => __('Payment provider selection', 'paytrail-for-woocommerce'),
+				'type'        => 'checkbox',
+				'label'       => __('Enable payment provider selection in the checkout page', 'paytrail-for-woocommerce'),
+				'default'     => 'yes',
+				'description' => __('Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce'),
+			],
+			// Alternative text + description to show on the Checkout page
+			'custom_provider_name' => [
+				'title'       => __('Payment provider title', 'paytrail-for-woocommerce'),
+				'type'        => 'text',
+				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
+				'default'     => 'Paytrail for WooCommerce',
+				'description' => __('This title is displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
+			],
+			'custom_provider_description' => [
+				'title'       => __('Payment provider description', 'paytrail-for-woocommerce'),
+				'type'        => 'text',
+				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
+				'default'     => 'Paytrail for WooCommerce',
+				'description' => __('Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
+			],
+			// Advanced settings
+			'advanced_settings_title' => [
+				'title' => __('Advanced settings', 'paytrail-for-woocommerce'),
+				'type' => 'title',
+			],
+			'fallback_country'  => [
+				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
+				'type'    => 'select',
+				'label'   => __('Fallback country', 'paytrail-for-woocommerce'),
+				'default' => '',
+				'description' => __('Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce'),
+				'options' => array_merge(['' => 'Select country'], WC()->countries->get_countries())
 			],
 			// Whether debug mode is enabled
 			'debug'       => [
@@ -256,51 +395,6 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'no',
 				// translators: %s: URL
 				'description' => __('Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. This will also update tokens for the current WooCommerce Subscriptions orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot be reverted.', 'paytrail-for-woocommerce'),
-			],
-
-			// Alternative text + description to show on the Checkout page
-			'custom_provider_name' => [
-				'title'       => __('Payment provider title', 'paytrail-for-woocommerce'),
-				'type'        => 'text',
-				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
-				'default'     => 'Paytrail for WooCommerce',
-				'description' => __('This title is displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
-			],
-			'custom_provider_description' => [
-				'title'       => __('Payment provider description', 'paytrail-for-woocommerce'),
-				'type'        => 'text',
-				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
-				'default'     => 'Paytrail for WooCommerce',
-				'description' => __('Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
-			],
-			// Whether to show the payment provider wall or choose the method in the store
-			'provider_selection' => [
-				'title'       => __('Payment provider selection', 'paytrail-for-woocommerce'),
-				'type'        => 'checkbox',
-				'label'       => __('Enable payment provider selection in the checkout page', 'paytrail-for-woocommerce'),
-				'default'     => 'yes',
-				'description' => __('Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce'),
-			],
-			// Paytrail credentials
-			'merchant_id' => [
-				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
-				'type'    => 'text',
-				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
-				'default' => '',
-			],
-			'secret_key'  => [
-				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
-				'type'    => 'password',
-				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
-				'default' => '',
-			],
-			'fallback_country'  => [
-				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
-				'type'    => 'select',
-				'label'   => __('Fallback country', 'paytrail-for-woocommerce'),
-				'default' => '',
-				'description' => __('Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce'),
-				'options' => array_merge(['' => 'Select country'], WC()->countries->get_countries())
 			],
 		];
 	}
@@ -331,6 +425,39 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		return $saved;
+	}
+
+	/**
+	 * Display a notice when test mode is enabled.
+	 */
+	public function display_test_mode_notice() {
+		// Check if test mode is enabled
+		$test_mode_enabled = $this->get_option('enable_test_mode', 'no') === 'yes';
+
+		// Check if the notice should be displayed
+		if ($test_mode_enabled) {
+			?>
+			<div class="notice notice-warning">
+				<p>
+				<?php
+					esc_html_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
+					echo ' ' . sprintf(
+						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
+						esc_html__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
+						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
+					);	
+				?>
+				</p>
+			</div>
+			<?php
+		}
+	}
+
+	/**
+	 * Callback to display the notice on the admin page.
+	 */
+	public function admin_notices() {
+		$this->display_test_mode_notice();
 	}
 
 	/**
@@ -1967,7 +2094,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Register payment fields scripts
+	 * Register scripts
 	 *
 	 * @return void
 	 */
@@ -1986,8 +2113,18 @@ final class Gateway extends \WC_Payment_Gateway {
 		);
 	}
 
+	public function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+	
+		// Check if the current screen is the WooCommerce settings page
+		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
+			// Enqueue the introScripts only on the WooCommerce settings page
+			wp_enqueue_script('introScripts');
+		}
+	}
+
 	/**
-	 * Register payment fields styles
+	 * Register styles
 	 *
 	 * @return void
 	 */
@@ -2004,6 +2141,23 @@ final class Gateway extends \WC_Payment_Gateway {
 			[],
 			$plugin_version
 		);
+
+		wp_register_style(
+			'introStyles',
+			$plugin_dir_url . 'assets/dist/main.css',
+			[],
+			$plugin_version
+		);
+	}
+
+	public function enqueue_admin_styles() {
+		$screen = get_current_screen();
+		
+		// Check if the current screen is the WooCommerce settings page
+		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
+			// Enqueue the style 'paytrail-woocommerce-payment-fields'
+			wp_enqueue_style('introStyles');
+		}
 	}
 
 	/**
