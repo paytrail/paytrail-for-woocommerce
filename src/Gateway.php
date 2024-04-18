@@ -375,7 +375,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type' => 'title',
 			],
 			'settlement_enablement' => [
-				'title' => __( 'Enable specific settlements', 'paytrail-for-woocommerce' ),
+				'title' => __( 'Enable individual settlements', 'paytrail-for-woocommerce' ),
 				'type' => 'checkbox',
 				'default' => 'no',
 				'description' => __( 'This setting is required only if you are using transaction-by-transaction settlements in Paytrail.', 'paytrail-for-woocommerce' ),
@@ -1412,7 +1412,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		$payment->setStamp(get_current_blog_id() . '-' . $order->get_id() . '-' . time());
 
 		// Use WooCom order number as reference
-		// https://trello.com/c/i6GUZACP/83-reference-kentt%C3%A4%C3%A4n-woon-tilausnumero
 		$reference = $order->get_order_number();
 
 		// Calculate bank reference for transaction-specific settlements
