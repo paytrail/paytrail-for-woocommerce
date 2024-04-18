@@ -37,6 +37,7 @@ use WC_Payment_Token_CC;
  *
  * @package Paytrail\WooCommercePaymentGateway
  */
+
 final class Gateway extends \WC_Payment_Gateway {
 
 	/**
