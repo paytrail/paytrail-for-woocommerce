@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2024-04-17
+### Added
+- Added [WooCommerce HPOS](https://woocommerce.com/document/high-performance-order-storage/) support
+- Added new customer on-boarding flow
+- Added option to generate Finnish bank reference numbers for transactions
+### Fixed
+- Improved error logging
+- Changed the Cancel URL to be the 'Pay for Order' page
+
 ## [1.3.11] - 2023-12-21
 ### Fixed
 - Fixed tax calculations

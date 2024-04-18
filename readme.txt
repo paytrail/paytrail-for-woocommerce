@@ -3,8 +3,8 @@ Contributors: loueranta
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
-Tested up to: 6.4
-Stable tag: 1.3.11
+Tested up to: 6.5
+Stable tag: 2.0.0
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -55,6 +55,13 @@ Test credentials:
 With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
+
+= 2.0.0 =
+- Added WooCommerce HPOS support
+- Added new customer on-boarding flow
+- Added option to generate Finnish bank reference numbers for transactions
+- Improve error logging
+- Change the Cancel URL to be the 'Pay for Order' page
 
 = 1.3.11 =
 - Fixed tax calculations
