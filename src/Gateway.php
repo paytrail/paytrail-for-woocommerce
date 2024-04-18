@@ -1188,11 +1188,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		return true;
 	}
 
-	public function set_order_item_stamp($payment,$order){
+	public function set_order_item_stamp( $payment, $order) {
 		$items = $payment->getItems();
 		$item_meta_data = array();
    
-		foreach($items as $key => $item){
+		foreach ($items as $key => $item) {
 			$sku = $item->getProductcode();
 			$stamp = $item->getStamp();
 			$product_id = wc_get_product_id_by_sku( $sku );  
@@ -1203,9 +1203,9 @@ final class Gateway extends \WC_Payment_Gateway {
 			);
 		}
 		
-		$item_meta_data = json_encode($item_meta_data,true);
+		$item_meta_data = json_encode($item_meta_data, true);
 		
-		add_post_meta($order->get_id(),'order_item_stamps',$item_meta_data);     
+		add_post_meta($order->get_id(), 'order_item_stamps', $item_meta_data);     
 	}   
 
 	/**
@@ -1509,7 +1509,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 					$refunded_items = $refund_object->get_items();
 
-					$itemList = $this->getOnlyRefundItem($refunded_items,$order);
+					$itemList = $this->getOnlyRefundItem($refunded_items, $order);
 
 					$refund->setItems(array_filter($itemList));
 
@@ -2085,20 +2085,20 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		return $item;
 	}
-	protected function getOnlyRefundItem($products,$order){              
+	protected function getOnlyRefundItem( $products, $order) {              
 		$Items = array();
 					  
 		$itemstamps = array();
 				
 		$order_metadata = $order->get_meta('order_item_stamps');
 				  
-		$order_metadata = json_decode($order_metadata,true);     
+		$order_metadata = json_decode($order_metadata, true);     
 				
-		foreach($order_metadata as $order_meta_key => $order_meta_value){
+		foreach ($order_metadata as $order_meta_key => $order_meta_value) {
 			$itemstamps[$order_meta_value['product_id']] = $order_meta_value['stamp']; 
 		}        
 
-		foreach($products as $key => $value){
+		foreach ($products as $key => $value) {
 			$itemID = $value->get_product_id();
 			$amt = abs($this->helper->handle_currency($value->get_subtotal()));
 			$stamp = $itemstamps[$itemID];
