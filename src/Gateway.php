@@ -747,7 +747,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Store information that transaction-specific settlement was used
 		if ( $this->transaction_settlement_enable ) {
-			update_post_meta( $order_id, '_paytrail_ppa_transaction_settlement', true );
+			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
+			$order->save();
 		}
 
 		if (!$status && !$reference && !$refund_callback && !$refund_unique_id) {
@@ -829,7 +830,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Store information that transaction-specific settlement was used
 		if ( $this->transaction_settlement_enable ) {
-			update_post_meta( $order->get_id(), '_paytrail_ppa_transaction_settlement', true );
+			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
+			$order->save();
 		}
 
 		if (empty($orders)) {
