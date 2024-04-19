@@ -935,8 +935,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_payment( $order_id) {
 		$this->log('Paytrail: process_payment', 'debug');
-
-        $is_pay_and_card = filter_input(INPUT_POST, 'add_card_pay');
+		$is_pay_and_card = filter_input(INPUT_POST, 'add_card_pay');
 		if ($is_pay_and_card) { 
 			return $this->add_card_form_and_pay($payment, $order);
 		} 
