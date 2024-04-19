@@ -336,7 +336,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type'        => 'checkbox',
 				'label'       => __('Enable test mode', 'paytrail-for-woocommerce'),
 				'default'     => 'no',
-				'description' => __('You can use test mode to simulate payments with Paytrail\'s test credentials. To enable test mode, please first clear the Credentials and save settings.', 'paytrail-for-woocommerce'),
+				'description' => __('You can use test mode to simulate payments with Paytrail\'s <a target="_blank" href="https://docs.paytrail.com/#/?id=test-credentials">test credentials</a>. To enable test mode, please first clear the Credentials and save settings.', 'paytrail-for-woocommerce'),
 				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
 			],
 			// General settings
