@@ -14,6 +14,7 @@ use Paytrail\SDK\Request\PaymentRequest;
 use Paytrail\SDK\Model\Customer;
 use Paytrail\SDK\Model\Address;
 use Paytrail\SDK\Model\Item;
+use Paytrail\SDK\Model\RefundItem;
 use Paytrail\SDK\Model\CallbackUrl;
 use Paytrail\SDK\Exception\HmacException;
 use Paytrail\SDK\Request\RefundRequest;
@@ -36,6 +37,7 @@ use WC_Payment_Token_CC;
  *
  * @package Paytrail\WooCommercePaymentGateway
  */
+
 final class Gateway extends \WC_Payment_Gateway {
 
 	/**
@@ -202,77 +204,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		add_filter('woocommerce_admin_order_items_after_refunds', [ $this, 'refund_items' ], 10, 1);
 		add_filter('woocommerce_order_data_store_cpt_get_orders_query', [ $this, 'handle_custom_searches' ], 10, 2);
 		add_filter('woocommerce_payment_gateway_get_saved_payment_method_option_html', [ $this, 'get_token_payment_option_html' ], 10, 2);
-		add_action('admin_footer', [$this, 'display_user_data_form']);
-		add_action('admin_notices', [$this, 'admin_notices']);
-		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-		add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
-
 	}
-
-	/**
-	 * Display the user_data_form as an overlay
-	 */
-	public function display_user_data_form() {
-		$merchant_id = $this->get_option('merchant_id');
-
-		$current_screen = get_current_screen();
-		$is_paytrail_settings_page = (
-			!$test_mode_enabled &&
-			$current_screen && 'woocommerce_page_wc-settings' === $current_screen->id &&
-			isset($_GET['tab']) && 'checkout' === $_GET['tab'] &&
-			isset($_GET['section']) && 'paytrail' === $_GET['section']
-		);
-		
-		// Check if merchant_id is already submitted
-		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
-			return;
-		}
-
-		if ($is_paytrail_settings_page) {
-			$template_path = plugin_dir_path(__FILE__) . 'View/Intro-form.php';
-			if (file_exists($template_path)) {
-				include_once $template_path;
-			}
-		}
-		$this->user_data_form(); // Output the user_data_form content
-	}
-
-	/**
-	 * Function to display the form
-	 */
-	public function user_data_form() {
-		$current_user = wp_get_current_user();
-		$user_email = $current_user->user_email;
-		$first_name = $current_user->first_name;
-		$last_name = $current_user->last_name;
-
-		if (class_exists('WooCommerce')) {
-			$wc_billing_data = get_user_meta($current_user->ID, 'billing', true);
-			$company_name = isset($wc_billing_data['company']) ? $wc_billing_data['company'] : '';
-			$phone_number = isset($wc_billing_data['phone']) ? $wc_billing_data['phone'] : '';
-
-			// Fetch shop's address using WC_Countries
-			$wc_countries = WC()->countries;
-			$shop_address = $wc_countries->get_base_address();
-			$shop_city = $wc_countries->get_base_city();
-			$shop_postcode = $wc_countries->get_base_postcode();
-		} else {
-			$company_name = '';
-			$phone_number = '';
-			$shop_address = '';
-			$shop_city = '';
-			$shop_postcode = '';
-		}
-
-
-		$site_url = esc_url(get_site_url());
-
-		$template_path = plugin_dir_path(__FILE__) . 'View/User-data-form.php';
-		if (file_exists($template_path)) {
-			include_once $template_path;
-		}
-	}
-
 
 	/**
 	 * Returns the payment method description string.
@@ -294,12 +226,6 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	protected function set_form_fields() {
-		$merchant_id_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
-		$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
-		$enable_test_mode_disabled = (
-			!empty($this->get_option('merchant_id')) ||
-			!empty($this->get_option('secret_key'))
-		);
 		$this->form_fields = [
 			// Whether the payment gateway is enabled.
 			'enabled'     => [
@@ -308,75 +234,12 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'   => __('Enable Paytrail for WooCommerce', 'paytrail-for-woocommerce'),
 				'default' => 'yes',
 			],
-			// Credentials
-			'credentials_title' => [
-				'title' => __('Credentials', 'paytrail-for-woocommerce'),
-				'type' => 'title',
-			],
-			// Paytrail credentials
-			'merchant_id' => [
-				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
-				'type'    => 'text',
-				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
-				'default' => '',
-				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked
-			],
-			'secret_key'  => [
-				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
-				'type'    => 'password',
-				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
-				'default' => '',
-				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
-			],
 			// Whether test mode is enabled
-			'enable_test_mode' => [
-				'title'       => __('Enable test mode', 'paytrail-for-woocommerce'),
-				'type'        => 'checkbox',
-				'label'       => __('Enable test mode', 'paytrail-for-woocommerce'),
-				'default'     => 'no',
-				'description' => __('Enable test mode to process payments in the test environment.', 'paytrail-for-woocommerce'),
-				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
-			],
-			// General settings
-			'general_settings_title' => [
-				'title' => __('General settings', 'paytrail-for-woocommerce'),
-				'type' => 'title',
-			],
-			// Whether to show the payment provider wall or choose the method in the store
-			'provider_selection' => [
-				'title'       => __('Payment provider selection', 'paytrail-for-woocommerce'),
-				'type'        => 'checkbox',
-				'label'       => __('Enable payment provider selection in the checkout page', 'paytrail-for-woocommerce'),
-				'default'     => 'yes',
-				'description' => __('Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce'),
-			],
-			// Alternative text + description to show on the Checkout page
-			'custom_provider_name' => [
-				'title'       => __('Payment provider title', 'paytrail-for-woocommerce'),
-				'type'        => 'text',
-				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
-				'default'     => 'Paytrail for WooCommerce',
-				'description' => __('This title is displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
-			],
-			'custom_provider_description' => [
-				'title'       => __('Payment provider description', 'paytrail-for-woocommerce'),
-				'type'        => 'text',
-				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
-				'default'     => 'Paytrail for WooCommerce',
-				'description' => __('Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
-			],
-			// Advanced settings
-			'advanced_settings_title' => [
-				'title' => __('Advanced settings', 'paytrail-for-woocommerce'),
-				'type' => 'title',
-			],
-			'fallback_country'  => [
-				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
-				'type'    => 'select',
-				'label'   => __('Fallback country', 'paytrail-for-woocommerce'),
-				'default' => '',
-				'description' => __('Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce'),
-				'options' => array_merge(['' => 'Select country'], WC()->countries->get_countries())
+			'testmode'    => [
+				'title'   => __('Test mode', 'paytrail-for-woocommerce'),
+				'type'    => 'checkbox',
+				'label'   => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'default' => 'no',
 			],
 			// Whether debug mode is enabled
 			'debug'       => [
@@ -395,6 +258,51 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'no',
 				// translators: %s: URL
 				'description' => __('Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. This will also update tokens for the current WooCommerce Subscriptions orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot be reverted.', 'paytrail-for-woocommerce'),
+			],
+
+			// Alternative text + description to show on the Checkout page
+			'custom_provider_name' => [
+				'title'       => __('Payment provider title', 'paytrail-for-woocommerce'),
+				'type'        => 'text',
+				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
+				'default'     => 'Paytrail for WooCommerce',
+				'description' => __('This title is displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
+			],
+			'custom_provider_description' => [
+				'title'       => __('Payment provider description', 'paytrail-for-woocommerce'),
+				'type'        => 'text',
+				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
+				'default'     => 'Paytrail for WooCommerce',
+				'description' => __('Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
+			],
+			// Whether to show the payment provider wall or choose the method in the store
+			'provider_selection' => [
+				'title'       => __('Payment provider selection', 'paytrail-for-woocommerce'),
+				'type'        => 'checkbox',
+				'label'       => __('Enable payment provider selection in the checkout page', 'paytrail-for-woocommerce'),
+				'default'     => 'yes',
+				'description' => __('Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce'),
+			],
+			// Paytrail credentials
+			'merchant_id' => [
+				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
+				'type'    => 'text',
+				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
+				'default' => '',
+			],
+			'secret_key'  => [
+				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
+				'type'    => 'password',
+				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
+				'default' => '',
+			],
+			'fallback_country'  => [
+				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
+				'type'    => 'select',
+				'label'   => __('Fallback country', 'paytrail-for-woocommerce'),
+				'default' => '',
+				'description' => __('Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce'),
+				'options' => array_merge(['' => 'Select country'], WC()->countries->get_countries())
 			],
 		];
 	}
@@ -425,39 +333,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		return $saved;
-	}
-
-	/**
-	 * Display a notice when test mode is enabled.
-	 */
-	public function display_test_mode_notice() {
-		// Check if test mode is enabled
-		$test_mode_enabled = $this->get_option('enable_test_mode', 'no') === 'yes';
-
-		// Check if the notice should be displayed
-		if ($test_mode_enabled) {
-			?>
-			<div class="notice notice-warning">
-				<p>
-				<?php
-					esc_html_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
-					echo ' ' . sprintf(
-						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
-						esc_html__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
-						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
-					);	
-				?>
-				</p>
-			</div>
-			<?php
-		}
-	}
-
-	/**
-	 * Callback to display the notice on the admin page.
-	 */
-	public function admin_notices() {
-		$this->display_test_mode_notice();
 	}
 
 	/**
@@ -700,8 +575,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		$refund_unique_id = filter_input(INPUT_GET, 'refund_unique_id');
 		$order_id         = filter_input(INPUT_GET, 'order_id');
 		$reference        = filter_input(INPUT_GET, 'checkout-reference');
-		$cancel_order     = filter_input(INPUT_GET, 'cancel_order');
-		$pay_for_order    = filter_input(INPUT_GET, 'pay_for_order');
 
 		if (!$status && !$reference && !$refund_callback && !$refund_unique_id) {
 			//no log to reduce number of log entries
@@ -715,25 +588,6 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		if (!$status && $reference && !$refund_callback && !$refund_unique_id) {
 			$this->log('Paytrail: check_paytrail_response, no status found for reference ' . $reference, 'debug');
-			return;
-		}
-
-		if ($cancel_order) {
-			//Do not attempt to process further. Woo Commerce will cancel the order
-			$this->log('Paytrail: check_paytrail_response, cancel_order is true. Order will be cancelled. Reference: ' . $reference, 'debug');
-			return;
-		}
-
-		if ($pay_for_order) {
-			//Do not attempt to process further, the customer will be shown a page to choose payment methods
-			wc_clear_notices();
-			$message = __(
-				'Payment failed or was cancelled. Please try again',
-				'paytrail-for-woocommerce'
-			);
-
-			wc_add_notice( $message, 'notice');
-			$this->log('Paytrail: check_paytrail_response, pay_for_order is true. Payment page will be shown. Reference: ' . $reference, 'debug');
 			return;
 		}
 
@@ -812,7 +666,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					$payment_amount   = filter_input(INPUT_GET, 'checkout-amount');
 
 					$order->update_meta_data('_checkout_payment_provider', $payment_provider);
-					$order->save();
+
 					$providers = $this->get_payment_providers($payment_amount);
 
 					if (! empty($providers['error'])) {
@@ -981,11 +835,12 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		switch ($refund_callback) {
 			case 'success':
-				$amount = $refund->get_meta('_checkout_refund_amount');
-				$reason = $refund->get_meta('_checkout_refund_reason');
+				$amount = get_post_meta($refund->get_id(), '_checkout_refund_amount', true);
+				$reason = get_post_meta($refund->get_id(), '_checkout_refund_reason', true);
 
 				$refund->set_amount($amount);
 				$refund->set_reason($reason);
+				$refund->save();
 
 				$order = \wc_get_order($order_id);
 
@@ -993,8 +848,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					__('Refund process completed.', 'paytrail-for-woocommerce')
 				);
 
-				$refund->update_meta_data('_checkout_refund_processing', false);
-				$refund->save();
+				update_post_meta($refund->get_id(), '_checkout_refund_processing', false);
 				break;
 			case 'cancel':
 				$refund->delete(true);
@@ -1108,15 +962,17 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		$this->set_base_payment_data($payment, $order);
+		$this->set_order_item_stamp($payment, $order);
 
-		$this->log('Paytrail: process_payment, order update_meta_data', 'debug');
+		$this->log('Paytrail: process_payment, update_post_meta', 'debug');
 		// Save the reference for possible later use.
-		$order->update_meta_data('_checkout_reference', $payment->getReference());
+		update_post_meta($order->get_id(), '_checkout_reference', $payment->getReference());
+
 		// Save it also as a key for fast indexed searches.
-		$order->update_meta_data('_checkout_reference_' . $payment->getReference(), true);
+		update_post_meta($order->get_id(), '_checkout_reference_' . $payment->getReference(), true);
+
 		// Save the wanted payment provider to the order
 		$order->update_meta_data('_checkout_payment_provider', $payment_provider);
-		$order->save();
 
 		// Create a payment via Paytrail SDK
 		try {
@@ -1170,23 +1026,6 @@ final class Gateway extends \WC_Payment_Gateway {
 			// Log the error message if debug log is enabled.
 			$this->log($exception->getMessage() . $exception->getTraceAsString(), 'error');
 			new \WP_Error($exception->getCode(), $exception->getMessage());
-
-			//Add error messages to be displayed to the user by Woocommerce
-			$exceptionError = $exception->getMessage();
-			$jsonData = json_decode($exceptionError, true);
-
-			//The API may return JSON data in the message rather than plain string
-			if ($jsonData && isset($jsonData['message'])) {
-				wc_add_notice ($jsonData['message'], 'error');
-				//The API can return multiple error messages so add each of these messages
-				if (isset($jsonData['meta']) && is_array($jsonData['meta'])) {
-					foreach ($jsonData['meta'] as $meta) {
-						wc_add_notice ($meta, 'error');
-					}
-				}
-			} else {
-				wc_add_notice (ucwords($exceptionError), 'error');
-			}
 		}
 
 		if (!isset($response) || null === $response) {
@@ -1348,6 +1187,26 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		return true;
 	}
+
+	public function set_order_item_stamp( $payment, $order) {
+		$items = $payment->getItems();
+		$item_meta_data = array();
+   
+		foreach ($items as $key => $item) {
+			$sku = $item->getProductcode();
+			$stamp = $item->getStamp();
+			$product_id = wc_get_product_id_by_sku( $sku );  
+		  
+			$item_meta_data[] = array(
+			  'product_id' => $product_id,
+			  'stamp' => $stamp
+			);
+		}
+		
+		$item_meta_data = json_encode($item_meta_data, true);
+		
+		add_post_meta($order->get_id(), 'order_item_stamps', $item_meta_data);     
+	}   
 
 	/**
 	 * Set payment data
@@ -1552,11 +1411,11 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->set_base_payment_data($payment, $order);
 
 			// Save the reference for possible later use.
-			$order->update_meta_data('_checkout_reference', $payment->getReference());
+			update_post_meta($order->get_id(), '_checkout_reference', $payment->getReference());
 
 			// Save it also as a key for fast indexed searches.
-			$order->update_meta_data('_checkout_reference_' . $payment->getReference(), true);
-			$order->save();
+			update_post_meta($order->get_id(), '_checkout_reference_' . $payment->getReference(), true);
+
 			$this->create_mit_payment($payment, $order);
 		} catch (\Exception $exception) {
 			// Log the error message if debug log is enabled.
@@ -1632,6 +1491,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$transaction_id = $order->get_transaction_id();
 
+			$order_refunds = $order->get_refunds();
+
 			$order->add_order_note(
 				sprintf(
 					// Translators: placeholder is the optional reason for the refund.
@@ -1644,7 +1505,13 @@ final class Gateway extends \WC_Payment_Gateway {
 			add_action(
 				'woocommerce_order_refunded',
 				function ( $order_id, $refund_id) use ( $order, $refund, $reason, $transaction_id, $amount, $price, $refund_unique_id) {
-					$refund_object = wc_get_order($refund_id);
+					$refund_object = new \WC_Order_Refund($refund_id);
+
+					$refunded_items = $refund_object->get_items();
+
+					$itemList = $this->getOnlyRefundItem($refunded_items, $order);
+
+					$refund->setItems(array_filter($itemList));
 
 					try {
 						$this->client->refund($refund, $transaction_id);
@@ -1708,12 +1575,13 @@ final class Gateway extends \WC_Payment_Gateway {
 
 					$reason = $refund_object->get_reason();
 
-					$refund_object->update_meta_data( '_checkout_refund_amount', $amount);
-					$refund_object->update_meta_data( '_checkout_refund_reason', $reason);
-					$refund_object->update_meta_data( '_checkout_refund_unique_id', $refund_unique_id);
-					$refund_object->update_meta_data( '_checkout_refund_processing', true);
+					update_post_meta($refund_object->get_id(), '_checkout_refund_amount', $amount);
+					update_post_meta($refund_object->get_id(), '_checkout_refund_reason', $reason);
+					update_post_meta($refund_object->get_id(), '_checkout_refund_unique_id', $refund_unique_id);
+					update_post_meta($refund_object->get_id(), '_checkout_refund_processing', true);
 
 					$refund_object->set_amount(0);
+
 					$refund_object->set_reason($reason . ' Refund is still being processed. The status and the amount (' . $price . ') of the refund will update when the processing is completed.');
 
 					$refund_object->save();
@@ -1740,13 +1608,15 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function refund_items( $order_id) {
 		$order = new \WC_Order($order_id);
+
 		$refunds = $order->get_refunds();
 
 		if ($refunds) {
 			array_walk(
 				$refunds,
 				function ( $refund) {
-					$meta = $refund->get_meta('_checkout_refund_processing');
+					$meta = get_post_meta($refund->get_id(), '_checkout_refund_processing', true);
+
 					if ($meta) {
 						echo '<style>';
 						echo '[data-order_refund_id=' . esc_html($refund->get_id()) . '] span.amount {';
@@ -2048,8 +1918,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess($this->get_return_url($order));
-		//Customers choosing cancel option will be shown a payment page to allow re-attempt to pay
-		$callback->setCancel($order->get_checkout_payment_url());
+		$callback->setCancel($order->get_cancel_order_url_raw());
+
 		return $callback;
 	}
 
@@ -2094,7 +1964,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Register scripts
+	 * Register payment fields scripts
 	 *
 	 * @return void
 	 */
@@ -2113,18 +1983,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		);
 	}
 
-	public function enqueue_admin_scripts() {
-		$screen = get_current_screen();
-	
-		// Check if the current screen is the WooCommerce settings page
-		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
-			// Enqueue the introScripts only on the WooCommerce settings page
-			wp_enqueue_script('introScripts');
-		}
-	}
-
 	/**
-	 * Register styles
+	 * Register payment fields styles
 	 *
 	 * @return void
 	 */
@@ -2141,23 +2001,6 @@ final class Gateway extends \WC_Payment_Gateway {
 			[],
 			$plugin_version
 		);
-
-		wp_register_style(
-			'introStyles',
-			$plugin_dir_url . 'assets/dist/main.css',
-			[],
-			$plugin_version
-		);
-	}
-
-	public function enqueue_admin_styles() {
-		$screen = get_current_screen();
-		
-		// Check if the current screen is the WooCommerce settings page
-		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
-			// Enqueue the style 'paytrail-woocommerce-payment-fields'
-			wp_enqueue_style('introStyles');
-		}
 	}
 
 	/**
@@ -2229,4 +2072,41 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$this->error($exception, $message, $die);
 	}
+
+	protected function create_refund_item( WC_Order_Item $order_item, WC_Order $order) {
+		$item = new RefundItem();
+
+		// Get the item total with taxes and without rounding.
+		// Then convert it into the integer format required by Paytrail.
+		$sub_total = $this->helper->handle_currency($order->get_item_total($order_item, true, false));
+		$item->setAmount($sub_total);
+
+		$item->setStamp((string) $order_item->get_id());
+
+		return $item;
+	}
+	protected function getOnlyRefundItem( $products, $order) {              
+		$Items = array();
+					  
+		$itemstamps = array();
+				
+		$order_metadata = $order->get_meta('order_item_stamps');
+				  
+		$order_metadata = json_decode($order_metadata, true);     
+				
+		foreach ($order_metadata as $order_meta_key => $order_meta_value) {
+			$itemstamps[$order_meta_value['product_id']] = $order_meta_value['stamp']; 
+		}        
+
+		foreach ($products as $key => $value) {
+			$itemID = $value->get_product_id();
+			$amt = abs($this->helper->handle_currency($value->get_subtotal()));
+			$stamp = $itemstamps[$itemID];
+			$RefundItems = new RefundItem();
+			$RefundItems->setAmount($amt);
+			$RefundItems->setStamp($stamp); 
+			$Items[] = $RefundItems;
+		}
+		return $Items;
+	}      
 }
