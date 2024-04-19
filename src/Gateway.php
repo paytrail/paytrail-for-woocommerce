@@ -214,7 +214,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function display_user_data_form() {
 		$merchant_id = $this->get_option('merchant_id');
-
+		$test_mode_enabled = $this->get_option('enable_test_mode', 'no') === 'yes';
 		$current_screen = get_current_screen();
 		$is_paytrail_settings_page = (
 			!$test_mode_enabled &&
@@ -294,9 +294,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	protected function set_form_fields() {
+		$test_mode_enabled = $this->get_option('enable_test_mode', 'no') === 'yes';
 		$merchant_id_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
 		$secret_key_disabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
-		$enable_test_mode_disabled = (
+		$enable_test_mode_disabled = !$test_mode_enabled && (
 			!empty($this->get_option('merchant_id')) ||
 			!empty($this->get_option('secret_key'))
 		);
@@ -315,26 +316,27 @@ final class Gateway extends \WC_Payment_Gateway {
 			],
 			// Paytrail credentials
 			'merchant_id' => [
-				'title'   => __('Merchant ID', 'paytrail-for-woocommerce'),
+				'title'   => __('Paytrail Merchant ID', 'paytrail-for-woocommerce'),
 				'type'    => 'text',
 				'label'   => __('Merchant ID', 'paytrail-for-woocommerce'),
 				'default' => '',
 				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked
 			],
 			'secret_key'  => [
-				'title'   => __('Secret key', 'paytrail-for-woocommerce'),
+				'title'   => __('Paytrail Secret key', 'paytrail-for-woocommerce'),
 				'type'    => 'password',
 				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
 				'default' => '',
+				'description' => __('Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">test credentials</a>the merchant panel</a>.', 'paytrail-for-woocommerce'),
 				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
 			],
 			// Whether test mode is enabled
 			'enable_test_mode' => [
-				'title'       => __('Enable test mode', 'paytrail-for-woocommerce'),
+				'title'       => __('Test mode', 'paytrail-for-woocommerce'),
 				'type'        => 'checkbox',
 				'label'       => __('Enable test mode', 'paytrail-for-woocommerce'),
 				'default'     => 'no',
-				'description' => __('Enable test mode to process payments in the test environment.', 'paytrail-for-woocommerce'),
+				'description' => __('You can use test mode to simulate payments with Paytrail\'s <a target="_blank" href="https://docs.paytrail.com/#/?id=test-credentials">test credentials</a>. To enable test mode, please first clear the Credentials and save settings.', 'paytrail-for-woocommerce'),
 				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
 			],
 			// General settings
@@ -371,7 +373,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type' => 'title',
 			],
 			'fallback_country'  => [
-				'title'   => __('Fallback country', 'paytrail-for-woocommerce'),
+				'title'   => __('Default country', 'paytrail-for-woocommerce'),
 				'type'    => 'select',
 				'label'   => __('Fallback country', 'paytrail-for-woocommerce'),
 				'default' => '',
