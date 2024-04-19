@@ -14,7 +14,7 @@ class Callback extends AbstractController {
 		new Gateway(['callbackMode' => true]);
 	}
   
-	protected function payAddCard(){
+	protected function payAddCard() {
 	  
 		$gateway = new Gateway();
 	  
@@ -35,16 +35,16 @@ class Callback extends AbstractController {
 		  
 		   $billing_email = $order->get_billing_email();
 			  
-		   $gateway->log("Start save token process for token :". print_r($token, true), 'debug');
+		   $gateway->log('Start save token process for token :' . print_r($token, true), 'debug');
 		  
 		   $gateway->save_pay_and_add_card_method_token($allDetails, $user_id);
 
 		   //Log the order details
-		   $gateway->log("Token Saved successfully", 'debug');
+		   $gateway->log('Token Saved successfully', 'debug');
 		  
 		} else {
 			// Handle the case where the order ID is not present in the POST data
-			$gateway->log("Order ID not present in the POST data", 'debug');
+			$gateway->log('Order ID not present in the POST data', 'debug');
 		}
 	}
 }

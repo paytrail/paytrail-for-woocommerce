@@ -454,43 +454,37 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @throws ValidationException
 	 */
 	public function add_card_form_and_pay( $payment, $order) {
+		$payment = new PaymentRequest();
+		$this->set_payaddcard_payment_data($payment, $order);
+		$resp = $this->client->createPaymentAndAddCard($payment);
+		$url = $resp->getRedirectUrl();
 
-            $payment = new PaymentRequest();
-      
-            $this->set_payaddcard_payment_data($payment, $order);
-      
-            $resp = $this->client->createPaymentAndAddCard($payment);
-            
-            $url = $resp->getRedirectUrl();
-      
-            return [
-			  'result'   => 'success',
-			  'redirect' => $url
-		   ];
-      
-    } 
-  
-
- 	/**
-	 * Save card token for pay-and-add-card method
-	 *
-	 * @param GetTokenResponse $card_token
-	 */
-	public function save_pay_and_add_card_method_token( $card_token, $user_id) {
-		$this->log('Paytrail: save_card_token pay add card', 'debug');
-
-		$token = new WC_Payment_Token_CC();
-		$token->set_card_type($card_token['type']);
-		$token->set_expiry_month($card_token['expire_month']);
-		$token->set_expiry_year($card_token['expire_year']);
-		$token->set_last4($card_token['partial_pan']);
-		$token->set_token($card_token['checkout-card-token']);
-		$token->set_user_id($user_id);
-		$token->set_gateway_id(Plugin::GATEWAY_ID);
-		\WC_Payment_Tokens::set_users_default($user_id, $token->get_id());
-
-		return $token->save();
+		return [
+			'result'   => 'success',
+			'redirect' => $url
+		];
 	}
+
+/**
+* Save card token for pay-and-add-card method
+*
+* @param GetTokenResponse $card_token
+*/
+public function save_pay_and_add_card_method_token( $card_token, $user_id) {
+	$this->log('Paytrail: save_card_token pay add card', 'debug');
+
+	$token = new WC_Payment_Token_CC();
+	$token->set_card_type($card_token['type']);
+	$token->set_expiry_month($card_token['expire_month']);
+	$token->set_expiry_year($card_token['expire_year']);
+	$token->set_last4($card_token['partial_pan']);
+	$token->set_token($card_token['checkout-card-token']);
+	$token->set_user_id($user_id);
+	$token->set_gateway_id(Plugin::GATEWAY_ID);
+	\WC_Payment_Tokens::set_users_default($user_id, $token->get_id());
+
+	return $token->save();
+}
 
 	/**
 	 * Add payment method
@@ -943,11 +937,9 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->log('Paytrail: process_payment', 'debug');
 
         $is_pay_and_card = filter_input(INPUT_POST, 'add_card_pay');
-      
-        if($is_pay_and_card){  
-              return $this->add_card_form_and_pay($payment, $order);
-        }      
-
+		if ($is_pay_and_card) { 
+			return $this->add_card_form_and_pay($payment, $order);
+		} 
 		// @var WC_Order $order
 		$order = wc_get_order($order_id);
 		$token_id = filter_input(INPUT_POST, 'wc-paytrail-payment-token');
