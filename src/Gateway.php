@@ -465,26 +465,26 @@ final class Gateway extends \WC_Payment_Gateway {
 		];
 	}
 
-/**
-* Save card token for pay-and-add-card method
-*
-* @param GetTokenResponse $card_token
-*/
-public function save_pay_and_add_card_method_token( $card_token, $user_id) {
-	$this->log('Paytrail: save_card_token pay add card', 'debug');
+	/**
+	* Save card token for pay-and-add-card method
+	*
+	* @param GetTokenResponse $card_token
+	*/
+	public function save_pay_and_add_card_method_token( $card_token, $user_id) {
+		$this->log('Paytrail: save_card_token pay add card', 'debug');
 
-	$token = new WC_Payment_Token_CC();
-	$token->set_card_type($card_token['type']);
-	$token->set_expiry_month($card_token['expire_month']);
-	$token->set_expiry_year($card_token['expire_year']);
-	$token->set_last4($card_token['partial_pan']);
-	$token->set_token($card_token['checkout-card-token']);
-	$token->set_user_id($user_id);
-	$token->set_gateway_id(Plugin::GATEWAY_ID);
-	\WC_Payment_Tokens::set_users_default($user_id, $token->get_id());
+		$token = new WC_Payment_Token_CC();
+		$token->set_card_type($card_token['type']);
+		$token->set_expiry_month($card_token['expire_month']);
+		$token->set_expiry_year($card_token['expire_year']);
+		$token->set_last4($card_token['partial_pan']);
+		$token->set_token($card_token['checkout-card-token']);
+		$token->set_user_id($user_id);
+		$token->set_gateway_id(Plugin::GATEWAY_ID);
+		\WC_Payment_Tokens::set_users_default($user_id, $token->get_id());
 
-	return $token->save();
-}
+		return $token->save();
+	}
 
 	/**
 	 * Add payment method
