@@ -70,15 +70,20 @@ class Card extends AbstractController {
 
 	private function validate_request() {
 		if (empty($_SERVER['REQUEST_METHOD'])) {
-			return;
+			throw new Exception('No request method specified');
 		}
-		$request = new WP_REST_Request();
-		if ( $request->get_method() != 'POST' ) {
+		
+		$request_method = filter_var($_SERVER['REQUEST_METHOD'], FILTER_SANITIZE_STRING);
+		if ('POST' !== strtoupper($request_method)) {
 			throw new Exception('Only POST requests are allowed');
 		}
-		$content_type = WP_REST_Request::get_content_type();
-		if (stripos($content_type, 'application/json') === false) {
+		
+		$content_type = filter_var(isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '', FILTER_SANITIZE_STRING);
+		
+		if (false === stripos($content_type, 'application/json')) {
 			throw new Exception('Content-Type must be application/json');
 		}
 	}
+	
+	
 }
