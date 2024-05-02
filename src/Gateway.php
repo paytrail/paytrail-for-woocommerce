@@ -147,10 +147,10 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->init_settings();
 
 		// Whether we are in test mode or not.
-		$this->testmode = 'yes' === $this->get_option('testmode', 'no');
+		$this->enable_test_mode = 'yes' === $this->get_option('enable_test_mode', 'no');
 
 		// Set merchant ID and secret key either from the options or for test mode.
-		if ($this->testmode) {
+		if ($this->enable_test_mode) {
 			$this->merchant_id = (int) Plugin::TEST_MERCHANT_ID;
 			$this->secret_key  = Plugin::TEST_SECRET_KEY;
 		} else {
