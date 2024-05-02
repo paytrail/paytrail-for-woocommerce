@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.5
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
