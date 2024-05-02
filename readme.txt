@@ -56,6 +56,9 @@ With test credentials, you can test most of the payment methods included in Payt
 
 == Changelog ==
 
+= 2.0.3 =
+- Fixed test mode enablement
+
 = 2.0.2 =
 - Fixed test mode settings
 
