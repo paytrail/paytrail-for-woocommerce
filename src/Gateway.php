@@ -445,7 +445,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					esc_html_e('Paytrail for WooCommerce test mode is enabled. Please disable it to insert your Merchant ID and secret key.', 'paytrail-for-woocommerce');
 					echo ' ' . sprintf(
 						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
-						esc_html__('</br>If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
+						esc_html__('If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
 						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
 					);	
 				?>
