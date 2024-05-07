@@ -57,7 +57,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @var boolean
 	 */
-	public $testmode = false;
+	public $enable_test_mode = false;
 
 	/**
 	 * Whether the debug mode is enabled.
