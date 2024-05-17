@@ -226,7 +226,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			isset($_GET['tab']) && 'checkout' === $_GET['tab'] &&
 			isset($_GET['section']) && 'paytrail' === $_GET['section']
 		);
-		
+
 		// Check if merchant_id is already submitted
 		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
 			return;
@@ -463,7 +463,7 @@ final class Gateway extends \WC_Payment_Gateway {
 						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
 						esc_html__('If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
 						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
-					);	
+					);
 				?>
 				</p>
 			</div>
@@ -745,12 +745,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		$cancel_order     = filter_input(INPUT_GET, 'cancel_order');
 		$pay_for_order    = filter_input(INPUT_GET, 'pay_for_order');
 
-		// Store information that transaction-specific settlement was used
-		if ( $this->transaction_settlement_enable ) {
-			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
-			$order->save();
-		}
-
 		if (!$status && !$reference && !$refund_callback && !$refund_unique_id) {
 			//no log to reduce number of log entries
 			return;
@@ -828,17 +822,17 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$orders = \wc_get_orders([ 'checkout_reference' => $reference ]);
 
-		// Store information that transaction-specific settlement was used
-		if ( $this->transaction_settlement_enable ) {
-			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
-			$order->save();
-		}
-
 		if (empty($orders)) {
 			$this->log('Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug');
 			return;
 		}
 		$order = $orders[0];
+
+		// Store information that transaction-specific settlement was used
+		if ( $this->transaction_settlement_enable ) {
+			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
+			$order->save();
+		}
 
 		switch ($status) {
 			case 'ok':
@@ -2173,7 +2167,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	public function enqueue_admin_scripts() {
 		$screen = get_current_screen();
-	
+
 		// Check if the current screen is the WooCommerce settings page
 		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the introScripts only on the WooCommerce settings page
@@ -2210,7 +2204,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	public function enqueue_admin_styles() {
 		$screen = get_current_screen();
-		
+
 		// Check if the current screen is the WooCommerce settings page
 		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the style 'paytrail-woocommerce-payment-fields'
