@@ -21,6 +21,7 @@ use Paytrail\SDK\Client;
 use Paytrail\SDK\Request\EmailRefundRequest;
 use Paytrail\SDK\Model\Provider;
 use Paytrail\SDK\Response\GetTokenResponse;
+use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use WC_Order;
@@ -173,6 +174,9 @@ final class Gateway extends \WC_Payment_Gateway {
 		// Whether we are in debug mode or not.
 		$this->debug = 'yes' === $this->get_option('debug', 'no');
 
+		// Check if transaction settlement is enabled
+		$this->transaction_settlement_enable = $this->get_option( 'settlement_enablement', 'no' ) === 'yes';
+
 		if (!empty($params) && isset($params['callbackMode'])) {
 			$this->callbackMode = true;
 		}
@@ -222,7 +226,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			isset($_GET['tab']) && 'checkout' === $_GET['tab'] &&
 			isset($_GET['section']) && 'paytrail' === $_GET['section']
 		);
-		
+
 		// Check if merchant_id is already submitted
 		if (!empty($merchant_id) || $this->get_option('enable_test_mode', 'no') === 'yes') {
 			return;
@@ -372,6 +376,18 @@ final class Gateway extends \WC_Payment_Gateway {
 				'title' => __('Advanced settings', 'paytrail-for-woocommerce'),
 				'type' => 'title',
 			],
+			'settlement_enablement' => [
+				'title' => __( 'Enable individual settlements', 'paytrail-for-woocommerce' ),
+				'type' => 'checkbox',
+				'default' => 'no',
+				'description' => __( 'This setting is required only if you are using transaction-by-transaction settlements in Paytrail.', 'paytrail-for-woocommerce' ),
+			],
+			'settlement_prefix' => [
+				'title' => __( 'Bank reference prefix', 'paytrail-for-woocommerce' ),
+				'type' => 'text',
+				'description' => __( 'Add Prefix', 'paytrail-for-woocommerce' ),
+				'default' => '10'
+			],
 			'fallback_country'  => [
 				'title'   => __('Default country', 'paytrail-for-woocommerce'),
 				'type'    => 'select',
@@ -447,7 +463,7 @@ final class Gateway extends \WC_Payment_Gateway {
 						/* translators: If you have not registered yet, you can do so on our website %s to get your credentials! */
 						esc_html__('If you have not registered yet, you can do so on our website %s to get your credentials!', 'paytrail-for-woocommerce'),
 						'<a href="https://www.paytrail.com/en/get-started" target="_blank">' . esc_html__('here', 'paytrail-for-woocommerce') . '</a>'
-					);	
+					);
 				?>
 				</p>
 			</div>
@@ -460,6 +476,30 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function admin_notices() {
 		$this->display_test_mode_notice();
+	}
+
+	/**
+	 * Calculate bank reference
+	 */
+	private function calculate_reference( $base ) {
+		$base = sprintf( '%s%s', $this->settlement_prefix, $base );
+		$base = trim( str_replace( ' ', '', $base ) );
+		$base = str_split( $base );
+		$reversed_base = array_reverse( $base );
+
+		$weights = array( 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7 );
+
+		$sum = 0;
+		for ( $i = 0; $i < count( $reversed_base ); $i++ ) {
+			$coefficient = array_shift( $weights );
+			$sum += intval( $reversed_base[$i] ) * $coefficient;
+		}
+
+		$checksum = ( 0 == ( $sum % 10 ) ) ? 0 : ( 10 - ( $sum % 10 ) );
+
+		$reference = sprintf( '%s%d', implode( '', $base ), $checksum );
+
+		return $reference;
 	}
 
 	/**
@@ -787,6 +827,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 		$order = $orders[0];
+
+		// Store information that transaction-specific settlement was used
+		if ( $this->transaction_settlement_enable ) {
+			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
+			$order->save();
+		}
 
 		switch ($status) {
 			case 'ok':
@@ -1364,8 +1410,12 @@ final class Gateway extends \WC_Payment_Gateway {
 		$payment->setStamp(get_current_blog_id() . '-' . $order->get_id() . '-' . time());
 
 		// Use WooCom order number as reference
-		// https://trello.com/c/i6GUZACP/83-reference-kentt%C3%A4%C3%A4n-woon-tilausnumero
 		$reference = $order->get_order_number();
+
+		// Calculate bank reference for transaction-specific settlements
+		if ( $this->transaction_settlement_enable ) {
+			$reference = $this->calculate_reference( $reference );
+		}
 
 		// Set WooCommerce order number as the payment reference
 		$payment->setReference($reference);
@@ -2117,7 +2167,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	public function enqueue_admin_scripts() {
 		$screen = get_current_screen();
-	
+
 		// Check if the current screen is the WooCommerce settings page
 		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the introScripts only on the WooCommerce settings page
@@ -2154,7 +2204,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	public function enqueue_admin_styles() {
 		$screen = get_current_screen();
-		
+
 		// Check if the current screen is the WooCommerce settings page
 		if ($screen && 'woocommerce_page_wc-settings' === $screen->id) {
 			// Enqueue the style 'paytrail-woocommerce-payment-fields'
