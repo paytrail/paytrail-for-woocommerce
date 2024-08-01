@@ -5,6 +5,7 @@
 
 namespace Paytrail\WooCommercePaymentGateway;
 
+use Automattic\WooCommerce\Utilities\NumberUtil;
 use Paytrail\SDK\Exception\ValidationException;
 use Paytrail\SDK\Request\AddCardFormRequest;
 use Paytrail\SDK\Request\CitPaymentRequest;
@@ -2000,7 +2001,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$item->setUnitPrice($sub_total)
 			->setUnits((int) $order_item->get_quantity());
 
-		$tax_rate = $this->get_item_tax_rate($order_item, $order);
+		$tax_rate = $this->get_item_tax_rate($order_item);
 
 		$item->setVatPercentage($tax_rate)
 			->setProductCode($this->get_item_product_code($order_item))
@@ -2072,22 +2073,25 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Get the tax rate of an order line item.
 	 *
 	 * @param WC_Order_Item $item  The order line item.
-	 * @param WC_Order      $order The current order object.
 	 *
-	 * @return int The tax percentage.
+	 * @return float The tax percentage.
 	 */
-	protected function get_item_tax_rate( WC_Order_Item $item, WC_Order $order) {
-		$total_without_tax     = $order->get_line_total($item, false, false);
-		$total_with_tax     = $order->get_line_total($item, true, true);
-		$tax_total = $total_with_tax - $total_without_tax;
+	protected function get_item_tax_rate( WC_Order_Item $item) {
+		$taxes       = $item->get_taxes();
+		$tax_total   = 0;
+		$total_price = $item->get_total();
 
-		// Not taxes set.
-		if (0.0 == $tax_total || 0.0 == $total_without_tax || 0.0 == $total_with_tax) {
-			return 0;
+		foreach ( $taxes['total'] as $tax_rate_id => $tax ) {
+			$tax_total += (float) $tax;
 		}
-		$tax_rate = round(( $tax_total / $total_without_tax ) * 100);
 
-		return (int) $tax_rate;
+		if ( $total_price > 0 && $tax_total > 0) {
+			$tax_rate = NumberUtil::round( ( $tax_total / $total_price ) * 100, wc_get_price_decimals() );
+		} else {
+			$tax_rate = 0;
+		}
+
+		return $tax_rate;
 	}
 
 	/**
