@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.1] - 2024-08-05
 ### Fixed
-- Fixed rounding errors
+- Fixed VAT rounding problem caused by certain product price settings
 
 ## [2.1.0] - 2024-08-01
 ### Added
