@@ -118,6 +118,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @var Helper
 	 */
 	protected $helper = null;
+	const TAX_RATE_PRECISION = 1;
 
 	/**
 	 * Object constructor
@@ -2086,7 +2087,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ( $total_price > 0 && $tax_total > 0) {
-			$tax_rate = NumberUtil::round( ( $tax_total / $total_price ) * 100, wc_get_price_decimals() );
+			$tax_rate = NumberUtil::round( ( $tax_total / $total_price ) * 100, self::TAX_RATE_PRECISION );
 		} else {
 			$tax_rate = 0;
 		}
