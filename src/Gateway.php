@@ -70,6 +70,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	public $callbackMode = false;
 
+	public $transaction_settlement_enable = false;
+
 	/**
 	 * Supported features.
 	 *
