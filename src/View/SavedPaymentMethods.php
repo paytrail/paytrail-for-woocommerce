@@ -64,7 +64,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 			data: JSON.stringify({token_id: cardTokenId}),
 			success: function (response) {
 				if (response.success) {
-					jQuery('body').trigger('update_checkout')
+					location.reload()
 				}
 			}
 		})
