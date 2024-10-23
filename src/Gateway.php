@@ -1932,7 +1932,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		try {
-			$providers = $this->client->getGroupedPaymentProviders($payment_amount ?? $this->get_cart_total(), $locale ?? Helper::getLocale(), $groups);
+			$providers = $this->client->getGroupedPaymentProviders(
+				isset($payment_amount) ? $payment_amount : $this->get_cart_total(),
+				isset($locale) ? $locale : Helper::getLocale(),
+				$groups
+			);
 		} catch (HmacException $exception) {
 			$providers = $this->get_payment_providers_error_handler($exception);
 		} catch (\Exception $exception) {
