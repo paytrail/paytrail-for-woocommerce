@@ -143,9 +143,13 @@ final class Plugin {
         add_action( 'before_woocommerce_init', function() {
             if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
                 \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks',__FILE__, true );
             }
         } );
 
+        // Blocks compatibility
+		add_action( 'woocommerce_blocks_loaded', [__CLASS__,'register_blocks_support'] );
+        
         // Enqueue jQuery
         add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
         add_action('admin_enqueue_scripts', array($this, 'enque_jquery_scripts'));
@@ -343,6 +347,7 @@ final class Plugin {
 
                 return $gateways;
             });
+
         }
 
         return self::$instance;
@@ -430,6 +435,22 @@ final class Plugin {
     }
 
     /**
+	 * Register blocks support
+	 */
+	public static function register_blocks_support() {
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) && class_exists( 'Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry' ) ) {
+			require_once 'src/PaytrailBlocks.php';
+
+			add_action(
+				'woocommerce_blocks_payment_method_type_registration',
+				function( \Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+				$payment_method_registry->register( new Paytrail_Blocks_Support() );
+				}
+			);
+		}
+	}
+
+    /**
      * Ensure that we have at least version 3.5 of the WooCommerce plugin.
      *
      * @return string|null
@@ -471,6 +492,24 @@ final class Plugin {
     public function get_plugin_info() : array {
         return $this->plugin_info;
     }
+
+    /**
+	 * Plugin url.
+	 *
+	 * @return string
+	 */
+	public static function plugin_url() {
+		return untrailingslashit( plugins_url( '/', __FILE__ ) );
+	}
+
+	/**
+	 * Plugin url.
+	 *
+	 * @return string
+	 */
+	public static function plugin_abspath() {
+		return trailingslashit( plugin_dir_path( __FILE__ ) );
+	}
 }
 
 add_action( 'plugins_loaded', function() {
