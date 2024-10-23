@@ -1924,7 +1924,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param string $locale
 	 * @return array
 	 */
-	public function get_grouped_payment_providers( $payment_amount=null, $locale=null) {
+	public function get_grouped_payment_providers( $payment_amount = null, $locale = null) {
 		$groups = [];
 
 		if ($this->helper::getIsSubscriptionsEnabled()) {
@@ -2183,8 +2183,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	public function get_cart_total() {
-		if (WC()->cart && is_callable([WC()->cart,'get_total'])){
-			return (int)round( WC()->cart->get_total( 'edit' ) * 100 );
+		if ( WC()->cart && is_callable( [ WC()->cart, 'get_total' ] ) ) {
+			return (int) round( WC()->cart->get_total( 'edit' ) * 100 );
 		}
 		return 0;
 	}
