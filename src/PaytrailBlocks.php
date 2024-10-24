@@ -200,7 +200,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			'supports'    => array_filter($gateway->supports, [$gateway, 'supports']),
 			'groups'      => $grouped_providers['groups'],
 			'terms'       => $grouped_providers['terms'],
-			'saved_payment_methods' => array_map( function($token) {
+			'saved_payment_methods' => array_map(function ($token) {
 				return [
 					'id'     => $token->get_id(),
 					'last4'  => $token->get_last4(),
