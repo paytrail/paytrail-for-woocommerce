@@ -18,12 +18,19 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	protected $gateway;
 
 	public function __construct() {
-		// No gateway initialization in the constructor.
 		add_action( 'woocommerce_rest_checkout_process_payment_with_context', [ $this, 'add_payment_request_order_meta' ], 8, 2 );
 	}
 
 	public function initialize() {
 		$this->settings = get_option( 'woocommerce_paytrail_settings', [] );
+	}
+
+	public function use_provider_selection() {
+		return isset($this->settings['provider_selection']) && 'yes' === $this->settings['provider_selection'];
+	}
+    
+	public function is_provider_selection_enabled() {
+		return $this->use_provider_selection();
 	}
 
 	/**
@@ -159,32 +166,49 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 * Return data required for the block-based checkout.
 	 */
 	public function get_payment_method_data() {
-		$gateway           = $this->get_gateway(); // Use the gateway via the new get_gateway method.
+		$gateway = $this->get_gateway();
+	
+		// Check if provider selection is disabled
+		if ( ! $this->is_provider_selection_enabled() ) {
+			// Redirect to Paytrail if provider selection is disabled
+			$payment_result = $gateway->process_paytrail_payment(null, null, null, false);
+	
+			if ( 'success' === $payment_result['result'] ) {
+				return [
+					'redirect_url' => $payment_result['redirect'],
+				];
+			}
+	
+			return [
+				'error_message' => __( 'Unable to process payment. Please try again.', 'paytrail-for-woocommerce' ),
+			];
+		}
+	
+		// Provider selection is enabled, so proceed with showing grouped providers and saved tokens
 		$grouped_providers = $gateway->get_grouped_payment_providers();
-
-		// Enqueue payment method styles.
+	
+		// Enqueue payment method styles
 		$this->get_payment_method_style_handles();
-
-		// Get saved tokens for the current logged-in user.
-		$tokens = WC_Payment_Tokens::get_customer_tokens( get_current_user_id() );
-
+	
+		// Get saved tokens for the current logged-in user
+		$tokens = WC_Payment_Tokens::get_customer_tokens(get_current_user_id());
+	
+		// Return the grouped providers and saved payment methods for display in the checkout block
 		return [
-			'title'               => $gateway->title,
-			'description'         => $gateway->description,
-			'supports'            => array_filter( $gateway->supports, [ $gateway, 'supports' ] ),
-			'groups'              => $grouped_providers['groups'],
-			'terms'               => $grouped_providers['terms'],
-			'saved_payment_methods' => array_map(
-				function( $token ) {
-					return [
-						'id'     => $token->get_id(),
-						'last4'  => $token->get_last4(),
-						'expiry' => $token->get_expiry_month() . '/' . $token->get_expiry_year(),
-						'type'   => $token->get_card_type(),
-					];
-				},
-				$tokens
-			), // Map saved tokens to the format required for display.
+			'title'       => $gateway->title,
+			'description' => $gateway->description,
+			'supports'    => array_filter($gateway->supports, [$gateway, 'supports']),
+			'groups'      => $grouped_providers['groups'],
+			'terms'       => $grouped_providers['terms'],
+			'saved_payment_methods' => array_map(function($token) {
+				return [
+					'id'     => $token->get_id(),
+					'last4'  => $token->get_last4(),
+					'expiry' => $token->get_expiry_month() . '/' . $token->get_expiry_year(),
+					'type'   => $token->get_card_type(),
+				];
+			}, $tokens),
 		];
 	}
+	
 }
