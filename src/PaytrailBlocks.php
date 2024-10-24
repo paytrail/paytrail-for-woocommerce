@@ -76,9 +76,9 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		$gateway      = $this->get_gateway(); // Use the gateway via the new get_gateway method.
 
 		// Check if tokenized card is used.
-		if ( ! empty( $payment_data['wc_paytrail_payment_token'] ) ) {
-			$token_id = $payment_data['wc_paytrail_payment_token'];
-			$token    = WC_Payment_Tokens::get( $token_id );
+		if ( ! empty( $payment_data['wc-paytrail-payment-token'] ) ) {
+            $token_id = $payment_data['wc-paytrail-payment-token'];
+            $token    = WC_Payment_Tokens::get( $token_id );
 
 			if ( $token && $token->validate() ) {
 				$payment_result = $gateway->process_paytrail_payment( $context->order, $token_id, null, false );
