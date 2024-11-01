@@ -852,12 +852,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			$existing_transaction_id = $existing_order->get_transaction_id();
 			
 			if (empty($existing_transaction_id)) {
-				$this->log('Paytrail: Order ID'. $existing_order->get_id() .'has an empty transaction ID. Aborting processing.', 'debug');
+				$this->log('Paytrail: Order ID ' . $existing_order->get_id() . ' has an empty transaction ID. Aborting processing.', 'debug');
 				return false;
 			}
 			
 			if ($existing_order->get_id() !== $order->get_id()) {
-				$this->log('Paytrail: Duplicate transaction ID'. $transaction_id .'detected. Already associated with order'. $existing_order->get_id().'.', 'debug');
+				$this->log('Paytrail: Duplicate transaction ID ' . $transaction_id . ' detected. Already associated with order ' . $existing_order->get_id() . '.', 'debug');
 				return false;
 			}
 		}
