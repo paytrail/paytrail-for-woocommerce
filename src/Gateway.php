@@ -821,8 +821,13 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		$reference = filter_input(INPUT_GET, 'checkout-reference');
+		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
 
-		$orders = \wc_get_orders([ 'checkout_reference' => $reference ]);
+		$orders = \wc_get_orders([
+			'meta_key'   => '_checkout_reference',
+			'meta_value' => $reference,
+			'limit'      => 1,
+		]);
 
 		if (empty($orders)) {
 			$this->log('Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug');
@@ -830,11 +835,39 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 		$order = $orders[0];
 
+		
+
+		if (empty($transaction_id)) {
+			$this->log('Paytrail: Received an empty transaction ID from input. Aborting processing.', 'debug');
+			return false;
+		}
+
+		$existing_orders = \wc_get_orders([
+			'meta_key'   => '_transaction_id',
+			'meta_value' => $transaction_id,
+		]);
+
+		// Cross-check if any other order already has this transaction ID
+		foreach ($existing_orders as $existing_order) {
+			$existing_transaction_id = $existing_order->get_transaction_id();
+			
+			if (empty($existing_transaction_id)) {
+				$this->log('Paytrail: Order ID'. $existing_order->get_id() .'has an empty transaction ID. Aborting processing.', 'debug');
+				return false;
+			}
+			
+			if ($existing_order->get_id() !== $order->get_id()) {
+				$this->log('Paytrail: Duplicate transaction ID'. $transaction_id .'detected. Already associated with order'. $existing_order->get_id().'.', 'debug');
+				return false;
+			}
+		}
+
 		// Store information that transaction-specific settlement was used
 		if ( $this->transaction_settlement_enable ) {
 			$order->update_meta_data( '_paytrail_ppa_transaction_settlement', true );
 			$order->save();
 		}
+		
 
 		switch ($status) {
 			case 'ok':
