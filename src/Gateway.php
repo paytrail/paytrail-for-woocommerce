@@ -822,11 +822,18 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$reference = filter_input(INPUT_GET, 'checkout-reference');
 		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
+		$order_received = filter_input(INPUT_GET, 'order-received');
 
 		$orders = \wc_get_orders([
-			'meta_key'   => '_checkout_reference',
-			'meta_value' => $reference,
-			'limit'      => 1,
+			'meta_query' => [
+				[
+					'key'     => '_checkout_reference',
+					'value'   => $reference,
+					'compare' => '='
+				]
+			],
+			'post__in' => [$order_received],
+			'limit'    => 1
 		]);
 
 		if (empty($orders)) {
@@ -843,8 +850,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		$existing_orders = \wc_get_orders([
-			'meta_key'   => '_transaction_id',
-			'meta_value' => $transaction_id,
+			'transaction_id'   => $transaction_id
 		]);
 
 		// Cross-check if any other order already has this transaction ID
