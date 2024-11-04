@@ -26,6 +26,7 @@ use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use WC_Order;
+use WC_Order_Query;
 use WC_Order_Item;
 use WC_Order_Item_Product;
 use WC_Order_Item_Fee;
@@ -824,17 +825,14 @@ final class Gateway extends \WC_Payment_Gateway {
 		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
 		$order_received = filter_input(INPUT_GET, 'order-received');
 
-		$orders = \wc_get_orders([
-			'meta_query' => [
-				[
-					'key'     => '_checkout_reference',
-					'value'   => $reference,
-					'compare' => '='
-				]
-			],
-			'post__in' => [$order_received],
-			'limit'    => 1
+		$order_query = new WC_Order_Query([
+			'limit'        => 1,
+			'meta_key'     => '_checkout_reference',
+			'meta_value'   => $reference,
+			'post__in'     => [$order_received],
 		]);
+
+		$orders = $order_query->get_orders();
 
 		if (empty($orders)) {
 			$this->log('Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug');
