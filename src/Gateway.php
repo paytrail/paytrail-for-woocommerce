@@ -847,15 +847,10 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		try {
-			$transaction_query = new WC_Order_Query([
-				'meta_query' => [
-					[
-						'key'     => '_transaction_id',
-						'value'   => $transaction_id,
-						'compare' => '='
-					]
-				]
-			]);
+			$transaction_query = new WC_Order_Query( [
+				'transaction_id' => $transaction_id,
+			] );
+
 			$existing_orders = $transaction_query->get_orders();
 
 			// Cross-check if any other order already has this transaction ID
