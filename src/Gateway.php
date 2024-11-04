@@ -825,46 +825,60 @@ final class Gateway extends \WC_Payment_Gateway {
 		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
 		$order_received = filter_input(INPUT_GET, 'order-received');
 
-		$order_query = new WC_Order_Query([
-			'limit'        => 1,
-			'meta_key'     => '_checkout_reference',
-			'meta_value'   => $reference,
-			'post__in'     => [$order_received],
-		]);
+		try {
+			$order_query = new WC_Order_Query([
+				'limit'        => 1,
+				'meta_key'     => '_checkout_reference',
+				'meta_value'   => $reference,
+				'post__in'     => [$order_received],
+			]);
 
-		$orders = $order_query->get_orders();
+			$orders = $order_query->get_orders();
 
-		if (empty($orders)) {
-			$this->log('Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug');
-			return;
-		}
-		$order = $orders[0];
+			if (empty($orders)) {
+				$this->log('Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug');
+				return;
+			}
+			$order = $orders[0];
 
-		
-
-		if (empty($transaction_id)) {
-			$this->log('Paytrail: Received an empty transaction ID from input. Aborting processing.', 'debug');
+		} catch (Exception $e) {
+			$this->log('Paytrail: order_query, failed for reference: ' . $reference, 'debug');
 			return false;
 		}
 
-		$existing_orders = \wc_get_orders([
-			'transaction_id'   => $transaction_id
-		]);
+		try {
+			$transaction_query = new WC_Order_Query([
+				'meta_query' => [
+					[
+						'key'     => '_transaction_id',
+						'value'   => $transaction_id,
+						'compare' => '='
+					]
+				]
+			]);
+			$existing_orders = $transaction_query->get_orders();
 
-		// Cross-check if any other order already has this transaction ID
-		foreach ($existing_orders as $existing_order) {
-			$existing_transaction_id = $existing_order->get_transaction_id();
-			
-			if (empty($existing_transaction_id)) {
-				$this->log('Paytrail: Order ID ' . $existing_order->get_id() . ' has an empty transaction ID. Aborting processing.', 'debug');
-				return false;
+			// Cross-check if any other order already has this transaction ID
+			foreach ($existing_orders as $existing_order) {
+				$existing_transaction_id = $existing_order->get_transaction_id();
+				
+				if (empty($existing_transaction_id)) {
+					$this->log('Paytrail: Order ID ' . $existing_order->get_id() . ' has an empty transaction ID. Aborting processing.', 'debug');
+					return false;
+				}
+				
+				if ($existing_order->get_id() !== $order->get_id()) {
+					$this->log('Paytrail: Duplicate transaction ID ' . $transaction_id . ' detected. Already associated with order ' . $existing_order->get_id() . '.', 'debug');
+					return false;
+				}
 			}
-			
-			if ($existing_order->get_id() !== $order->get_id()) {
-				$this->log('Paytrail: Duplicate transaction ID ' . $transaction_id . ' detected. Already associated with order ' . $existing_order->get_id() . '.', 'debug');
-				return false;
-			}
+
+		} catch (Exception $e) {
+			$this->log('Paytrail: transaction_query, failed for reference: ' . $reference, 'debug');
+			return false;
 		}
+		
+		
 
 		// Store information that transaction-specific settlement was used
 		if ( $this->transaction_settlement_enable ) {
