@@ -823,14 +823,12 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$reference = filter_input(INPUT_GET, 'checkout-reference');
 		$transaction_id = filter_input(INPUT_GET, 'checkout-transaction-id');
-		$order_received = filter_input(INPUT_GET, 'order-received');
 
 		try {
 			$order_query = new WC_Order_Query([
 				'limit'        => 1,
 				'meta_key'     => '_checkout_reference',
 				'meta_value'   => $reference,
-				'order__in'     => [$order_received],
 			]);
 
 			$orders = $order_query->get_orders();
