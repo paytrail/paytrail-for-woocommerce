@@ -830,7 +830,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'limit'        => 1,
 				'meta_key'     => '_checkout_reference',
 				'meta_value'   => $reference,
-				'post__in'     => [$order_received],
+				'order__in'     => [$order_received],
 			]);
 
 			$orders = $order_query->get_orders();
