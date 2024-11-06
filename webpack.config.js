@@ -30,7 +30,7 @@ const config = {
         main: './assets/js/main.js',
         introScripts: './assets/js/paytrail-intro-scripts.js'  // Add this line for your new file
     },
-    
+
     output: {
         path: path.resolve( './assets/dist' ),
         filename: '[name].js',
@@ -53,7 +53,7 @@ const config = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[id].css',
-          }),
+        }),
     ],
     module: {
         rules: [

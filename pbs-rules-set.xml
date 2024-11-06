@@ -10,8 +10,8 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
     <!-- Configs -->
-    <config name="minimum_supported_wp_version" value="4.7" />
-    <config name="testVersion" value="5.6-" />
+    <config name="minimum_supported_wp_version" value="4.9" />
+    <config name="testVersion" value="7.3-" />
 
     <!-- Rules -->
     <rule ref="WordPress-Extra">
@@ -37,7 +37,5 @@
         <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect" />
     </rule>
 
-    <rule ref="PHPCompatibility">
-        <exclude-pattern>tests/</exclude-pattern>
-    </rule>
+    <rule ref="PHPCompatibility" />
 </ruleset>

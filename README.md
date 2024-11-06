@@ -5,19 +5,19 @@
 **Required WooCommerce version:** 3.5<br>
 **Required PHP version:** 7.3
 
-Accept all popular payment methods for Finnish B2C and B2B customers with one agreement and one plugin. 
+Accept all popular payment methods for Finnish B2C and B2B customers with one agreement and one plugin.
 
 [Paytrail](https://www.paytrail.com) provides you with:
 
 * **A trusted and popular Finnish payment service with 17 years of e-commerce experience** that is supported all over Finland and many European countries. 20 000+ online businesses and services including the Finnish State Treasury ‘s Suomi.fi payment service entrust us to handle their transactions.
 * **Popular payment methods in Finland to increase conversion rates:** online banks, cards, mobile, Buy now, Pay later and PayPal. Detailed payment method information can be found on [our website](https://www.paytrail.com/en/payment-methods).
 * **Tokenization and Subscriptions.** The plugin supports card tokenization which allows customers to store their credit card information securely and reliably for later use or with the use of [WooCommerce Subscriptions](https://woocommerce.com/products/woocommerce-subscriptions/) for recurring payments.
-* **Fast, reliable payouts** that are made at the same time regardless of payment method used. 
+* **Fast, reliable payouts** that are made at the same time regardless of payment method used.
 * **Accessible, friendly, and fast customer service.** Our customer service team replies to all requests from our customers and our customers’ customers.
 * **Reliable and compliant service** with an [uptime of 99.98%](https://status.paytrail.com/). Local and EU regulatory requirements and updates are always made on time.
 * **Easy monitoring and detailed reporting.** Track and analyze transactions, create refunds and payment links, and download detailed reports for accounting purposes.
 
-To use this plugin, first [register for a Paytrail account](https://www.paytrail.com/en/order-service). 
+To use this plugin, first [register for a Paytrail account](https://www.paytrail.com/en/order-service).
 
 For pricing, please [visit our website](https://www.paytrail.com/en/pricing).
 
@@ -25,7 +25,7 @@ For pricing, please [visit our website](https://www.paytrail.com/en/pricing).
 
 ### From WordPress plugin directory
 
-Open WordPress Admin panel and go to Plugins -> Add New. Search for [Paytrail for WooCommerce](https://wordpress.org/plugins/paytrail-for-woocommerce/), click install and then activate. 
+Open WordPress Admin panel and go to Plugins -> Add New. Search for [Paytrail for WooCommerce](https://wordpress.org/plugins/paytrail-for-woocommerce/), click install and then activate.
 
 After installation go to WooCommerce -> Settings -> Payments and select "Manage" next to Paytrail for WooCommerce to review settings.
 
@@ -34,8 +34,8 @@ After installation go to WooCommerce -> Settings -> Payments and select "Manage"
 1. If you have Composer installed:
 - You can use the command line to install the plugin:
 
-```
-$ composer require paytrail/paytrail-for-woocommerce
+```shell
+composer require paytrail/paytrail-for-woocommerce
 ```
 - Or you can add the following json to your `composer.json` file:
 
@@ -93,7 +93,7 @@ Setup fallback country to be used if no country is provided from Woocommerce che
 
 ### Token migration ###
 
-Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. 
+Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce plugin. The update is done upon saving settings.
 
 ## Router
 

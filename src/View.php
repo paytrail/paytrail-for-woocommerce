@@ -40,8 +40,8 @@ class View {
 	 * @return void
 	 */
 	public function render( $data = null) {
- // @codingStandardsIgnoreLine
-	require $this->template;
+		// @codingStandardsIgnoreLine
+		require $this->template;
 	}
 
 	/**
