@@ -45,7 +45,7 @@ class View {
 	}
 
 	/**
-	 * Get a complate template path by a template name.
+	 * Get a complete template path by a template name.
 	 *
 	 * @param string $template Template name to work with.
 	 * @return string The complete path.

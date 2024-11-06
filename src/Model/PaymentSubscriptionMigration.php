@@ -38,7 +38,7 @@ class PaymentSubscriptionMigration implements MigrationInterface {
 		}
 		foreach ($this->subscriptions as $subscription) {
 			$subscription->set_payment_method('paytrail');
-			$subscription->set_payment_method_title('Paytrail for Woocommerce');
+			$subscription->set_payment_method_title('Paytrail for WooCommerce');
 			$subscription->save();
 		}
 	}
