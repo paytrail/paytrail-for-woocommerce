@@ -3,12 +3,12 @@
  * Plugin Name: Paytrail for WooCommerce
  * Plugin URI: https://github.com/paytrail/paytrail-for-woocommerce
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
- * Version: 2.1.1
+ * Version: 2.1.2
  * Requires at least: 4.9
  * Tested up to: 6.6
  * Requires PHP: 7.3
  * WC requires at least: 3.5
- * WC tested up to: 9.1
+ * WC tested up to: 9.3
  * Author: Paytrail
  * Author URI: https://www.paytrail.com/
  * Text Domain: paytrail-for-woocommerce
@@ -139,7 +139,7 @@ final class Plugin {
         add_action( 'wp_enqueue_scripts', function() {
             wp_enqueue_style( 'dashicons' );
         } );
-        
+
         add_action( 'before_woocommerce_init', function() {
             if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
                 \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
@@ -159,7 +159,7 @@ final class Plugin {
         $plugin_instance = Plugin::instance();
 		$plugin_dir_url = $plugin_instance->get_plugin_dir_url();
 		$plugin_version = $plugin_instance->get_plugin_info()['Version'];
-    
+
         // Register the custom script
         wp_register_script(
             'introScripts',
@@ -168,7 +168,7 @@ final class Plugin {
             $plugin_version,
             true // Enqueue in the footer
         );
-    
+
         // Enqueue the custom script
         wp_enqueue_script('introScripts');
     }
@@ -217,7 +217,7 @@ final class Plugin {
                     background-color: <?php echo get_theme_mod('paytrail_group_highlighted_background', '#33798d'); ?> !important;
                     color: <?php echo get_theme_mod('paytrail_group_highlighted_text', '#ffffff'); ?> !important;
                 }
-                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {                    
+                .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {
                     border: 2px solid <?php esc_html_e( get_theme_mod('paytrail_method_highlighted', '#33798d')); ?> !important;
                 }
                 .woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
