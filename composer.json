@@ -37,7 +37,7 @@
     },
     "scripts": {
         "lint": [
-            "vendor/bin/phpcs --standard=pbs-rules-set.xml --warning-severity=0 --ignore-annotations --extensions=php,html src"
+            "vendor/bin/phpcs --standard=pbs-rules-set.xml --warning-severity=0 --ignore-annotations --extensions=php plugin.php src/"
         ]
     }
 }
