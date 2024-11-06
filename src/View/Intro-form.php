@@ -36,7 +36,7 @@
 				</p>
 			</div>
 		</div>
-		<div classs="paytrail-intro-support" style="display:flex;align-items: center;justify-content:center;width:100%;background-color:#D92D83;">
+		<div class="paytrail-intro-support" style="display:flex;align-items: center;justify-content:center;width:100%;background-color:#D92D83;">
 			<?php
 			$customer_service_link = 'https://www.paytrail.com/en/customer-service#merchants/';
 			?>
@@ -44,7 +44,7 @@
 				<?php /* translators: <b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a> */ echo sprintf(__('<b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>'), esc_html($customer_service_link)); ?>
 			</h2>
 		</div>
-		<div classs="paytrail-intro-footer" style="display:flex;align-items: center;justify-content:center;padding-top:25px;padding-bottom:25px;width:calc(100% - 2px);background-color:#fff;;border:1px solid #D92D83;">
+		<div class="paytrail-intro-footer" style="display:flex;align-items: center;justify-content:center;padding-top:25px;padding-bottom:25px;width:calc(100% - 2px);background-color:#fff;;border:1px solid #D92D83;">
 			<div style="display:inline-block;width:24%;text-align:center;font-size:0px;">
 				<p style="font-weight:bold;font-size:15px;margin-bottom:0px;margin-top:0px;"><?php esc_html_e('I just want to try it', 'paytrail-for-woocommerce'); ?></p>
 			</div>

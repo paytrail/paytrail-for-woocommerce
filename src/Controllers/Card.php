@@ -1,6 +1,6 @@
 <?php
 /**
- * Paytrail for Woocommerce payment Card controller class
+ * Paytrail for WooCommerce payment Card controller class
  */
 
 namespace Paytrail\WooCommercePaymentGateway\Controllers;

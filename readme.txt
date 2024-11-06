@@ -103,7 +103,7 @@ With test credentials, you can test most of the payment methods included in Payt
 - Fixed rounding row negative amount
 
 = 1.3.5 =
-- Fixed item amount type missmatch
+- Fixed item amount type mismatch
 
 = 1.3.4 =
 - Added WP code linter tests

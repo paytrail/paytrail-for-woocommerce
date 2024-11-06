@@ -1,6 +1,6 @@
 <?php
 /**
- * Paytrail for Woocommerce payment Helper class
+ * Paytrail for WooCommerce payment Helper class
  */
 
 namespace Paytrail\WooCommercePaymentGateway;
@@ -44,7 +44,7 @@ class Helper {
 	}
 
 	/**
-	 * Currency specific formattings
+	 * Currency specific formatting
 	 *
 	 * @param int|double $sum The sum to format.
 	 * @return integer

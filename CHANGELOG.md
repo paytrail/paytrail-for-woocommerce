@@ -67,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.5] - 2023-09-22
 ### Fixed
-- Fixed item amount type missmatch
+- Fixed item amount type mismatch
 
 ## [1.3.4] - 2023-09-21
 ### Added
