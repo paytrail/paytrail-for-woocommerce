@@ -14,242 +14,236 @@ use WC_Logger;
 
 class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 
-    protected $name = 'paytrail';
-    protected $gateway;
+	protected $name = 'paytrail';
+	protected $gateway;
 
-    public function __construct() {
-        add_action( 'woocommerce_rest_checkout_process_payment_with_context', [ $this, 'add_payment_request_order_meta' ], 8, 2 );
-    }
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Hook into the REST API checkout process to add custom meta.
+		add_action( 'woocommerce_rest_checkout_process_payment_with_context', [ $this, 'add_payment_request_order_meta' ], 8, 2 );
+	}
 
-    public function initialize() {
-        $this->settings = get_option( 'woocommerce_paytrail_settings', [] );
-    }
+	/**
+	 * Initialize the payment method settings.
+	 */
+	public function initialize() {
+		$this->settings = get_option( 'woocommerce_paytrail_settings', [] );
+	}
 
-    public function use_provider_selection() {
-        return isset($this->settings['provider_selection']) && 'yes' === $this->settings['provider_selection'];
-    }
+	/**
+	 * Check if provider selection is enabled in settings.
+	 *
+	 * @return bool True if provider selection is enabled, false otherwise.
+	 */
+	public function use_provider_selection() {
+		return isset( $this->settings['provider_selection'] ) && 'yes' === $this->settings['provider_selection'];
+	}
 
-    public function is_provider_selection_enabled() {
-        return $this->use_provider_selection();
-    }
+	/**
+	 * Determine if provider selection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_provider_selection_enabled() {
+		return $this->use_provider_selection();
+	}
 
-    /**
-     * Lazy initialize and retrieve the Paytrail gateway.
-     */
-    private function get_gateway() {
-        if ( $this->gateway ) {
-            return $this->gateway;
-        }
+	/**
+	 * Lazy initialize and retrieve the Paytrail gateway.
+	 *
+	 * @return WC_Payment_Gateway|null The Paytrail gateway or null if not found.
+	 */
+	private function get_gateway() {
+		if ( $this->gateway ) {
+			return $this->gateway;
+		}
 
-        // Initialize the gateway if it hasn't been set yet.
-        $gateways       = WC()->payment_gateways->payment_gateways();
-        $this->gateway  = isset( $gateways[ $this->name ] ) ? $gateways[ $this->name ] : null;
+		// Initialize the gateway if it hasn't been set yet.
+		$gateways      = WC()->payment_gateways->payment_gateways();
+		$this->gateway = isset( $gateways[ $this->name ] ) ? $gateways[ $this->name ] : null;
 
-        return $this->gateway;
-    }
+		return $this->gateway;
+	}
 
-    /**
-     * Return the handles of the scripts required by the payment method.
-     */
-    public function get_payment_method_script_handles() {
-        $script_path       = '/dist/assets/frontend/blocks.js';
-        $script_asset_path = \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'dist/assets/frontend/blocks.asset.php';
-        $script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : array(
-            'dependencies' => array(),
-            'version'      => \Paytrail\WooCommercePaymentGateway\Plugin::$version,
-        );
-        $script_url        = \Paytrail\WooCommercePaymentGateway\Plugin::plugin_url() . $script_path;
+	/**
+	 * Return the handles of the scripts required by the payment method.
+	 *
+	 * @return array Script handles.
+	 */
+	public function get_payment_method_script_handles() {
+		$script_path       = '/dist/assets/frontend/blocks.js';
+		$script_asset_path = \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'dist/assets/frontend/blocks.asset.php';
+		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : [
+			'dependencies' => [],
+			'version'      => \Paytrail\WooCommercePaymentGateway\Plugin::$version,
+		];
+		$script_url        = \Paytrail\WooCommercePaymentGateway\Plugin::plugin_url() . $script_path;
 
-        wp_register_script(
-            'paytrail-block-payment',
-            $script_url,
-            $script_asset['dependencies'],
-            $script_asset['version'],
-            true
-        );
+		wp_register_script(
+			'paytrail-block-payment',
+			$script_url,
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			true
+		);
 
-        if ( function_exists( 'wp_set_script_translations' ) ) {
-            wp_set_script_translations( 'paytrail-block-payment', \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'languages/' );
-        }
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'paytrail-block-payment', \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'languages/' );
+		}
 
-        return [ 'paytrail-block-payment' ];
-    }
+		return [ 'paytrail-block-payment' ];
+	}
 
-    /**
-     * Add payment request order meta, including handling tokenized cards.
-     */
-    public function add_payment_request_order_meta( PaymentContext $context, PaymentResult &$result ) {
-        $payment_data = $context->payment_data;
-        $gateway      = $this->get_gateway(); // Use the gateway via the new get_gateway method.
+	/**
+	 * Add payment request order meta, including handling tokenized cards.
+	 *
+	 * @param PaymentContext $context The payment context.
+	 * @param PaymentResult  $result  The payment result.
+	 * @return PaymentResult
+	 */
+	public function add_payment_request_order_meta( PaymentContext $context, PaymentResult &$result ) {
+		$payment_data = $context->payment_data;
+		$gateway      = $this->get_gateway();
 
-        // Check if tokenized card is used.
-        if ( ! empty( $payment_data['wc-paytrail-payment-token'] ) ) {
-            $token_id = $payment_data['wc-paytrail-payment-token'];
-            $token    = WC_Payment_Tokens::get( $token_id );
+		// Check if tokenized card is used.
+		if ( ! empty( $payment_data['wc-paytrail-payment-token'] ) ) {
+			$token_id = $payment_data['wc-paytrail-payment-token'];
+			$token    = WC_Payment_Tokens::get( $token_id );
 
-            if ( $token && $token->validate() ) {
-                $payment_result = $gateway->process_paytrail_payment( $context->order, $token_id, null, false );
+			if ( $token && $token->validate() ) {
+				$payment_result = $gateway->process_paytrail_payment( $context->order, $token_id, null, false );
 
-                if ( 'success' === $payment_result['result'] ) {
-                    $result->set_status( 'success' );
-                    $result->set_redirect_url( $payment_result['redirect'] );
-                } else {
-                    $result->set_status( 'failure' );
-                    $result->set_payment_details(
-                        [
-                            'error_message' => __( 'Payment failed, please try again.', 'paytrail-for-woocommerce' ),
-                        ]
-                    );
-                }
+				if ( 'success' === $payment_result['result'] ) {
+					$result->set_status( 'success' );
+					$result->set_redirect_url( $payment_result['redirect'] );
+				} else {
+					$result->set_status( 'failure' );
+					$result->set_payment_details(
+						[
+							'error_message' => __( 'Payment failed, please try again.', 'paytrail-for-woocommerce' ),
+						]
+					);
+				}
 
-                return $result;
-            }
-        }
-
-        // Process payment normally if no tokenized card is used.
-        $payment_result = $gateway->process_paytrail_payment(
-            $context->order,
-            null,
-            $payment_data['payment_provider'] ?: $payment_data['payment_method'],
-            false
-        );
-
-        if ( 'success' === $payment_result['result'] ) {
-            $result->set_status( 'success' );
-            $result->set_redirect_url( $payment_result['redirect'] );
-        } else {
-            $result->set_status( 'failure' );
-            $result->set_payment_details(
-                [
-                    'error_message' => __( 'Payment failed, please try again.', 'paytrail-for-woocommerce' ),
-                ]
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Return the handles of the styles required by the payment method.
-     */
-    public function get_payment_method_style_handles() {
-        $style_handle       = 'paytrail-woocommerce-payment-fields';
-        $blocks_style_handle = 'paytrail-woocommerce-blocks-style';
-
-        // Use dirname(__FILE__) to move out of the src directory, then use plugins_url to get the URL for blocks.css.
-        $blocks_css_url  = plugins_url( 'dist/assets/frontend/blocks.css', dirname( __FILE__ ) );
-
-        // Use plugin_dir_path to get the server file path for filemtime(), correcting the directory.
-        $blocks_css_file = plugin_dir_path( dirname( __FILE__ ) ) . 'dist/assets/frontend/blocks.css';
-
-        // Enqueue the original style if not already enqueued.
-        if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
-            wp_enqueue_style( $style_handle );
-        }
-
-        // Enqueue the blocks.css file.
-        if ( ! wp_style_is( $blocks_style_handle, 'enqueued' ) ) {
-            wp_enqueue_style( $blocks_style_handle, $blocks_css_url, [], filemtime( $blocks_css_file ) );
-        }
-
-        return [ $style_handle, $blocks_style_handle ];
-    }
-
-    /**
-     * Check if the payment method is active.
-     */
-    public function is_active() {
-        return $this->get_setting( 'enabled' ) === 'yes';
-    }
-
-    public function get_redirect_url($context) {
-        // Retrieve the order from PaymentContext if available
-        $order = $context ? $context->order : null;
-    
-        if (!$order) {
-            return false; // Return false if order is missing
-        }
-    
-        try {
-            // Assuming the client has a method to create a redirect URL for an order
-            $redirect_url = $this->gateway->client->createRedirectUrl($order);
-            return $redirect_url->getUrl(); // Retrieve the actual URL
-        } catch (Exception $e) {
-            $this->log($e->getMessage(), 'error');
-            return false; // Return false if an error occurs
-        }
-    }
-
-    /**
-     * Return data required for the block-based checkout.
-     */
-    public function get_payment_method_data( $context = null ) {
-		$gateway = $this->get_gateway();
-	
-		// Retrieve the order from PaymentContext if available
-		$order = $context ? $context->order : null;
-	
-		// Fallback if context is not provided or order is not available in context
-		if ( ! $order ) {
-			$order_id = WC()->session->get('current_order_id');
-			if ( ! $order_id || ! $order = wc_get_order( $order_id ) ) {
-				// Only create a new order if it does not exist to avoid duplicates
-				$order = wc_create_order();
-				WC()->session->set('current_order_id', $order->get_id());
+				return $result;
 			}
 		}
-	
-		// Check if provider selection is enabled
-        if (!$this->is_provider_selection_enabled()) {
-            // Directly get the redirect URL if provider selection is disabled
-            $redirect_url = $order ? $this->get_redirect_url($order) : null;
 
-            // Try to retrieve the provider from session or set a default provider
-            $provider = WC()->session->get('payment_provider', 'paytrail');
-    
-            if ($redirect_url) {
-                // Return payment method data with the redirect URL
-                return [
-                    'title'       => $gateway->title,
-                    'description' => $gateway->description,
-                    'supports'    => array_filter($gateway->supports, [$gateway, 'supports']),
-                    'groups'      =>  [],
-                    'terms'       => '',
-                    'no_providers' => true,
-                    'redirect_url' => $redirect_url
-                ];
-            }
-    
-            // Return an error message if unable to retrieve redirect URL
-            return [
-                'error_message' => __('Unable to process payment. Please try again.', 'paytrail-for-woocommerce'),
-            ];
-        }
-	
-		// Provider selection is enabled, proceed with showing grouped providers and saved tokens
-		$grouped_providers = $gateway->get_grouped_payment_providers();
-	
-		// Enqueue payment method styles
-		$this->get_payment_method_style_handles();
-	
-		// Get saved tokens for the current logged-in user
-		$tokens = WC_Payment_Tokens::get_customer_tokens(get_current_user_id());
-	
-		// Return the grouped providers and saved payment methods for display in the checkout block
-		return [
-			'title'       => $gateway->title,
-			'description' => $gateway->description,
-			'supports'    => array_filter($gateway->supports, [$gateway, 'supports']),
-			'groups' => isset($grouped_providers['groups']) ? $grouped_providers['groups'] : [],
-			'terms'  => isset($grouped_providers['terms']) ? $grouped_providers['terms'] : '',
-			'saved_payment_methods' => !empty($tokens) ? array_map(function ($token) {
+		// Process payment normally if no tokenized card is used.
+		$payment_result = $gateway->process_paytrail_payment(
+			$context->order,
+			null,
+			$payment_data['payment_provider'] ?: $payment_data['payment_method'],
+			false
+		);
+
+		if ( 'success' === $payment_result['result'] ) {
+			$result->set_status( 'success' );
+			$result->set_redirect_url( $payment_result['redirect'] );
+		} else {
+			$result->set_status( 'failure' );
+			$result->set_payment_details(
+				[
+					'error_message' => __( 'Payment failed, please try again.', 'paytrail-for-woocommerce' ),
+				]
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Return the handles of the styles required by the payment method.
+	 *
+	 * @return array Style handles.
+	 */
+	public function get_payment_method_style_handles() {
+		$style_handle        = 'paytrail-woocommerce-payment-fields';
+		$blocks_style_handle = 'paytrail-woocommerce-blocks-style';
+		$blocks_css_url      = plugins_url( 'dist/assets/frontend/blocks.css', dirname( __FILE__ ) );
+		$blocks_css_file     = plugin_dir_path( dirname( __FILE__ ) ) . 'dist/assets/frontend/blocks.css';
+
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $style_handle );
+		}
+
+		if ( ! wp_style_is( $blocks_style_handle, 'enqueued' ) ) {
+			wp_enqueue_style( $blocks_style_handle, $blocks_css_url, [], filemtime( $blocks_css_file ) );
+		}
+
+		return [ $style_handle, $blocks_style_handle ];
+	}
+
+	/**
+	 * Check if the payment method is active.
+	 *
+	 * @return bool
+	 */
+	public function is_active() {
+		return $this->get_setting( 'enabled' ) === 'yes';
+	}
+
+	/**
+	 * Retrieve payment method data for the block-based checkout.
+	 *
+	 * @param PaymentContext|null $context The payment context provided during checkout.
+	 * @return array The data required to render the payment method in blocks.
+	 */
+	public function get_payment_method_data( $context = null ) {
+		$gateway = $this->get_gateway();
+		$order   = $context ? $context->order : null;
+
+		if ( ! $order ) {
+			$order_id = WC()->session->get( 'current_order_id' );
+			if ( ! $order_id || ! $order = wc_get_order( $order_id ) ) {
+				$order = wc_create_order();
+				WC()->session->set( 'current_order_id', $order->get_id() );
+			}
+		}
+
+		if ( ! $this->is_provider_selection_enabled() ) {
+			$redirect_url = $order ? $this->get_redirect_url( $order ) : null;
+
+			if ( $redirect_url ) {
 				return [
-					'id'     => $token->get_id(),
-					'last4'  => $token->get_last4(),
-					'expiry' => $token->get_expiry_month() . '/' . $token->get_expiry_year(),
-					'type'   => $token->get_card_type(),
+					'title'        => $gateway->title,
+					'description'  => $gateway->description,
+					'supports'     => array_filter( $gateway->supports, [ $gateway, 'supports' ] ),
+					'groups'       => [],
+					'terms'        => '',
+					'no_providers' => true,
+					'redirect_url' => $redirect_url,
 				];
-			}, $tokens) : [],
+			}
+
+			return [
+				'error_message' => __( 'Unable to process payment. Please try again.', 'paytrail-for-woocommerce' ),
+			];
+		}
+
+		$grouped_providers = $gateway->get_grouped_payment_providers();
+		$this->get_payment_method_style_handles();
+		$tokens = WC_Payment_Tokens::get_customer_tokens( get_current_user_id() );
+
+		return [
+			'title'                 => $gateway->title,
+			'description'           => $gateway->description,
+			'supports'              => array_filter( $gateway->supports, [ $gateway, 'supports' ] ),
+			'groups'                => $grouped_providers['groups'] ?? [],
+			'terms'                 => $grouped_providers['terms'] ?? '',
+			'saved_payment_methods' => ! empty( $tokens ) ? array_map(
+				function ( $token ) {
+					return [
+						'id'     => $token->get_id(),
+						'last4'  => $token->get_last4(),
+						'expiry' => $token->get_expiry_month() . '/' . $token->get_expiry_year(),
+						'type'   => $token->get_card_type(),
+					];
+				},
+				$tokens
+			) : [],
 		];
-	}		
+	}
 }
