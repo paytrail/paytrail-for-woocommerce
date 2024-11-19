@@ -132,13 +132,15 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		}
 
 		// Process payment normally if no tokenized card is used.
-		$payment_result = $gateway->process_paytrail_payment(
-			$context->order,
-			null,
-			$payment_data['payment_provider'] ?: $payment_data['payment_method'],
-			false
-		);
-
+        $payment_result = $gateway->process_paytrail_payment(
+            $context->order,
+            null,
+            !empty($payment_data['payment_provider']) 
+                ? $payment_data['payment_provider'] 
+                : $payment_data['payment_method'],
+            false
+        );
+        
 		if ( 'success' === $payment_result['result'] ) {
 			$result->set_status( 'success' );
 			$result->set_redirect_url( $payment_result['redirect'] );
@@ -223,8 +225,8 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			'title'                 => $gateway->title,
 			'description'           => $gateway->description,
 			'supports'              => array_filter( $gateway->supports, [ $gateway, 'supports' ] ),
-			'groups'                => $grouped_providers['groups'] ?? [],
-			'terms'                 => $grouped_providers['terms'] ?? '',
+			'groups' => isset($grouped_providers['groups']) ? $grouped_providers['groups'] : [],
+            'terms'  => isset($grouped_providers['terms']) ? $grouped_providers['terms'] : '',
 			'saved_payment_methods' => ! empty( $tokens ) ? array_map(
 				function ( $token ) {
 					return [
