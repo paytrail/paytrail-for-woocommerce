@@ -29,7 +29,6 @@ export const PaytrailContainer = withPaytrail( (props) => {
 
 	useEffect(() => {  
 		const paymentSetup = onPaymentSetup(async () => {
-		console.log(cleanProvider);
 		return{
 		  type: emitResponse.responseTypes.SUCCESS,
 		  meta: { paymentMethodData: { payment_provider: cleanProvider || defaultProvider } }

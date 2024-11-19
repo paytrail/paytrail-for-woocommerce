@@ -195,14 +195,6 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		$gateway = $this->get_gateway();
 		$order   = $context ? $context->order : null;
 
-		if ( ! $order ) {
-			$order_id = WC()->session->get( 'current_order_id' );
-			if ( ! $order_id || ! $order = wc_get_order( $order_id ) ) {
-				$order = wc_create_order();
-				WC()->session->set( 'current_order_id', $order->get_id() );
-			}
-		}
-
 		if ( ! $this->is_provider_selection_enabled() ) {
 			$redirect_url = $order ? $this->get_redirect_url( $order ) : null;
 
