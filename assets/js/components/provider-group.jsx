@@ -1,8 +1,16 @@
 import React, {useState, useContext} from 'react';
 import { Provider } from './provider';
 import {PaytrailContext} from '../context/paytrail-context';
+import { getSetting } from '@woocommerce/settings';
+const settings = getSetting('paytrail_data', {});
 
 export const ProviderGroup = ({group}) => {
+
+	// Prevent rendering if `no_providers` is true
+    if ( !settings.providers || settings.providers.length === 0) {
+        return null;
+    }
+
 	const {activeProvider} = useContext(PaytrailContext);
 	const getProviderUniqueId = (provider, index) => `${provider.id}-${index}`;
 	const [isOpen, setIsOpen] = useState(
