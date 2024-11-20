@@ -21,7 +21,6 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 * Constructor.
 	 */
 	public function __construct() {
-		// Hook into the REST API checkout process to add custom meta.
 		add_action( 'woocommerce_rest_checkout_process_payment_with_context', [ $this, 'add_payment_request_order_meta' ], 8, 2 );
 	}
 
@@ -195,12 +194,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 */
 	public function get_payment_method_data( $context = null ) {
 		$gateway = $this->get_gateway();
-		$order   = $context ? $context->order : null;
-
 		if ( ! $this->is_provider_selection_enabled() ) {
-			$redirect_url = $order ? $this->get_redirect_url( $order ) : null;
-
-			if ( $redirect_url ) {
 				return [
 					'title'        => $gateway->title,
 					'description'  => $gateway->description,
@@ -208,13 +202,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 					'groups'       => [],
 					'terms'        => '',
 					'no_providers' => true,
-					'redirect_url' => $redirect_url,
 				];
-			}
-
-			return [
-				'error_message' => __( 'Unable to process payment. Please try again.', 'paytrail-for-woocommerce' ),
-			];
 		}
 
 		$grouped_providers = $gateway->get_grouped_payment_providers();

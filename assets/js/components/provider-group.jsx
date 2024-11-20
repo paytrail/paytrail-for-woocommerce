@@ -6,8 +6,7 @@ const settings = getSetting('paytrail_data', {});
 
 export const ProviderGroup = ({group}) => {
 
-	// Prevent rendering if `no_providers` is true
-    if ( !settings.providers || settings.providers.length === 0) {
+    if ( !settings.groups || settings.groups === 0) {
         return null;
     }
 

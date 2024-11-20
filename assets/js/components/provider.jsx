@@ -1,13 +1,7 @@
 import React, {useContext} from 'react';
 import {PaytrailContext} from '../context/paytrail-context';
-import { getSetting } from '@woocommerce/settings';
-const settings = getSetting('paytrail_data', {});
 // Provider component to render individual providers
 export const Provider = ({provider, index}) => {
-
-    if (settings.no_providers) {
-        return null;
-    }
 
     const {activeProvider, setActiveProvider} = useContext(PaytrailContext);
     const providerUniqueId = `${provider.id}-${index}`;

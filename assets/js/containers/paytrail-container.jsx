@@ -3,7 +3,8 @@ import { getSetting } from '@woocommerce/settings';
 import { PaymentMethods } from '../components/payment-methods';
 import { PaytrailContext} from '../context/paytrail-context';
 import { withPaytrail } from '../context/with-paytrail';
-const settings = getSetting('paytrail_data', { mode: 'default', providers: [], contains_subscription: false });
+import { __ } from '@wordpress/i18n';
+const settings = getSetting('paytrail_data', {});
 
 /**
  * Content component
@@ -14,18 +15,20 @@ export const PaytrailContainer = withPaytrail( (props) => {
 	const { activeProvider } = useContext(PaytrailContext);
 	const cleanProvider = activeProvider.replace(/-\d+$/, '');
 
-	if (settings.no_providers) {
+	if (!settings.groups || settings.groups.length === 0) {
         const defaultProvider = 'paytrail';
-        setActiveProvider(defaultProvider);
+        if (!cleanProvider) {
+            cleanProvider = defaultProvider;
+        }
     }
 
 	const PaytrailStaticComponent = () => (
-        <div className="paytrail-static-container">
-            <div className="paytrail-description">
-                {settings.description || "Your selected payment method is Paytrail."}
-            </div>
-        </div>
-    );
+		<div className="paytrail-static-container">
+			<div className="paytrail-description">
+				{settings.description || __("payment providers will open in a new window", "paytrail-for-woocommerce")}
+			</div>
+		</div>
+	);
 
 	useEffect(() => {  
 		const paymentSetup = onPaymentSetup(async () => {
@@ -38,7 +41,7 @@ export const PaytrailContainer = withPaytrail( (props) => {
 		return () => { paymentSetup(); };
 	}, [emitResponse.responseTypes.ERROR, emitResponse.responseTypes.SUCCESS, onPaymentSetup, activeProvider]);
 
-	if (settings.no_providers || settings.providers?.length === 0 || settings.contains_subscription) {
+	if (!settings.groups || settings.groups.length === 0) {
         return <PaytrailStaticComponent />;
     } else {
         return <PaymentMethods/>;
