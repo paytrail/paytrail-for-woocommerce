@@ -13,7 +13,7 @@ export const PaytrailContainer = withPaytrail( (props) => {
 	const { eventRegistration, emitResponse } = props;
     const { onPaymentSetup } = eventRegistration;
 	const { activeProvider } = useContext(PaytrailContext);
-	const cleanProvider = activeProvider.replace(/-\d+$/, '');
+	let cleanProvider = activeProvider.replace(/-\d+$/, '');
 
 	if (!settings.groups || settings.groups.length === 0) {
         const defaultProvider = 'paytrail';
