@@ -13,14 +13,23 @@ export const PaymentMethods = () => {
         );
     }
 
+    //Renders terms and conditions HTML.
+    const PaytrailTerms = () => {
+        return (
+            <div
+                className="checkout-terms-link"
+                dangerouslySetInnerHTML={{ __html: settings.terms }}
+            ></div>
+        );
+    };
+
     // Display provider groups if providers are available
     return (
         <div className="payment_box payment_method_paytrail">
-            <div className="checkout-terms-link">
-                {settings.groups.map((providerGroup) => (
-                    <ProviderGroup group={providerGroup} key={providerGroup.id} />
-                ))}
-            </div>
+            <PaytrailTerms />
+            {settings.groups.map((providerGroup) => (
+                <ProviderGroup group={providerGroup} key={providerGroup.id} />
+            ))}
         </div>
     );
 };
