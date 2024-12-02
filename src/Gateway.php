@@ -56,6 +56,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	protected $secret_key;
 
 	/**
+	 *  Transaction settlement declaration
+	 * 
+	 * 
+	 */
+	protected $transaction_settlement_enable;
+
+	/**
 	 * Whether test mode is enabled.
 	 *
 	 * @var boolean
@@ -1144,10 +1151,35 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Get the wanted payment provider and check that it exists
 		if ($this->use_provider_selection()) {
+			$this->log('Paytrail: use_provider_selection true', 'debug');
+			// Try to get payment provider from POST
 			$payment_provider = filter_input(INPUT_POST, 'payment_provider');
+	
+			// If empty, fallback to the meta data stored in the order
+			if (empty($payment_provider)) {
+				$payment_provider = get_post_meta($order_id, '_payment_provider', true);
+				$this->log('Paytrail: payment_provider retrieved from meta: ' . print_r($payment_provider, true), 'debug');
+			} else {
+				$this->log('Paytrail: payment_provider from POST: ' . print_r($payment_provider, true), 'debug');
+			}
+	
 		} else {
+			// Try to get payment method from POST
 			$payment_provider = filter_input(INPUT_POST, 'payment_method');
+			$this->log('Paytrail: use_provider_selection false', 'debug');
+	
+			// If empty, fallback to the meta data stored in the order
+			if (empty($payment_provider)) {
+				$payment_provider = get_post_meta($order_id, '_payment_method', true);
+				$this->log('Paytrail: payment_method retrieved from meta: ' . print_r($payment_provider, true), 'debug');
+			} else {
+				$this->log('Paytrail: payment_method from POST: ' . print_r($payment_provider, true), 'debug');
+			}
 		}
+		return $this->process_paytrail_payment( $order, $token_id, $payment_provider, $die_on_error );
+	}
+
+	public function process_paytrail_payment( $order, $token_id, $payment_provider, $die_on_error) {
 
 		$is_token_payment = !empty($token_id);
 
@@ -1171,7 +1203,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order->add_payment_token($token);
 
 			if ($this->helper::getIsSubscriptionsEnabled()) {
-				$subscriptions = wcs_get_subscriptions_for_order($order_id);
+				$subscriptions = wcs_get_subscriptions_for_order($order->ID);
 				$this->log('Paytrail: add_payment_token to subscriptions', 'debug');
 				foreach ($subscriptions as $subscription) {
 					$subscription->add_payment_token($token);
@@ -1936,7 +1968,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param string $locale
 	 * @return array
 	 */
-	protected function get_grouped_payment_providers( $payment_amount, $locale) {
+	public function get_grouped_payment_providers( $payment_amount = null, $locale = null) {
 		$groups = [];
 
 		if ($this->helper::getIsSubscriptionsEnabled()) {
@@ -1944,7 +1976,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		try {
-			$providers = $this->client->getGroupedPaymentProviders($payment_amount, $locale, $groups);
+			$providers = $this->client->getGroupedPaymentProviders(
+				isset($payment_amount) ? $payment_amount : $this->get_cart_total(),
+				isset($locale) ? $locale : Helper::getLocale(),
+				$groups
+			);
 		} catch (HmacException $exception) {
 			$providers = $this->get_payment_providers_error_handler($exception);
 		} catch (\Exception $exception) {
@@ -2145,7 +2181,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param \WC_Order $order The order object.
 	 * @return CallbackUrl
 	 */
-	protected function create_redirect_url( \WC_Order $order) {
+	public function create_redirect_url( \WC_Order $order) {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess($this->get_return_url($order));
@@ -2192,6 +2228,13 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		return $query;
+	}
+
+	public function get_cart_total() {
+		if (WC()->cart && is_callable([WC()->cart, 'get_total'])) {
+			return (int) round(WC()->cart->get_total('edit') * 100);
+		}
+		return 0;
 	}
 
 	/**
