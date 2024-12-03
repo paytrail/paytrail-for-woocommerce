@@ -30,7 +30,13 @@ class Card extends AbstractController {
 	 * @throws Exception
 	 */
 	protected function delete() {
-		$this->validate_request();
+		try {
+			$this->validate_request();
+		} catch (\Exception $e) {
+			wc_add_notice(__('Card could not be deleted', 'paytrail-for-woocommerce'), 'error');
+			wp_send_json_error();
+			return new WP_Error('invalid-request', $e->getMessage(), array('status' => 400));
+		}
 
 		$body = file_get_contents('php://input');
 		$data = json_decode($body, true);

@@ -66,10 +66,10 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 			url: '<?php echo esc_url_raw($delete_card_url); ?>',
 			data: JSON.stringify({token_id: cardTokenId}),
 			success: function (response) {
-				if (response.success && isSubscriptionPage) {
-					location.reload()
-				} else if (response.success) {
+				if (response.success && !isSubscriptionPage) {
 					jQuery('body').trigger('update_checkout');
+				} else {
+					location.reload();
 				}
 			}
 		})
