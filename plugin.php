@@ -5,6 +5,7 @@
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
  * Version: 2.2.0
  * Requires at least: 4.9
+ * Requires Plugins: woocommerce
  * Tested up to: 6.6
  * Requires PHP: 7.3
  * WC requires at least: 3.5
