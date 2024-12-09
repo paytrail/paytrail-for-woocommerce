@@ -89,7 +89,7 @@ Your Paytrail credentials. You can obtain the keys by registering at our [websit
 
 ### Fallback Country
 
-Setup fallback country to be used if no country is provided from Woocommerce checkout. Use only if billing_country/shipping_country is removed from checkout fields.
+Setup fallback country to be used if no country is provided from WooCommerce checkout. Use only if billing_country/shipping_country is removed from checkout fields.
 
 ### Token migration ###
 

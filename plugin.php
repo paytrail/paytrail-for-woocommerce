@@ -153,7 +153,7 @@ final class Plugin {
         
         // Enqueue jQuery
         add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
-        add_action('admin_enqueue_scripts', array($this, 'enque_jquery_scripts'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery_scripts'));
     }
 
     /**
@@ -181,7 +181,7 @@ final class Plugin {
     /**
      * Enqueue jQuery UI from WordPress core
      */
-    public function enque_jquery_scripts($hook) {
+    public function enqueue_jquery_scripts($hook) {
         if ($hook == 'woocommerce_page_wc-settings' && isset($_GET['tab']) && $_GET['tab'] == 'checkout' && isset($_GET['section']) && $_GET['section'] == 'paytrail') {
 
         wp_enqueue_script('jquery');

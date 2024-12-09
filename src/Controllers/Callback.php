@@ -1,6 +1,6 @@
 <?php
 /**
- * Paytrail for Woocommerce payment Callback controller class
+ * Paytrail for WooCommerce payment Callback controller class
  */
 
 namespace Paytrail\WooCommercePaymentGateway\Controllers;

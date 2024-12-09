@@ -1,6 +1,6 @@
 <?php
 /**
- * Paytrail for Woocommerce payment router class
+ * Paytrail for WooCommerce payment router class
  */
 
 namespace Paytrail\WooCommercePaymentGateway;

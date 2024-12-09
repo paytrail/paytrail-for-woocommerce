@@ -1,6 +1,6 @@
 <?php
 /**
- * Paytrail for Woocommerce payment gateway class
+ * Paytrail for WooCommerce payment gateway class
  */
 
 namespace Paytrail\WooCommercePaymentGateway;
@@ -1297,7 +1297,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log($exception->getMessage() . $exception->getTraceAsString(), 'error');
 			new \WP_Error($exception->getCode(), $exception->getMessage());
 
-			//Add error messages to be displayed to the user by Woocommerce
+			//Add error messages to be displayed to the user by WooCommerce
 			$exceptionError = $exception->getMessage();
 			$jsonData = json_decode($exceptionError, true);
 
