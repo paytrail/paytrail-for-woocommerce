@@ -3,8 +3,8 @@ Contributors: loueranta
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
-Tested up to: 6.6
-Stable tag: 2.2.0
+Tested up to: 6.7
+Stable tag: 2.2.1
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
