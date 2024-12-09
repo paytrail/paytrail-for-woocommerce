@@ -6,10 +6,10 @@
  * Version: 2.2.0
  * Requires at least: 4.9
  * Requires Plugins: woocommerce
- * Tested up to: 6.6
+ * Tested up to: 6.7
  * Requires PHP: 7.3
  * WC requires at least: 3.5
- * WC tested up to: 9.3
+ * WC tested up to: 9.4
  * Author: Paytrail
  * Author URI: https://www.paytrail.com/
  * Text Domain: paytrail-for-woocommerce
