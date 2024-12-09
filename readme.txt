@@ -56,6 +56,9 @@ With test credentials, you can test most of the payment methods included in Payt
 
 == Changelog ==
 
+= 2.2.1 =
+- Fixed subscription/saved card deletion
+
 = 2.2.0 =
 - Added checkout blocks support
 
