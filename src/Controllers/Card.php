@@ -7,11 +7,10 @@ namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
 use Paytrail\WooCommercePaymentGateway\Gateway;
 use Paytrail\WooCommercePaymentGateway\Plugin;
-use Paytrail\WooCommercePaymentGateway\Exception;
+//use Paytrail\WooCommercePaymentGateway\Exception;
 use WC_Payment_Tokens;
 use WP_Error;
 use WP_HTTP_Response;
-use WP_REST_Request;
 
 class Card extends AbstractController {
 
@@ -31,13 +30,19 @@ class Card extends AbstractController {
 	 * @throws Exception
 	 */
 	protected function delete() {
-		$this->validate_request();
+		try {
+			$this->validate_request();
+		} catch (\Exception $e) {
+			wc_add_notice(__('Card could not be deleted', 'paytrail-for-woocommerce'), 'error');
+			wp_send_json_error();
+			return new WP_Error('invalid-request', $e->getMessage(), array('status' => 400));
+		}
 
 		$body = file_get_contents('php://input');
 		$data = json_decode($body, true);
 
 		if (!is_array($data)) {
-			throw new Exception('Failed to decode JSON object');
+			throw new \Exception('Failed to decode JSON object');
 		}
 
 		// @var \WP_User $current_user
@@ -69,16 +74,20 @@ class Card extends AbstractController {
 	}
 
 	private function validate_request() {
-		if (empty($_SERVER['REQUEST_METHOD'])) {
+		$request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : '';
+
+		if (empty($request_method)) {
 			return;
 		}
-		$request = new WP_REST_Request();
-		if ( $request->get_method() != 'POST' ) {
-			throw new Exception('Only POST requests are allowed');
+
+		if ('POST' !== $request_method) {
+			throw new \Exception('Only POST requests are allowed');
 		}
-		$content_type = WP_REST_Request::get_content_type();
+
+		$content_type = isset($_SERVER['CONTENT_TYPE']) ? sanitize_text_field($_SERVER['CONTENT_TYPE']) : '';
+
 		if (stripos($content_type, 'application/json') === false) {
-			throw new Exception('Content-Type must be application/json');
+			throw new \Exception('Content-Type must be application/json');
 		}
 	}
 }

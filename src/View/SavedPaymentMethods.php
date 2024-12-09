@@ -14,8 +14,10 @@ $has_methods = (bool) $saved_methods;
 
 if (\Paytrail\WooCommercePaymentGateway\Helper::getIsChangeSubscriptionPaymentMethod()) {
 	$add_card_form_url = Router::get_url(Plugin::CARD_ENDPOINT, 'add') . '?change_payment_method=1';
+	$is_subscription_page = true;
 } else {
 	$add_card_form_url = Router::get_url(Plugin::CARD_ENDPOINT, 'add');
+	$is_subscription_page = false;
 }
 
 $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
@@ -56,6 +58,7 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 	jQuery(".paytrail-for-woocommerce-tokenized-payment-method-links.delete-card-button").click(function (evt) {
 		evt.preventDefault();
 		let cardTokenId = jQuery("input[name='wc-paytrail-payment-token']:checked").val();
+		const isSubscriptionPage = <?php echo json_encode($is_subscription_page); ?>;
 
 		jQuery.ajax({
 			type: 'POST',
@@ -63,8 +66,10 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 			url: '<?php echo esc_url_raw($delete_card_url); ?>',
 			data: JSON.stringify({token_id: cardTokenId}),
 			success: function (response) {
-				if (response.success) {
-					jQuery('body').trigger('update_checkout')
+				if (response.success && !isSubscriptionPage) {
+					jQuery('body').trigger('update_checkout');
+				} else {
+					location.reload();
 				}
 			}
 		})
