@@ -1,6 +1,6 @@
 {
     "name": "paytrail-for-woocommerce",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.",
     "private": true,
     "dependencies": {
