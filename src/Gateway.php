@@ -1067,12 +1067,24 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->signature_error($exception);
 		}
 
-		$refunds = \wc_get_orders(
-			[
-				'type'                      => 'shop_order_refund',
+		// Check if HPOS is enabled
+		if (class_exists('Automattic\WooCommerce\Utilities\OrderUtil') && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled()) {
+			$refunds = \wc_get_orders([
+				'type' => 'shop_order_refund',
+				'meta_query' => [
+					[
+						'key' => '_checkout_refund_unique_id',
+						'value' => $refund_unique_id,
+						'compare' => '='
+					]
+				]
+			]);
+		} else {
+			$refunds = \wc_get_orders([
+				'type' => 'shop_order_refund',
 				'checkout_refund_unique_id' => $refund_unique_id,
-			]
-		);
+			]);
+		}
 
 		if (empty($refunds)) {
 			wp_die(esc_html__('Refund cannot be found.', 'paytrail-for-woocommerce'), '', 404);
@@ -2222,8 +2234,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		if (! empty($query_vars['checkout_refund_unique_id'])) {
 			$query['meta_query'][] = [
 				'key'     => '_checkout_refund_unique_id',
+				'value'   => esc_attr($query_vars['checkout_refund_unique_id']),
 				'compare' => '=',
-				esc_attr($query_vars['checkout_refund_unique_id']),
 			];
 		}
 
