@@ -103,6 +103,10 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 * @return PaymentResult
 	 */
 	public function add_payment_request_order_meta( PaymentContext $context, PaymentResult &$result ) {
+		if ( $context->payment_method !== $this->name ) {
+			return;
+		}
+		
 		$payment_data = $context->payment_data;
 		$gateway      = $this->get_gateway();
 
