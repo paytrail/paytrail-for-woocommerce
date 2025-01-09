@@ -12,13 +12,15 @@ if (isset($data)) { ?>
         <p id="apple-pay-text" tabindex="0"><?php esc_html_e('Click the button below to pay with Apple Pay', 'paytrail-for-woocommerce') ?></p>
         <div id="apple-pay-button" role="button" aria-label="<?php esc_attr_e('Apple Pay Button', 'paytrail-for-woocommerce') ?>">
             <?php $parameters = $data->getParameters();
-                array_walk($parameters, function ( $parameter) {
-                printf(
-                '<input type="hidden" name="%s" value="%s" />',
-                esc_attr($parameter->name),
-                esc_attr($parameter->value)
-                );
-            }); ?>
+                array_walk(
+                    $parameters, function ( $parameter) {
+                        printf(
+                            '<input type="hidden" name="%s" value="%s" />',
+                            esc_attr($parameter->name),
+                            esc_attr($parameter->value)
+                        );
+                    }
+                ); ?>
         </div>
     </div>
 <?php } else { ?>
