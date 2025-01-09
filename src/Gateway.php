@@ -68,7 +68,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @var boolean
 	 */
-	protected $apple_pay_active = false;
+	public $apple_pay_active = false;
 
 	/**
 	 * Whether test mode is enabled.
