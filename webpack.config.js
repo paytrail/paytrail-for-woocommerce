@@ -30,7 +30,7 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		'frontend/blocks': '/assets/js/paytrail-block-payment.js',
-		'main': '/assets/js/main.js',
+		'frontend/main': '/assets/js/main.js',
 	},
 	output: {
 		path: path.resolve( __dirname, 'dist/assets' ),
