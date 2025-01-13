@@ -168,7 +168,7 @@ final class Plugin {
         // Register the custom script
         wp_register_script(
             'introScripts',
-            $plugin_dir_url . 'assets/dist/introScripts.js',
+            $plugin_dir_url . 'dist/assets/frontend/intro-scripts.js',
             ['jquery'], // Dependency on jQuery
             $plugin_version,
             true // Enqueue in the footer
