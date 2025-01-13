@@ -45,7 +45,7 @@ const handleApplePay = function() {
         if (!hasOtherProviders && !applePay?.canMakePayment()) {
             groupDiv.style.display = 'none';
         } else if (hasOtherProviders && !applePay?.canMakePayment() && providerText.includes('Apple Pay')) {
-            // If there are other mobile providers and Apple Pay is not available, remove Apple Pay from the list
+            // If there are other mobile providers and Apple Pay is not available, remove Apple Pay title from the list
             providerList.textContent = providerText.replace(/,\s*Apple Pay|Apple Pay,\s*|Apple Pay/g, '').trim();
         }
         //Display Apple Pay button if it is available

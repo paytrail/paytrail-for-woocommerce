@@ -16,7 +16,7 @@ $allowed_html = array(
 
 wp_enqueue_style('paytrail-woocommerce-payment-fields');
 wp_enqueue_script('paytrail-woocommerce-payment-fields');
-wp_enqueue_script('paytrail-woocommerce-apple-pay');
+wp_enqueue_script('paytrail-woocommerce-paytrail-library');
 
 // Something went wrong loading the providers.
 if (! empty($data['error'])) {

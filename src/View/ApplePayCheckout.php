@@ -5,7 +5,7 @@ if (! defined('ABSPATH')) {
     die;
 }
 
-wp_enqueue_script('paytrail-woocommerce-apple-pay');
+wp_enqueue_script('paytrail-woocommerce-paytrail-library');
 
 if (isset($data)) { ?>
     <div id="apple-pay-container" role="region" aria-labelledby="apple-pay-text">

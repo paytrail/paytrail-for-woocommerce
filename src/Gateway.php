@@ -2342,7 +2342,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		//Register the library script
 		if ($this->apple_pay_active) {
 			wp_register_script(
-				'paytrail-woocommerce-apple-pay',
+				'paytrail-woocommerce-paytrail-library',
 				$plugin_dir_url . 'assets/js/paytrail.js',
 				[],
 				$plugin_version
