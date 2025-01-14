@@ -1,8 +1,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Paytrail WooCommerce Payment Gateway\n"
-"POT-Creation-Date: 2020-07-20 09:56+0000\n"
-"PO-Revision-Date: 2024-01-16 10:47+0300\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-14 08:48+0200\n"
+"PO-Revision-Date: 2025-01-14 09:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: Finnish\n"
 "Language: fi\n"
@@ -10,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.3\n"
+"X-Generator: Poedit 3.5\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: plugin.php\n"
@@ -18,69 +19,105 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
 "esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
 "_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
-"Report-Msgid-Bugs-To: \n"
 "X-Loco-Version: 2.3.3; wp-5.3.2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: plugin.php:224
+#: plugin.php:274
 msgid "Payment page personalization"
 msgstr "Maksusivun mukauttaminen"
 
-#: plugin.php:229
+#: plugin.php:279
 msgid "Payment method group background"
 msgstr "Maksuryhmän tausta"
 
-#: plugin.php:234
+#: plugin.php:284
 msgid "Payment method group text"
 msgstr "Maksuryhmän teksti"
 
-#: plugin.php:239
+#: plugin.php:289
 msgid "Selected payment method group background"
 msgstr "Korostetun maksuryhmän tausta"
 
-#: plugin.php:244
+#: plugin.php:294
 msgid "Selected payment method group text"
 msgstr "Korostetun maksuryhmän teksti"
 
-#: plugin.php:249
+#: plugin.php:299
 msgid "Payment method group background hover"
 msgstr "Maksuryhmän taustan hover"
 
-#: plugin.php:259
+#: plugin.php:304
+#, fuzzy
+#| msgid "Payment method group text"
+msgid "Payment method group text hover"
+msgstr "Maksuryhmän teksti"
+
+#: plugin.php:309
 msgid "Selected payment method"
 msgstr "Korostettu maksutapa"
 
-#: plugin.php:264
+#: plugin.php:314
 msgid "Payment method hover"
 msgstr "Maksutavan hover"
 
 #. translators: The placeholder contains the current PHP version.
-#: plugin.php:366
-#, php-format
+#: plugin.php:417
+#, fuzzy, php-format
+#| msgid ""
+#| "Paytrail gateway plugin requires a PHP version of at least 7.3. You are "
+#| "currently running version %1$s."
 msgid ""
-"Paytrail gateway plugin requires a PHP version of at least 7.3. You are "
-"currently running version %1$s."
+"Paytrail payment gateway plugin requires a PHP version of at least 7.3. You "
+"are currently running version %1$s."
 msgstr ""
 "Paytrail-maksutapalisäosa vaatii vähintään PHP-version 7.3. Tällä hetkellä "
 "käytössäsi on versio %1$s."
 
-#: plugin.php:381
-msgid "Paytrail gateway plugin requires WooCommerce to be activated."
+#: plugin.php:432
+#, fuzzy
+#| msgid "Paytrail gateway plugin requires WooCommerce to be activated."
+msgid "Paytrail payment gateway plugin requires WooCommerce to be activated."
 msgstr ""
 "Paytrail -maksutapalisäosa vaatii, että WooCommerce-lisäosa on aktivoitu."
 
-#: plugin.php:397
+#: plugin.php:464
 msgid "Paytrail gateway plugin requires WooCommerce version of 3.5 or greater."
 msgstr ""
 "Paytrail -maksutapalisäosa vaatii WooCommerce-version 3.5 tai uudemman."
 
+#: src/Controllers/Card.php:36 src/Controllers/Card.php:70
+msgid "Card could not be deleted"
+msgstr "Kortin poistaminen epäonnistui"
+
+#: src/Controllers/Card.php:54 src/Controllers/Card.php:61
+#: src/Controllers/Card.php:72
+msgid "message"
+msgstr "viesti"
+
+#: src/Controllers/Card.php:66
+msgid "Card was deleted successfully"
+msgstr "Kortti poistettiin onnistuneesti"
+
+#: src/Controllers/CardCancel.php:11 src/Controllers/CardCancel.php:17
+#: src/Controllers/CardCancel.php:23 src/Controllers/CardSuccess.php:20
+#: src/Controllers/CardSuccess.php:22 src/Controllers/CardSuccess.php:34
+#: src/Controllers/CardSuccess.php:36 src/Controllers/CardSuccess.php:48
+#: src/Controllers/CardSuccess.php:50
+msgid "Could not add card details"
+msgstr "Kortin lisääminen epäonnistui"
+
+#: src/Controllers/CardSuccess.php:18 src/Controllers/CardSuccess.php:32
+#: src/Controllers/CardSuccess.php:46
+msgid "Card was added successfully"
+msgstr "Kortti lisättiin onnistuneesti"
+
 #. Plugin Name of the plugin/theme
-#: src/Gateway.php:203
+#: src/Gateway.php:309
 msgid "Paytrail for WooCommerce"
 msgstr "Paytrail for WooCommerce"
 
-#: src/Gateway.php:204
+#: src/Gateway.php:310
 msgid ""
 "Paytrail for WooCommerce - the most comprehensive suite of payment methods "
 "in the market with a single contract"
@@ -88,86 +125,78 @@ msgstr ""
 "Paytrail for WooCommerce - markkinoiden kattavimmat maksutavat yhdellä "
 "sopimuksella"
 
-#: src/Gateway.php:219
+#: src/Gateway.php:332
 msgid "Payment gateway status"
 msgstr "Maksutapalisäosan tila"
 
-#: src/Gateway.php:221
+#: src/Gateway.php:334
 msgid "Enable Paytrail for WooCommerce"
 msgstr "Ota Paytrail for WooCommerce käyttöön"
 
-#: src/Gateway.php:226
+#: src/Gateway.php:339
+msgid "Credentials"
+msgstr "Tunnukset"
+
+#: src/Gateway.php:344
+#, fuzzy
+#| msgid "Merchant ID"
+msgid "Paytrail Merchant ID"
+msgstr "Kauppiastunnus"
+
+#: src/Gateway.php:346
+msgid "Merchant ID"
+msgstr "Kauppiastunnus"
+
+#: src/Gateway.php:351
+#, fuzzy
+#| msgid "Secret key"
+msgid "Paytrail Secret key"
+msgstr "Salainen avain"
+
+#: src/Gateway.php:353
+msgid "Secret key"
+msgstr "Salainen avain"
+
+#: src/Gateway.php:355
+msgid ""
+"Credentials can be found in <a target=\"_blank\" href=\"https://merchant."
+"paytrail.com/\">the merchant panel</a>."
+msgstr ""
+"Tunnukset löytyvät <a target=\"_blank\" href=\"https://merchant.paytrail.com/"
+"\">Kauppiaspaneelista</a>."
+
+#: src/Gateway.php:360 src/View/Intro-form.php:55
 msgid "Test mode"
 msgstr "Testitila"
 
-#: src/Gateway.php:228
+#: src/Gateway.php:362
 msgid "Enable test mode"
 msgstr "Ota testitila käyttöön"
 
-#: src/Gateway.php:233
-msgid "Debug log"
-msgstr "Lokitus"
-
-#: src/Gateway.php:235
-msgid "Enable logging"
-msgstr "Ota lokitus käytöön"
-
-#. translators: %s: URL
-#: src/Gateway.php:238
-#, php-format
+#: src/Gateway.php:364
 msgid ""
-"This enables logging all payment gateway events. The log will be written in %s. Recommended only for debugging purposes as this might save personal data. All logs can be viewed here: %2$s"
+"You can use test mode to simulate payments with Paytrail's <a "
+"target=\"_blank\" href=\"https://docs.paytrail.com/#/?id=test-"
+"credentials\">test credentials</a>. To enable test mode, please first clear "
+"the Credentials and save settings."
 msgstr ""
-"Tämä asetus käynnistää kaikkien maksutapahtumien lokituksen. Loki kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja. Lokeja voit selata täältä: %2$s"
+"Voitte testata maksupalvelua käyttämällä <a target=\"_blank\" href=\"https://"
+"docs.paytrail.com/#/?id=test-credentials\">testitunnuksia</a>. Käyttääksesi "
+"testitunnuksia, tyhjennä tunnukset ja tallenna asetukset."
 
-#: src/Gateway.php:233
-msgid "Update tokens"
-msgstr "Tokenien päivitys"
+#: src/Gateway.php:369
+msgid "General settings"
+msgstr "Yleiset asetukset"
 
-#: src/Gateway.php:254
-msgid "Enable token update"
-msgstr "Ota tokenien päivitys käyttöön"
-
-#: src/Gateway.php:257
-msgid "Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. This will also update tokens for the current WooCommerce Subscriptions orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot be reverted."
-msgstr "Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi asetukset. Samalla päivitetään myös WooCommerce Subscriptions -tilausten käyttämä token, mikäli kyseinen lisäosa on käytössä. </br> <b>HUOM:</b> Tätä muutosta ei voi peruuttaa."
-
-#: src/Gateway.php:242
-msgid "Payment provider title"
-msgstr "Maksupalveluntarjoajan otsikko"
-
-#: src/Gateway.php:244 src/Gateway.php:251
-msgid "Used on the Checkout page title"
-msgstr "Käytetään kassasivun otsikossa"
-
-#: src/Gateway.php:246
-msgid ""
-"This title is displayed on the Checkout page before the payment provider "
-"images."
-msgstr ""
-"Otsikko näytetään kassasivulla ennen maksupalveluntarjoajien kuvakkeita."
-
-#: src/Gateway.php:249
-msgid "Payment provider description"
-msgstr "Maksupalveluntarjoajan kuvaus"
-
-#: src/Gateway.php:253
-msgid ""
-"Depending on your theme, this description might be displayed on the Checkout "
-"page before the payment provider images."
-msgstr ""
-"Riippuen käytetystä teemasta, tämä kuvaus saatetaan näyttää kassasivulla "
-"ennen maksupalveluntarjoajien kuvakkeita."
-
-#: src/Gateway.php:257
+#: src/Gateway.php:374
 msgid "Payment provider selection"
 msgstr "Maksupalveluntarjoajan valinta"
 
-#: src/Gateway.php:259
+#: src/Gateway.php:376
 msgid "Enable payment provider selection in the checkout page"
 msgstr "Ota maksupalveluntarjoajan valinta käyttöön"
 
-#: src/Gateway.php:261
+#: src/Gateway.php:378
 msgid ""
 "Choose whether you want the payment provider selection to happen in the "
 "checkout page or in a separate page."
@@ -175,82 +204,207 @@ msgstr ""
 "Valitse, haluatko maksupalvelun valinnan tapahtuvan kassalla tai erillisellä "
 "sivulla."
 
-#: src/Gateway.php:265 src/Gateway.php:267
-msgid "Merchant ID"
-msgstr "Kauppiastunnus"
+#: src/Gateway.php:382
+msgid "Payment provider title"
+msgstr "Maksupalveluntarjoajan otsikko"
 
-#: src/Gateway.php:271 src/Gateway.php:273
-msgid "Secret key"
-msgstr "Salainen avain"
+#: src/Gateway.php:384 src/Gateway.php:391
+msgid "Used on the Checkout page title"
+msgstr "Käytetään kassasivun otsikossa"
 
-#: src/Gateway.php:277 src/Gateway.php:279
+#: src/Gateway.php:386
+msgid ""
+"This title is displayed on the Checkout page before the payment provider "
+"images."
+msgstr ""
+"Otsikko näytetään kassasivulla ennen maksupalveluntarjoajien kuvakkeita."
+
+#: src/Gateway.php:389
+msgid "Payment provider description"
+msgstr "Maksupalveluntarjoajan kuvaus"
+
+#: src/Gateway.php:393
+msgid ""
+"Depending on your theme, this description might be displayed on the Checkout "
+"page before the payment provider images."
+msgstr ""
+"Riippuen käytetystä teemasta, tämä kuvaus saatetaan näyttää kassasivulla "
+"ennen maksupalveluntarjoajien kuvakkeita."
+
+#: src/Gateway.php:399
+msgid "Enable Apple Pay"
+msgstr "Aktivoi Apple Pay"
+
+#: src/Gateway.php:405
+msgid "Advanced settings"
+msgstr "Kehittyneet asetukset"
+
+#: src/Gateway.php:409
+msgid "Enable individual settlements"
+msgstr "Aktivoi yksittäistilitykset"
+
+#: src/Gateway.php:412
+msgid ""
+"This setting is required only if you are using transaction-by-transaction "
+"settlements in Paytrail."
+msgstr "Tämä asetus on tarpeen vain jos käytössänne on yksittäistilitykset."
+
+#: src/Gateway.php:415
+msgid "Bank reference prefix"
+msgstr "Pankkiviitteen etuliite"
+
+#: src/Gateway.php:417
+msgid "Add Prefix"
+msgstr "Lisää etuliite"
+
+#: src/Gateway.php:421
+#, fuzzy
+#| msgid "Fallback country"
+msgid "Default country"
+msgstr "Oletusmaan valinta"
+
+#: src/Gateway.php:423
 msgid "Fallback country"
 msgstr "Oletusmaan valinta"
 
-#: src/Gateway.php:281
+#: src/Gateway.php:425
 msgid ""
 "Select country to be used as fallback if no country specified in checkout."
 msgstr ""
 "Valitse maa jota käytetään varalta, mikäli mitään maata ei ole määritetty "
 "kassalla."
 
-#. 1: last 4 digits 2: expiry month 3: expiry year
-#: src/Gateway.php:492
+#: src/Gateway.php:430
+msgid "Debug log"
+msgstr "Lokitus"
+
+#: src/Gateway.php:432
+msgid "Enable logging"
+msgstr "Ota lokitus käytöön"
+
+#. translators: %s: URL
+#: src/Gateway.php:435
+#, fuzzy, php-format
+#| msgid ""
+#| "This enables logging all payment gateway events. The log will be written "
+#| "in %s. Recommended only for debugging purposes as this might save "
+#| "personal data. All logs can be viewed here: %2$s"
+msgid ""
+"This enables logging all payment gateway events. The log will be written in "
+"%1$s. Recommended only for debugging purposes as this might save personal "
+"data. All logs can be viewed here: %2$s"
+msgstr ""
+"Tämä asetus käynnistää kaikkien maksutapahtumien lokituksen. Loki "
+"kirjoitetaan sijaintiin %s. Toimintoa suositellaan vain "
+"virheenkorjaustarkoituksiin, sillä se voi tallentaa henkilötietoja. Lokeja "
+"voit selata täältä: %2$s"
+
+#: src/Gateway.php:439
+msgid "Update tokens"
+msgstr "Tokenien päivitys"
+
+#: src/Gateway.php:441
+msgid "Enable token update"
+msgstr "Ota tokenien päivitys käyttöön"
+
+#. translators: %s: URL
+#: src/Gateway.php:444
+msgid ""
+"Choose this to update card information (tokens) from the old Checkout "
+"Finland for WooCommerce -plugin. The update is done upon saving settings. "
+"This will also update tokens for the current WooCommerce Subscriptions "
+"orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot "
+"be reverted."
+msgstr ""
+"Valitse tämä siirtääksesi tallennettujen korttien tiedot (tokenit) vanhasta "
+"Checkout Finland for WooCommerce -lisäosasta. Siirto tehdään tallentaessasi "
+"asetukset. Samalla päivitetään myös WooCommerce Subscriptions -tilausten "
+"käyttämä token, mikäli kyseinen lisäosa on käytössä. </br> <b>HUOM:</b> Tätä "
+"muutosta ei voi peruuttaa."
+
+#: src/Gateway.php:498
+msgid ""
+"Paytrail for WooCommerce test mode is enabled. Please disable it to insert "
+"your Merchant ID and secret key."
+msgstr ""
+"Paytrail for WooCommerce testitila on aktiivinen. Ole hyvä ja poista "
+"testitila asettaaksesi kauppiastunnuksen ja varmenteen."
+
+#. translators: If you have not registered yet, you can do so on our website %s to get your credentials!
+#: src/Gateway.php:501
+#, php-format
+msgid ""
+"If you have not registered yet, you can do so on our website %s to get your "
+"credentials!"
+msgstr ""
+"Mikäli et ole vielä rekisteröitynyt, voit tehdä sen verkkosivuillamme %s "
+"saadaksesi tunnukset!"
+
+#: src/Gateway.php:502
+msgid "here"
+msgstr "tähän"
+
+#. translators: 1: last 4 digits 2: expiry month 3: expiry year
+#: src/Gateway.php:741
 #, php-format
 msgid "xxxx xxxx xxxx %1$s %2$s/%3$s"
 msgstr ""
 
+#: src/Gateway.php:810
+msgid "Payment failed or was cancelled. Please try again"
+msgstr "Maksu epäonnistui tai se peruutettiin. Yritä uudelleen"
+
 #. translators: First parameter is transaction ID, the other is the name of the payment provider.
-#: src/Gateway.php:603
+#: src/Gateway.php:962
 #, php-format
 msgid "Payment completed with transaction ID %1$s and payment provider %2$s."
 msgstr ""
 "Maksu suoritettiin tapahtuman tunnuksella %1$s ja maksupalveluntarjoajalla "
 "%2$s."
 
-#: src/Gateway.php:613
+#: src/Gateway.php:973
 #, php-format
 msgid "Payment completed with transaction ID %s."
 msgstr "Maksu on suoritettu tapahtumatunnuksella %s."
 
-#: src/Gateway.php:628
+#: src/Gateway.php:999
 msgid "Payment pending."
 msgstr "Maksua odotetaan."
 
-#: src/Gateway.php:632
+#: src/Gateway.php:1007
 msgid "Payment failed."
 msgstr "Maksu epäonnistui."
 
-#: src/Gateway.php:681
+#: src/Gateway.php:1117
 msgid "Refund cannot be found."
 msgstr "Palautusta ei löydy."
 
-#: src/Gateway.php:699
+#: src/Gateway.php:1133
 msgid "Refund process completed."
 msgstr "Palautusprosessi on valmis."
 
-#: src/Gateway.php:707
+#: src/Gateway.php:1143
 msgid "Refund was cancelled by the payment provider."
 msgstr "Maksupalveluntarjoaja peruutti palautuksen."
 
-#: src/Gateway.php:760
+#: src/Gateway.php:1227
 msgid "The payment provider was not chosen."
 msgstr "Maksunpalvelutarjoajaa ei ole valittu."
 
-#: src/Gateway.php:817
+#: src/Gateway.php:1295
 msgid "An error occurred validating the payment."
 msgstr "Maksun vahvistamisessa tapahtui virhe."
 
-#: src/Gateway.php:828
+#: src/Gateway.php:1304
 msgid "An error occurred performing the payment request."
 msgstr "Maksun suorittamisessa tapahtui virhe."
 
-#: src/Gateway.php:873
+#: src/Gateway.php:1381
 #, php-format
 msgid "Transaction %1$s created with payment provider %2$s."
 msgstr "Maksu ID:llä %1$s luotu maksupalveluntarjoajalla %2$s."
 
-#: src/Gateway.php:891
+#: src/Gateway.php:1399
 #, php-format
 msgid ""
 "Transaction %1$s created and user redirected to the payment provider "
@@ -259,12 +413,11 @@ msgstr ""
 "Luotu maksutapahtuma ID:llä %1$s ja käyttäjä ohjattu maksutavan "
 "valintasivulle."
 
-#: src/Gateway.php:921 src/Gateway.php:979
+#: src/Gateway.php:1431 src/Gateway.php:1491
 msgid "Failed to create token payment using card."
 msgstr "Maksutapahtuma tallennetulla kortilla epäonnistui."
 
-#. First parameter is transaction ID, and the other whether 3DS authentication was required.
-#: src/Gateway.php:943
+#: src/Gateway.php:1454
 #, php-format
 msgid ""
 "Transaction %1$s created by token payment using card. Requires 3DS: %2$s"
@@ -272,42 +425,41 @@ msgstr ""
 "Maksu ID:llä %1$s luotu tokenisoidulla maksukortilla. 3DS autentikointi "
 "vaadittu: %2$s"
 
-#: src/Gateway.php:948
+#: src/Gateway.php:1458
 msgid "yes"
 msgstr "kyllä"
 
-#: src/Gateway.php:948
+#: src/Gateway.php:1458
 msgid "no"
 msgstr "ei"
 
-#. First parameter is transaction ID.
-#: src/Gateway.php:996
+#: src/Gateway.php:1509
 #, php-format
 msgid "Transaction %1$s created by token payment using card."
 msgstr "Maksu ID:llä %1$s luotu tokenisoidulla maksukortilla."
 
-#: src/Gateway.php:1117
-msgid "There was too big error in rounding the prices."
-msgstr "Liian suuri virhe hintojen pyöristämisessä."
-
-#: src/Gateway.php:1124
+#: src/Gateway.php:1644 src/Gateway.php:1670
 msgid "Rounding"
 msgstr "Pyöristys"
 
-#: src/Gateway.php:1209
+#: src/Gateway.php:1724
+msgid "Cannot schedule subscription payment. No valid tokens found for order."
+msgstr ""
+
+#: src/Gateway.php:1793
 msgid "The refund amount must be larger than 0."
 msgstr "Maksun palautuksen arvon on oltava suurempi kuin 0."
 
-#: src/Gateway.php:1232
+#: src/Gateway.php:1832
 #, php-format
 msgid "Refunding process started.%s"
 msgstr "Palautusprosessi on aloitettu. %s"
 
-#: src/Gateway.php:1233
+#: src/Gateway.php:1833
 msgid " Reason: "
 msgstr " Syy: "
 
-#: src/Gateway.php:1270
+#: src/Gateway.php:1869
 msgid ""
 "The payment provider does not support either regular or email refunds. The "
 "refund was cancelled."
@@ -315,54 +467,85 @@ msgstr ""
 "Maksupalveluntarjoaja ei tue tavallisia tai sähköpostipalautuksia. "
 "Palautustoiminto peruttiin."
 
-#: src/Gateway.php:1280
+#: src/Gateway.php:1880
 msgid "Something went wrong with the email refund and it was cancelled."
 msgstr "Sähköpostipalautuksessa tapahtui virhe ja se peruutettiin."
 
-#: src/Gateway.php:1293
+#: src/Gateway.php:1894
 msgid "Something went wrong with the refund and it was cancelled."
 msgstr "Palautuksessa tapahtui virhe ja se peruutettiin."
 
-#: src/Gateway.php:1478
+#: src/Gateway.php:2075
 msgid "An error occurred loading the payment providers."
 msgstr "Maksupalveluntarjoajien lataamisessa tapahtui virhe."
 
-#: src/Gateway.php:1577
+#: src/Gateway.php:2192
 msgid "fee"
 msgstr "maksu"
 
-#: src/Gateway.php:1581
+#: src/Gateway.php:2196
 msgid "shipping"
 msgstr "toimitus"
 
-#: src/Gateway.php:1768
+#: src/Gateway.php:2456
 msgid "An error occurred validating the signature."
 msgstr "Allekirjoituksen vahvistamisessa tapahtui virhe."
 
-#: src/Gateway.php:1117
-msgid "You can save your card details for next time by <a href=\"%s\">logging in to the store or by creating an account.</a>"
-msgstr "Voit tallentaa kortin tiedot seuraavaa kertaa varten <a href=\"%s\">kirjautumalla kauppaan tai luomalla uuden tunnuksen.</a>"
+#: src/PaytrailBlocks.php:128 src/PaytrailBlocks.php:154
+#, fuzzy
+#| msgid "Payment failed or was cancelled. Please try again"
+msgid "Payment failed, please try again."
+msgstr "Maksu epäonnistui tai se peruutettiin. Yritä uudelleen"
 
-#: src/Controllers/Card.php:62
-msgid "Card was deleted successfully"
-msgstr "Kortti poistettiin onnistuneesti"
+#: src/Providers/ApplePay.php:72
+msgid "Apple Pay"
+msgstr "Apple Pay"
 
-#: src/Controllers/Card.php:66
-msgid "Card could not be deleted"
-msgstr "Kortin poistaminen epäonnistui"
+#: src/Providers/ApplePay.php:83
+msgid ""
+"Requires activation and domain registration in the Paytrail Merchant panel, "
+"see <a target=\"_blank\" href=\"https://support.paytrail.com/hc/fi/"
+"articles/4412478752017-Apple-"
+"Pay#h_01HQB1N8X624HCDX1TZ6MNHGYH\">instructions</a>. Verification file is "
+"added by the plugin."
+msgstr ""
+"Edellyttää maksutavan aktivoinnin ja URL-osoitteen rekisteröinnin "
+"Kauppiaspaneelissa, katso <a target=\"_blank\" href=\"https://support."
+"paytrail.com/hc/fi/articles/4412478752017-Apple-"
+"Pay#h_01HQB1N8X624HCDX1TZ6MNHGYH\">ohjeet</a>. Lisäosa tallentaa "
+"verifiontitiedoston automaattisesti."
 
-#: src/Controllers/CardCancel.php:12 src/Controllers/CardCancel.php:19
-#: src/Controllers/CardCancel.php:26 src/Controllers/CardSuccess.php:21
-#: src/Controllers/CardSuccess.php:23 src/Controllers/CardSuccess.php:36
-#: src/Controllers/CardSuccess.php:38 src/Controllers/CardSuccess.php:51
-#: src/Controllers/CardSuccess.php:53
-msgid "Could not add card details"
-msgstr "Kortin lisääminen epäonnistui"
+#: src/Providers/ApplePay.php:84
+msgid "Verification file found"
+msgstr "Verifiontitiedosto löytyy"
 
-#: src/Controllers/CardSuccess.php:19 src/Controllers/CardSuccess.php:34
-#: src/Controllers/CardSuccess.php:49
-msgid "Card was added successfully"
-msgstr "Kortti lisättiin onnistuneesti"
+#: src/Providers/ApplePay.php:85
+msgid "Verification file not found, please save the settings again"
+msgstr "Verifiontitiedostoa ei löydy, ole hyvä ja tallenna asetukset uudelleen"
+
+#: src/Providers/ApplePay.php:120
+msgid "Mobile payment methods"
+msgstr "Mobiilimaksutavat"
+
+#: src/View/ApplePayCheckout.php:12
+msgid "Click the button below to pay with Apple Pay"
+msgstr "Paina alla olevaa painiketta maksaaksesi Apple Paylla"
+
+#: src/View/ApplePayCheckout.php:13
+msgid "Apple Pay Button"
+msgstr "Apple Pay painike"
+
+#: src/View/ApplePayCheckout.php:27
+msgid "Something went wrong, please go back to the checkout"
+msgstr "Maksaminen epäonnistui, ole hyvä ja palaa takaisin kassalle"
+
+#: src/View/ApplePayCheckout.php:48
+msgid ""
+"Apple Pay is not available, please go back to the checkout and use another "
+"payment method."
+msgstr ""
+"Apple Pay ei ole saatavilla, ole hyvä ja palaa takaisin kassalle valitaksesi "
+"toisen maksutavan."
 
 #: src/View/CheckoutForm.php:24
 msgid ""
@@ -375,17 +558,142 @@ msgstr ""
 msgid "Submit"
 msgstr "Lähetä"
 
-#: src/View/SavedPaymentMethods.php:24
+#. translators: Get started with Paytrail
+#: src/View/Intro-form.php:9
+msgid "Get started with Paytrail"
+msgstr ""
+
+#. translators: To start accepting payments with Paytrail, you need an account.
+#: src/View/Intro-form.php:10
+msgid "To start accepting payments with Paytrail, you need an account."
+msgstr ""
+
+#. translators: I need an account
+#: src/View/Intro-form.php:16
+msgid "I need an account"
+msgstr ""
+
+#: src/View/Intro-form.php:17
+msgid ""
+"You can start our fast on-boarding process by clicking the register button"
+msgstr ""
+
+#: src/View/Intro-form.php:18
+msgid "Register now"
+msgstr ""
+
+#. translators: Or <a href="%s" target="_blank">contact sales</a>
+#: src/View/Intro-form.php:23
+#, php-format
+msgid "Or <a href=\"%s\" target=\"_blank\">contact sales</a>"
+msgstr ""
+
+#. translators: I already have an account
+#: src/View/Intro-form.php:29
+msgid "I already have an account"
+msgstr ""
+
+#: src/View/Intro-form.php:30
+msgid "Add credentials"
+msgstr ""
+
+#. translators: Credentials can be found in the <a href="%s" target="_blank">merchant panel</a>
+#: src/View/Intro-form.php:35
+#, php-format
+msgid ""
+"Credentials can be found in the <a href=\"%s\" target=\"_blank\">merchant "
+"panel</a>"
+msgstr ""
+
+#. translators: <b>Need help?</b> Dont hesitate to <a href="%s" target="_blank" style="color:#fff;">contact support!</a>
+#: src/View/Intro-form.php:44
+#, php-format
+msgid ""
+"<b>Need help?</b> Dont hesitate to <a href=\"%s\" target=\"_blank\" "
+"style=\"color:#fff;\">contact support!</a>"
+msgstr ""
+
+#: src/View/Intro-form.php:49
+msgid "I just want to try it"
+msgstr ""
+
+#: src/View/Intro-form.php:52
+msgid ""
+"Activate the test mode and try out the test credentials for various payment "
+"methods from our API documentation"
+msgstr ""
+
+#. translators: %s - Logging link
+#: src/View/ProviderForm.php:93
+#, php-format
+msgid ""
+"You can save your card details for next time by <a href=\"%s\">logging in to "
+"the store or by creating an account.</a>"
+msgstr ""
+"Voit tallentaa kortin tiedot seuraavaa kertaa varten <a "
+"href=\"%s\">kirjautumalla kauppaan tai luomalla uuden tunnuksen.</a>"
+
+#: src/View/SavedPaymentMethods.php:26
 msgid "Pay with saved card"
 msgstr "Maksa tallennetulla kortilla"
 
-#: src/View/SavedPaymentMethods.php:29
+#: src/View/SavedPaymentMethods.php:31
 msgid "Delete selected card"
 msgstr "Poista valittu kortti"
 
-#: src/View/SavedPaymentMethods.php:34
+#: src/View/SavedPaymentMethods.php:36
 msgid "Add new card"
 msgstr "Lisää uusi kortti"
+
+#: src/View/User-data-form.php:4
+msgid ""
+"To begin the Paytrail registration process, please review the following "
+"information"
+msgstr ""
+
+#: src/View/User-data-form.php:8
+msgid "First Name:"
+msgstr ""
+
+#: src/View/User-data-form.php:12
+msgid "Last Name:"
+msgstr ""
+
+#: src/View/User-data-form.php:16
+msgid "Email:"
+msgstr ""
+
+#: src/View/User-data-form.php:20
+msgid "Phone:"
+msgstr ""
+
+#: src/View/User-data-form.php:26
+msgid "Site URL:"
+msgstr ""
+
+#: src/View/User-data-form.php:30
+msgid "Company Name:"
+msgstr ""
+
+#: src/View/User-data-form.php:34
+msgid "Shop Address:"
+msgstr ""
+
+#: src/View/User-data-form.php:38
+msgid "Shop City:"
+msgstr ""
+
+#: src/View/User-data-form.php:42
+msgid "Shop Postcode:"
+msgstr ""
+
+#: src/View/User-data-form.php:49
+msgid "Close"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/paytrail/paytrail-for-woocommerce"
+msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
@@ -395,18 +703,13 @@ msgstr ""
 "Paytrail tarjoaa yli kaksikymmentä maksutapaa suomalaisille kuluttajille ja "
 "yrityksille."
 
-#. Plugin URI of the plugin/theme
-msgid "https://github.com/paytrail/paytrail-for-woocommerce"
-msgstr ""
-
 #. Author of the plugin/theme
 msgid "Paytrail"
 msgstr ""
 
-#. Author URI of the plugin
+#. Author URI of the plugin/theme
 msgid "https://www.paytrail.com/"
 msgstr ""
 
-#: src/Gateway.php:604
-msgid "Payment failed or was cancelled. Please try again"
-msgstr "Maksu epäonnistui tai se peruutettiin. Yritä uudelleen"
+#~ msgid "There was too big error in rounding the prices."
+#~ msgstr "Liian suuri virhe hintojen pyöristämisessä."

@@ -352,7 +352,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type'    => 'password',
 				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
 				'default' => '',
-				'description' => __('Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">test credentials</a>the merchant panel</a>.', 'paytrail-for-woocommerce'),
+				'description' => __('Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">the merchant panel</a>.', 'paytrail-for-woocommerce'),
 				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
 			],
 			// Whether test mode is enabled
