@@ -66,7 +66,10 @@ class ApplePay {
 	public static function settings_title() {
 		$icon_url = sprintf('%s/assets/img/icon_apple_pay_admin.svg', Plugin::plugin_url());
 
-		return __('Apple Pay', 'paytrail-for-woocommerce') . '<br>' . '<img src="' . esc_url($icon_url) . '" alt="Apple Pay" style="width: 70px; height: auto; margin-top: 5px;">';
+		return sprintf(
+			__('Apple Pay', 'paytrail-for-woocommerce') . '<br><img src="%s" alt="Apple Pay" style="width: 70px; height: auto; margin-top: 5px;">',
+			esc_url($icon_url)
+		);
 	}
 
 	/**
