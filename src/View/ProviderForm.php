@@ -74,7 +74,7 @@ array_walk($data['groups'], function ( $group) {
 	echo '<ul class="paytrail-woocommerce-payment-fields hidden">';
 	if (!\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		array_walk($group['providers'], function ( $provider) {
-			echo '<li class="paytrail-woocommerce-payment-fields--list-item' . ($provider->getId() === 'apple-pay' ? ' apple-pay' : '') . '">';
+			echo '<li class="paytrail-woocommerce-payment-fields--list-item' . ( $provider->getId() === 'apple-pay' ? ' apple-pay' : '' ) . '">';
 			echo '<label>';
 			echo '<input class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . esc_attr($provider->getId()) . '">';
 			echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper">';

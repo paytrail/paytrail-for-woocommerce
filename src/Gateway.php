@@ -472,9 +472,9 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		// Process Apple Pay verification file
-		if($this->apple_pay_active) {
+		if ( $this->apple_pay_active) {
 			$result = ApplePay::verification_file();
-			if(is_wp_error($result)) {
+			if ( is_wp_error($result)) {
 				$this->log('Paytrail: Apple Pay verification file could not be created: ' . $result->get_error_message(), 'error');
 			}
 		}
@@ -1366,7 +1366,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$providers = $response->getProviders();
 
 			//Check if the payment provider is custom provider and get only the wanted payment provider object
-			if('apple-pay' === $payment_provider) {
+			if ( 'apple-pay' === $payment_provider) {
 				$custom_providers = $this->create_custom_providers($response->getCustomProviders());
 				$wanted_provider = $this->get_wanted_provider($custom_providers, $payment_provider);
 			} else {
@@ -1525,11 +1525,11 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param array $custom_providers Array of custom providers
 	 * @return array
 	 */
-	private function create_custom_providers($custom_providers) {
-		if(empty($custom_providers)) {
+	private function create_custom_providers( $custom_providers) {
+		if (empty($custom_providers)) {
 			return [];
 		}
-		return array_map(function($provider) {
+		return array_map(function( $provider) {
 			$custom_provider = new Provider($provider);
 			$custom_provider->setName($provider->name);
 			$custom_provider->setGroup($provider->group);
@@ -2093,7 +2093,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param array $providers The list of payment providers.
 	 * @return array
 	 */
-	protected function add_custom_providers($providers) {
+	protected function add_custom_providers( $providers) {
 		if ($this->apple_pay_active) {
 			$providers = ApplePay::add_provider($providers);
 		}
