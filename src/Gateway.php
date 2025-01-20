@@ -57,8 +57,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 *  Transaction settlement declaration
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	protected $transaction_settlement_enable;
 
@@ -127,6 +127,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	protected $helper = null;
 	const TAX_RATE_PRECISION = 1;
+	const SUPPORTED_CURRENCIES = ['EUR'];
 
 	/**
 	 * Object constructor
@@ -482,10 +483,39 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Display a notice when currency is unsupported
+	 *
+	 * @return void
+	 */
+	public function display_currency_notice() {
+		// Check the currently selected currency
+		$current_currency = get_woocommerce_currency();
+		$currency_is_not_supported =  !in_array($current_currency, self::SUPPORTED_CURRENCIES);
+
+		// Check if the notice should be displayed
+		if ($currency_is_not_supported) {
+			$currency_settings_url = admin_url('admin.php?page=wc-settings&tab=general');
+			?>
+			<div class="notice notice-warning">
+				<p>
+					<?php
+					esc_html_e('Paytrail for WooCommerce - Unsupported Currency Chosen.', 'paytrail-for-woocommerce');
+					echo ' ' . sprintf(
+						'<a href="%s">' . esc_html__('Please set the WooCommerce currency to Euro (€)', 'paytrail-for-woocommerce') . '</a>', esc_url($currency_settings_url)
+						);
+					?>
+				</p>
+			</div>
+			<?php
+		}
+	}
+
+	/**
 	 * Callback to display the notice on the admin page.
 	 */
 	public function admin_notices() {
 		$this->display_test_mode_notice();
+		$this->display_currency_notice();
 	}
 
 	/**
@@ -1166,7 +1196,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log('Paytrail: use_provider_selection true', 'debug');
 			// Try to get payment provider from POST
 			$payment_provider = filter_input(INPUT_POST, 'payment_provider');
-	
+
 			// If empty, fallback to the meta data stored in the order
 			if (empty($payment_provider)) {
 				$payment_provider = get_post_meta($order_id, '_payment_provider', true);
@@ -1174,12 +1204,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			} else {
 				$this->log('Paytrail: payment_provider from POST: ' . print_r($payment_provider, true), 'debug');
 			}
-	
+
 		} else {
 			// Try to get payment method from POST
 			$payment_provider = filter_input(INPUT_POST, 'payment_method');
 			$this->log('Paytrail: use_provider_selection false', 'debug');
-	
+
 			// If empty, fallback to the meta data stored in the order
 			if (empty($payment_provider)) {
 				$payment_provider = get_post_meta($order_id, '_payment_method', true);
