@@ -25,6 +25,7 @@ use Paytrail\SDK\Response\GetTokenResponse;
 use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
+use Paytrail\WooCommercePaymentGateway\Providers\ApplePay;
 use WC_Order;
 use WC_Order_Query;
 use WC_Order_Item;
@@ -61,6 +62,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * 
 	 */
 	protected $transaction_settlement_enable;
+
+	/**
+	 * Whether Apple Pay is active
+	 *
+	 * @var boolean
+	 */
+	public $apple_pay_active = false;
 
 	/**
 	 * Whether test mode is enabled.
@@ -150,6 +158,9 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Icon temporarily disabled for size issues
 		// $this->icon = Plugin::ICON_URL;
+
+		//Check if Apple Pay is active
+		$this->apple_pay_active = 'yes' === $this->get_option('apple_pay');
 
 		// Set gateway admin settings fields.
 		$this->set_form_fields();
@@ -341,7 +352,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'type'    => 'password',
 				'label'   => __('Secret key', 'paytrail-for-woocommerce'),
 				'default' => '',
-				'description' => __('Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">test credentials</a>the merchant panel</a>.', 'paytrail-for-woocommerce'),
+				'description' => __('Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">the merchant panel</a>.', 'paytrail-for-woocommerce'),
 				'disabled' => $secret_key_disabled, // Disable if enable_test_mode is checked
 			],
 			// Whether test mode is enabled
@@ -380,6 +391,14 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'       => __('Used on the Checkout page title', 'paytrail-for-woocommerce'),
 				'default'     => 'Paytrail for WooCommerce',
 				'description' => __('Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce')
+			],
+			// Apple Pay
+			'apple_pay' => [
+				'title'       => ApplePay::settings_title(),
+				'type'        => 'checkbox',
+				'label'       => __('Enable Apple Pay', 'paytrail-for-woocommerce'),
+				'default'     => 'no',
+				'description' => ApplePay::settings_description($this->apple_pay_active),
 			],
 			// Advanced settings
 			'advanced_settings_title' => [
@@ -452,6 +471,14 @@ final class Gateway extends \WC_Payment_Gateway {
 			$subscription_migration->execute();
 		}
 
+		// Process Apple Pay verification file
+		if ( $this->apple_pay_active) {
+			$result = ApplePay::verification_file();
+			if ( is_wp_error($result)) {
+				$this->log('Paytrail: Apple Pay verification file could not be created: ' . $result->get_error_message(), 'error');
+			}
+		}
+
 		return $saved;
 	}
 
@@ -518,9 +545,9 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function receipt_page() {
-		$view = new View('CheckoutForm');
-
 		$provider = WC()->session->get('payment_provider');
+
+		'apple-pay' === $provider->getId() ? $view = new View('ApplePayCheckout') : $view = new View('CheckoutForm');
 
 		$view->render($provider);
 	}
@@ -1338,8 +1365,13 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log('Paytrail: create_normal_payment, use_provider_selection = true', 'debug');
 			$providers = $response->getProviders();
 
-			// Get only the wanted payment provider object
-			$wanted_provider = $this->get_wanted_provider($providers, $payment_provider);
+			//Check if the payment provider is custom provider and get only the wanted payment provider object
+			if ( 'apple-pay' === $payment_provider) {
+				$custom_providers = $this->create_custom_providers($response->getCustomProviders());
+				$wanted_provider = $this->get_wanted_provider($custom_providers, $payment_provider);
+			} else {
+				$wanted_provider = $this->get_wanted_provider($providers, $payment_provider);
+			}
 
 			WC()->session->set('payment_provider', $wanted_provider);
 
@@ -1485,6 +1517,26 @@ final class Gateway extends \WC_Payment_Gateway {
 		$order->payment_complete($response->getTransactionId());
 
 		return true;
+	}
+
+	/**
+	 * Map custom providers to Provider instances since SDK is missing CustomProvider
+	 *
+	 * @param array $custom_providers Array of custom providers
+	 * @return array
+	 */
+	private function create_custom_providers( $custom_providers) {
+		if (empty($custom_providers)) {
+			return [];
+		}
+		return array_map(function( $provider) {
+			$custom_provider = new Provider($provider);
+			$custom_provider->setName($provider->name);
+			$custom_provider->setGroup($provider->group);
+			$custom_provider->setId($provider->id);
+			$custom_provider->setParameters($provider->parameters);
+			return $custom_provider;
+		}, $custom_providers);
 	}
 
 	/**
@@ -1993,6 +2045,12 @@ final class Gateway extends \WC_Payment_Gateway {
 				isset($locale) ? $locale : Helper::getLocale(),
 				$groups
 			);
+
+			//Add custom providers to the list of grouped payment providers since they aren't returned by the Paytrail API
+			if ($this->apple_pay_active) {
+				$providers = $this->add_custom_providers($providers);
+			}
+
 		} catch (HmacException $exception) {
 			$providers = $this->get_payment_providers_error_handler($exception);
 		} catch (\Exception $exception) {
@@ -2027,6 +2085,19 @@ final class Gateway extends \WC_Payment_Gateway {
 		return [
 			'error' => $error,
 		];
+	}
+
+	/**
+	 * Add custom providers not returned by the Paytrail API to the grouped list of payment providers
+	 *
+	 * @param array $providers The list of payment providers.
+	 * @return array
+	 */
+	protected function add_custom_providers( $providers) {
+		if ($this->apple_pay_active) {
+			$providers = ApplePay::add_provider($providers);
+		}
+		return $providers;
 	}
 
 	/**
@@ -2263,10 +2334,20 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		wp_register_script(
 			'paytrail-woocommerce-payment-fields',
-			$plugin_dir_url . 'assets/dist/main.js',
+			$plugin_dir_url . 'dist/assets/frontend/main.js',
 			[],
 			$plugin_version
 		);
+
+		//Register the library script
+		if ($this->apple_pay_active) {
+			wp_register_script(
+				'paytrail-woocommerce-paytrail-library',
+				$plugin_dir_url . 'assets/js/paytrail.js',
+				[],
+				$plugin_version
+			);
+		}
 	}
 
 	public function enqueue_admin_scripts() {
@@ -2293,14 +2374,14 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		wp_register_style(
 			'paytrail-woocommerce-payment-fields',
-			$plugin_dir_url . 'assets/dist/main.css',
+			$plugin_dir_url . 'dist/assets/frontend/main.css',
 			[],
 			$plugin_version
 		);
 
 		wp_register_style(
 			'introStyles',
-			$plugin_dir_url . 'assets/dist/main.css',
+			$plugin_dir_url . 'dist/assets/frontend/main.css',
 			[],
 			$plugin_version
 		);

@@ -169,6 +169,10 @@
     margin-left: 4px;
     margin-right: 4px;
     /*border: 2px solid #ebebeb;*/
+    &.apple-pay {
+        /* Hide Apple Pay by default */
+        display: none;
+    }
 }
 .woocommerce-checkout #payment ul.payment_methods .col-narrow li.paytrail-woocommerce-payment-fields--list-item {
     margin-left: 3px;
