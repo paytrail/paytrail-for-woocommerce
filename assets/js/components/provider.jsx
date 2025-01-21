@@ -5,9 +5,10 @@ export const Provider = ({provider, index}) => {
 
     const {activeProvider, setActiveProvider} = useContext(PaytrailContext);
     const providerUniqueId = `${provider.id}-${index}`;
+    const hideApplePay = (provider.id === 'apple-pay' && !paytrail?.applePayButton?.canMakePayment());
     return (
         <li 
-            className={`paytrail-woocommerce-payment-fields--list-item ${activeProvider === providerUniqueId ? "selected" : ""}`} 
+            className={`paytrail-woocommerce-payment-fields--list-item ${hideApplePay ? 'apple-pay' : ''} ${activeProvider === providerUniqueId ? "selected" : ""}`} 
             onClick={() => setActiveProvider(providerUniqueId)}
         >
             <label htmlFor={`provider-${provider.id}-${index}`}>
