@@ -637,3 +637,11 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://www.paytrail.com/"
 msgstr ""
+
+#: src/Gateway.php:502
+msgid "Paytrail for WooCommerce - Unsupported Currency Chosen."
+msgstr ""
+
+#: src/Gateway.php:504
+msgid "Please set the WooCommerce currency to Euro (€)"
+msgstr ""

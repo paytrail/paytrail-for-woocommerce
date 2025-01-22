@@ -258,3 +258,11 @@ msgstr ""
 #: src/Gateway.php:604
 msgid "Payment failed or was cancelled. Please try again"
 msgstr ""
+
+#: src/Gateway.php:502
+msgid "Paytrail for WooCommerce - Unsupported Currency Chosen."
+msgstr ""
+
+#: src/Gateway.php:504
+msgid "Please set the WooCommerce currency to Euro (€)"
+msgstr ""

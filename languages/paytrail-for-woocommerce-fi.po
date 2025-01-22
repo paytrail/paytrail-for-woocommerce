@@ -711,5 +711,13 @@ msgstr ""
 msgid "https://www.paytrail.com/"
 msgstr ""
 
+#: src/Gateway.php:502
+msgid "Paytrail for WooCommerce - Unsupported Currency Chosen."
+msgstr "Paytrail for WooCommerce - Valittu valuutta ei ole tuettu."
+
+#: src/Gateway.php:504
+msgid "Please set the WooCommerce currency to Euro (€)"
+msgstr "Ole hyvä ja aseta WooCommercen valuutaksi Euro (€)."
+
 #~ msgid "There was too big error in rounding the prices."
 #~ msgstr "Liian suuri virhe hintojen pyöristämisessä."
