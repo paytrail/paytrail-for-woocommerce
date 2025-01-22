@@ -12,6 +12,10 @@ jobs:
     - name: Build
       run: |
         composer install --no-dev
+    - name: Install Subversion (SVN)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y subversion
     - name: WordPress Plugin Deploy
       id: deploy
       uses: paytrail/action-wordpress-plugin-deploy@main
