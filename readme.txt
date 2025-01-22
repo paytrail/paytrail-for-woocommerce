@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.7
-Stable tag: 2.2.3
+Stable tag: 2.3.0
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -55,6 +55,10 @@ Test credentials:
 With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
+
+= 2.3.0 =
+- Added Apple Pay support for payment page bypass
+- Added supported currency notice
 
 = 2.2.3 =
 - Added gateway check for blocks checkout
