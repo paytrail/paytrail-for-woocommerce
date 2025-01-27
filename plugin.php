@@ -21,6 +21,8 @@
 
 namespace Paytrail\WooCommercePaymentGateway;
 
+use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
+
 // Ensure that the file is being run within the WordPress context.
 if ( ! defined( 'ABSPATH' ) ) {
     die;
@@ -154,6 +156,9 @@ final class Plugin {
         // Enqueue jQuery
         add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
         add_action('admin_enqueue_scripts', array($this, 'enque_jquery_scripts'));
+
+        //Add OP Lasku calculator to the product and cart page
+        add_action('woocommerce_init', array($this, 'op_lasku_init'));
     }
 
     /**
@@ -511,6 +516,17 @@ final class Plugin {
 	public static function plugin_abspath() {
 		return trailingslashit( plugin_dir_path( __FILE__ ) );
 	}
+
+    /**
+     * Initialize OP Lasku calculator for product and cart page
+     */
+    public function op_lasku_init() {
+        $settings = get_option('woocommerce_paytrail_settings');
+        
+        if($settings['op_lasku_calculator'] == 'yes') {
+           new OPLasku();
+        }
+    }
 }
 
 add_action( 'plugins_loaded', function() {
