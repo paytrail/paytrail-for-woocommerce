@@ -1,7 +1,7 @@
 // Require main style file here for concatenation.
-require( __dirname + '/../scss/payment_fields.scss' );
-require( __dirname + '/../scss/introStyles.scss' );
-const handleSize = function(elem, size) {
+require(__dirname + '/../scss/payment_fields.scss');
+require(__dirname + '/../scss/introStyles.scss');
+const handleSize = function (elem, size) {
     if (size < 600) {
         elem.classList.remove('col-wide');
         elem.classList.add('col-narrow');
@@ -14,7 +14,8 @@ const handleSize = function(elem, size) {
 const delta = 300;
 let startTime;
 let timeout = false;
-const handleResize = function() {
+
+const handleResize = function () {
     const container = document.getElementById('payment');
     const paytrailContainer = document.getElementsByClassName('payment_method_paytrail');
     if (new Date() - startTime < delta) {
@@ -25,12 +26,12 @@ const handleResize = function() {
     }
 };
 //Handle Apple Pay button and mobile group visibility
-const handleApplePay = function() {
+const handleApplePay = function () {
     if (typeof paytrail !== 'undefined') {
         const applePay = paytrail.applePayButton;
         const button = document.getElementsByClassName('paytrail-woocommerce-payment-fields--list-item apple-pay');
         // Return if there is no Apple Pay button (for blocks order-pay page)
-        if(button.length === 0) {
+        if (button.length === 0) {
             return;
         }
         const groupDiv = button[0].parentNode.previousElementSibling;
@@ -64,28 +65,31 @@ window.initPaytrail = () => {
         })
     } else if (paytrailProviderGroups.length > 1) {
         Array.from(paytrailProviderGroups).map(providerGroup => {
-            providerGroup.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (this.classList.contains('selected')) {
-                    this.classList.remove('selected');
-                    this.nextSibling.classList.add('hidden');
-                    return;
-                }
-                // Clear active state
-                const active = document.getElementsByClassName('paytrail-provider-group selected');
-                if (active.length !== 0) {
-                    active[0].classList.remove('selected');
-                }
-                // Hide payment fields
-                const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
-                Array.from(fields).map(field => field.classList.add('hidden'))
-                // Show current group
-                this.classList.add('selected');
-                this.nextSibling.classList.remove('hidden');
-                // Use scrolIntoView(alignTo) method
-                const closestUl = this.nextSibling.closest('ul');
-                closestUl.scrollIntoView(false); // align to the bottom of the scrollable element
-            });
+            if (providerGroup && !providerGroup.hasAttribute('listenerOnClick')) {
+                providerGroup.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        this.nextSibling.classList.add('hidden');
+                        return;
+                    }
+                    // Clear active state
+                    const active = document.getElementsByClassName('paytrail-provider-group selected');
+                    if (active.length !== 0) {
+                        active[0].classList.remove('selected');
+                    }
+                    // Hide payment fields
+                    const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
+                    Array.from(fields).map(field => field.classList.add('hidden'))
+                    // Show current group
+                    this.classList.add('selected');
+                    this.nextSibling.classList.remove('hidden');
+                    // Use scrolIntoView(alignTo) method
+                    const closestUl = this.nextSibling.closest('ul');
+                    closestUl.scrollIntoView(false); // align to the bottom of the scrollable element
+                });
+                providerGroup.setAttribute('listenerOnClick', 'true');
+            }
         })
     }
     const methods = document.getElementsByClassName('paytrail-woocommerce-payment-fields--list-item paytrail-for-woocommerce-tokenized-payment-method');
@@ -105,10 +109,10 @@ window.initPaytrail = () => {
     handleResize()
     handleApplePay()
 }
-document.addEventListener('DOMContentLoaded', function(event) {
+document.addEventListener('DOMContentLoaded', function (event) {
     initPaytrail();
 });
-window.addEventListener('resize', function() {
+window.addEventListener('resize', function () {
     startTime = new Date();
     if (timeout === false) {
         timeout = true;
