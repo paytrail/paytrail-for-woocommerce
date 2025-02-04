@@ -1,13 +1,13 @@
-window.initOPLaskuWidget = (function(){
-  const O = "https://eficode.pohjola-finance.fi/tililuotto-uusi/";
-  const j = "d584a131-5594-4c2a-8e1a-a12424b982f2";
+(function () {
+  // Version: 1.0.0
+  const O = "https://eficode.pohjola-finance.fi/tililuotto-uusi/",
+    j = "d584a131-5594-4c2a-8e1a-a12424b982f2";
 
-  function P(amount) {
-    return fetch(`${O}api/bills/credit-costs?uuid=${j}&amount=${amount}`);
+  function P(t) {
+    return fetch(`${O}api/bills/credit-costs?uuid=${j}&amount=${t}`);
   }
 
-  // Strings for translations
-  const translations = {
+  const _ = {
     fi: {
       calc: {
         openButton: "OP Laskun erämaksulla",
@@ -100,7 +100,7 @@ window.initOPLaskuWidget = (function(){
         },
       },
     },
-    sv: {
+    se: {
       calc: {
         openButton: "Med OP Lasku",
         closeButton: "Stäng räknaren",
@@ -148,424 +148,388 @@ window.initOPLaskuWidget = (function(){
     },
   };
 
-  
-  const translateString = (lang, keyPath, replacements = {}) => {
-    // Fallback to 'fi' if the given language does not exist
-    if (!Object.keys(translations).includes(lang)) {
-      lang = "fi";
-    }
-    let translation = keyPath
-      .split(".")
-      .reduce((acc, part) => acc[part], translations[lang]);
-
-    Object.keys(replacements).forEach((k) => {
-      translation = translation.replace(`{${k}}`, replacements[k]);
+  const l = (t, e, a = {}) => {
+    Object.keys(_).includes(t) || (t = "fi");
+    let n = e.split(".").reduce((s, o) => s[o], _[t]);
+    Object.keys(a).forEach((s) => {
+      n = n.replace(`{${s}}`, a[s]);
     });
-
-    return translation;
+    return n;
   };
 
-  const replaceDotWithComma = (val) => val.replace(".", ",");
+  const A = (t) => t.replace(".", ",");
 
-  const formatNumber = (num, lang) => {
-    return lang === "en"
+  const u = (t, e) =>
+    e === "en"
       ? new Intl.NumberFormat("en-EN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(num)
+        }).format(t)
       : new Intl.NumberFormat("fi-FI", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(num);
-  };
+        }).format(t);
 
-  const formatDisplayNumber = (num, lang) => {
-    return lang === "en" ? num.toFixed(2) : replaceDotWithComma(num.toFixed(2));
-  };
+  const m = (t, e) => (e === "en" ? t.toFixed(2) : A(t.toFixed(2)));
 
-  const resultRows = (obj) => `
+  const E = (t) => `
     <dl>
-      <dt>${translateString(obj.lang, "calc.fields.amountLabel")}</dt>
-      <dd class="op-lasku__result-amount"><span>${formatNumber(
-        obj.details.amount / 100,
-        obj.lang
+      <dt>${l(t.lang, "calc.fields.amountLabel")}</dt>
+      <dd class="op-lasku__result-amount"><span>${u(
+        t.details.amount / 100,
+        t.lang
       )}</span> €</dd>
 
-      <dt>${translateString(obj.lang, "calc.fields.installmentLabel")}</dt>
-      <dd class="op-lasku__result-monthlypayment"><span>${formatNumber(
-        obj.details.installment / 100,
-        obj.lang
+      <dt>${l(t.lang, "calc.fields.installmentLabel")}</dt>
+      <dd class="op-lasku__result-monthlypayment"><span>${u(
+        t.details.installment / 100,
+        t.lang
       )}</span> €</dd>
-      <p class="op-lasku__result-monthlypayment-info"><span>${translateString(
-        obj.lang,
+      <p class="op-lasku__result-monthlypayment-info"><span>${l(
+        t.lang,
         "calc.fields.installmentInfo"
-      )}</p>
+      )}</span></p>
 
-      <dt>${translateString(obj.lang, "calc.fields.annualPercentageRateLabel")}</dt>
-      <dd class="op-lasku__result-realinterest"><span>${formatDisplayNumber(
-        obj.details.interest.annualPercentageRate * 100,
-        obj.lang
+      <dt>${l(t.lang, "calc.fields.annualPercentageRateLabel")}</dt>
+      <dd class="op-lasku__result-realinterest"><span>${m(
+        t.details.interest.annualPercentageRate * 100,
+        t.lang
       )}</span> %</dd>
 
-      <dt>${translateString(obj.lang, "calc.fields.creditPeriodLengthLabel")}</dt>
+      <dt>${l(t.lang, "calc.fields.creditPeriodLengthLabel")}</dt>
       <dd class="op-lasku__result-time"><span>${
-        obj.details.creditPeriodLengthInMonths
-      }</span> ${translateString(obj.lang, "calc.abbr.months")}</dd>
+        t.details.creditPeriodLengthInMonths
+      }</span> ${l(t.lang, "calc.abbr.months")}</dd>
 
-      <dt>${translateString(obj.lang, "calc.fields.totalCostLabel")}</dt>
-      <dd class="op-lasku__result-overall"><span>${formatNumber(
-        obj.details.costs.total / 100,
-        obj.lang
+      <dt>${l(t.lang, "calc.fields.totalCostLabel")}</dt>
+      <dd class="op-lasku__result-overall"><span>${u(
+        t.details.costs.total / 100,
+        t.lang
       )}</span> €</dd>
     </dl>
   `;
 
-  const exampleCalculation = (obj) => `
+  const M = (t) => `
     <p>
-      ${translateString(obj.lang, "calc.exampleCalculationFirst", {
-        totalInterest: formatDisplayNumber(
-          obj.details.exampleCalculationCosts.interest.totalInterest * 100,
-          obj.lang
+      ${l(t.lang, "calc.exampleCalculationFirst", {
+        totalInterest: m(
+          t.details.exampleCalculationCosts.interest.totalInterest * 100,
+          t.lang
         ),
-        date: currentDate(),
+        date: f(),
       })}
     </p>
     <p>
-      ${translateString(obj.lang, "calc.exampleCalculationSecond", {
-        annualPercentageRate: formatDisplayNumber(
-          obj.details.exampleCalculationCosts.interest.annualPercentageRate * 100,
-          obj.lang
+      ${l(t.lang, "calc.exampleCalculationSecond", {
+        annualPercentageRate: m(
+          t.details.exampleCalculationCosts.interest.annualPercentageRate * 100,
+          t.lang
         ),
-        margin: formatDisplayNumber(
-          obj.details.exampleCalculationCosts.interest.margin * 100,
-          obj.lang
+        margin: m(
+          t.details.exampleCalculationCosts.interest.margin * 100,
+          t.lang
         ),
-        totalInterest: formatDisplayNumber(
-          obj.details.exampleCalculationCosts.interest.totalInterest * 100,
-          obj.lang
+        totalInterest: m(
+          t.details.exampleCalculationCosts.interest.totalInterest * 100,
+          t.lang
         ),
-        date: obj.lang === "en" ? currentDate(true) : currentDate(),
-        installmentFee: formatNumber(
-          obj.details.exampleCalculationCosts.fees.installmentFee / 100,
-          obj.lang
+        date: t.lang === "en" ? f(true) : f(),
+        installmentFee: u(
+          t.details.exampleCalculationCosts.fees.installmentFee / 100,
+          t.lang
         ),
-        total: formatNumber(
-          obj.details.exampleCalculationCosts.costs.total / 100,
-          obj.lang
-        ),
-        installment: formatNumber(
-          obj.details.exampleCalculationCosts.installment / 100,
-          obj.lang
+        total: u(t.details.exampleCalculationCosts.costs.total / 100, t.lang),
+        installment: u(
+          t.details.exampleCalculationCosts.installment / 100,
+          t.lang
         ),
         creditPeriodLengthInMonths:
-          obj.details.exampleCalculationCosts.creditPeriodLengthInMonths,
+          t.details.exampleCalculationCosts.creditPeriodLengthInMonths,
       })}
     </p>
   `;
 
-  const currentDate = (longForm = false) => {
-    const date = new Date();
-    if (longForm) {
-      const monthName = new Intl.DateTimeFormat("en", { month: "long" });
-      const yearFull = date.getFullYear().toString();
-      return monthName.format(date) + " " + yearFull;
+  const f = (t = false) => {
+    const e = new Date();
+    if (t) {
+      const s = new Intl.DateTimeFormat("en", { month: "long" }),
+        o = e.getFullYear().toString();
+      return s.format(e) + " " + o;
     }
-    const shortYear = date.getFullYear().toString().slice(-2);
-    return (date.getMonth() + 1).toString().padStart(2, "0") + "/" + shortYear;
+    const a = e.getFullYear().toString().slice(-2);
+    return (e.getMonth() + 1).toString().padStart(2, "0") + "/" + a;
   };
 
-  const modalContent = (obj) => `
-  <h2 id="op-lasku__heading">${translateString(obj.lang, "calc.modalHeading")}</h2>
-  <span class="op-lasku__current_amount" hidden>${obj.details.amount}</span>
-  <p class="op-lasku__teaser-text">${translateString(obj.lang, "calc.teaserFirst")}</p>
-  <p class="op-lasku__teaser-text">${translateString(obj.lang, "calc.teaserSecond")}</p>
+  const B = (t) => `
+  <h2 id="op-lasku__heading">${l(t.lang, "calc.modalHeading")}</h2>
+  <span class="op-lasku__current_amount" hidden>${t.details.amount}</span>
+  <p class="op-lasku__teaser-text">${l(t.lang, "calc.teaserFirst")}</p>
+  <p class="op-lasku__teaser-text">${l(t.lang, "calc.teaserSecond")}</p>
 
   <div class="op-lasku__result-rows">
-    ${resultRows(obj)}
+    ${E(t)}
   </div>
 
   <footer>
-    ${exampleCalculation(obj)}
+    ${M(t)}
     <div class="op-lasku__footercompany">
-      <p>${translateString(obj.lang, "calc.footer.companySignature")}</p>
+      <p>${l(t.lang, "calc.footer.companySignature")}</p>
     </div>
   </footer>
   `;
 
-  /**
-   * Helper to create DOM elements
-   */
-  function el(tag, props) {
-    if (!tag) {
-      throw new Error("Cant create element without type.");
+  const p = (t, e) => {
+    if (t) {
+      var a = document.createElement(t);
+      if (typeof e == "object")
+        Object.keys(e).forEach(function (n) {
+          if (n.indexOf("data-") > -1) {
+            a.setAttribute(n, e[n]);
+          } else if (n === "children" && e[n].length) {
+            if (typeof e[n] != "object")
+              throw new Error(
+                "function el: children prop must be defined as array"
+              );
+            e[n].forEach(function (s) {
+              a.appendChild(
+                typeof s == "string" ? document.createTextNode(s) : s
+              );
+            });
+          } else a[n] = e[n];
+        });
+      return a;
     }
-    const element = document.createElement(tag);
-    if (typeof props === "object") {
-      Object.keys(props).forEach(function (k) {
-        if (k.indexOf("data-") > -1) {
-          element.setAttribute(k, props[k]);
-        } else if (k === "children" && props[k].length) {
-          if (typeof props[k] !== "object") {
-            throw new Error("function el: children prop must be defined as array");
-          }
-          props[k].forEach(function (child) {
-            element.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
-          });
-        } else {
-          element[k] = props[k];
-        }
-      });
-    }
-    return element;
-  }
-
-  const invalidClass = (target) => {
-    target.classList.add("op-lasku--invalid");
-  };
-  const validClass = (target) => {
-    target.classList.remove("op-lasku--invalid");
+    throw new Error("Cant create element without type.");
   };
 
-  const MAX_AMOUNT = 500000; // 5000.00 in "cents"
+  const x = (t) => {
+    t.classList.add("op-lasku--invalid");
+  };
 
-  /**
-   * Alias for document.querySelector
-   */
-  function $(ctx, selector, all = false) {
-    return all ? ctx.querySelectorAll(selector) : ctx.querySelector(selector);
+  const R = (t) => {
+    t.classList.remove("op-lasku--invalid");
+  };
+
+  const D = 5e5;
+
+  function c(t, e, a = false) {
+    return a ? t.querySelectorAll(e) : t.querySelector(e);
   }
 
-  /**
-   * Validate the amount
-   */
-  const validateAmount = (root, amount) => {
-    if (amount > MAX_AMOUNT) {
-      console.log("OP Laskun suurin luottoraja on 5000 euroa, laskuria ei näytetä." + amount);
-      invalidClass(root);
+  const y = (t, e) => {
+    if (e > D) {
+      console.log(
+        "OP Laskun suurin luottoraja on 5000 euroa, laskuria ei näytetä."
+      );
+      x(t);
       return false;
+    } else {
+      R(t);
+      return true;
     }
-    validClass(root);
-    return true;
   };
 
-  /**
-   * Update the displayed data
-   */
-  const updateUI = (root, dataObj) => {
-    $(".op-lasku__current_amount", root).textContent = dataObj.details.amount;
-    $(".op-lasku__result-amount", root).firstChild.textContent = formatNumber(
-      dataObj.details.amount / 100,
-      dataObj.lang
+  const T = (t, e) => {
+    c(t, ".op-lasku__current_amount").textContent = e.details.amount;
+    c(t, ".op-lasku__result-amount").firstChild.textContent = u(
+      e.details.amount / 100,
+      e.lang
     );
-    $(".op-lasku__result-monthlypayment", root).firstChild.textContent = formatNumber(
-      dataObj.details.installment / 100,
-      dataObj.lang
+    c(t, ".op-lasku__result-monthlypayment").firstChild.textContent = u(
+      e.details.installment / 100,
+      e.lang
     );
-    $(".op-lasku__result-realinterest", root).firstChild.textContent = formatDisplayNumber(
-      dataObj.details.interest.annualPercentageRate * 100,
-      dataObj.lang
+    c(t, ".op-lasku__result-realinterest").firstChild.textContent = m(
+      e.details.interest.annualPercentageRate * 100,
+      e.lang
     );
-    $(".op-lasku__result-time", root).firstChild.textContent =
-      dataObj.details.creditPeriodLengthInMonths;
-    $(".op-lasku__result-overall", root).firstChild.textContent = formatNumber(
-      dataObj.details.costs.total / 100,
-      dataObj.lang
+    c(t, ".op-lasku__result-time").firstChild.textContent =
+      e.details.creditPeriodLengthInMonths;
+    c(t, ".op-lasku__result-overall").firstChild.textContent = u(
+      e.details.costs.total / 100,
+      e.lang
     );
-
-    $(".op-lasku__btn-open", root).firstChild.textContent = `${
-      translateString(dataObj.lang, "calc.openButton")
-    } ${formatNumber(dataObj.details.installment / 100, dataObj.lang)} ${translateString(
-      dataObj.lang,
+    c(t, ".op-lasku__btn-open").firstChild.textContent = `${l(
+      e.lang,
+      "calc.openButton"
+    )} ${u(e.details.installment / 100, e.lang)} ${l(
+      e.lang,
       "calc.abbr.eurosPerMonth"
     )}`;
   };
 
-  /**
-   * Constructor for the OP Lasku widget
-   */
-  function LaskuWidget(root, dataObj) {
-    validateAmount(root, dataObj.details.amount);
-
-    this.setAmount = (newAmount) => {
-      const next = parseInt(newAmount, 10);
-      if (!validateAmount(root, next)) {
+  function W(t, e) {
+    y(t, e.details.amount);
+    this.setAmount = (a) => {
+      const n = parseInt(a, 10);
+      if (
+        !y(t, n) ||
+        parseInt(c(t, ".op-lasku__current_amount").value, 10) === n
+      ) {
         return false;
+      } else {
+        P(n)
+          .then((o) => o.json())
+          .then((o) => {
+            Object.assign(e.details, o);
+            T(t, e);
+          });
+        return true;
       }
-      const currentVal = parseInt($(".op-lasku__current_amount", root).value, 10);
-      if (currentVal === next) {
-        return false;
-      }
-      P(next)
-        .then((res) => res.json())
-        .then((json) => {
-          Object.assign(dataObj.details, json);
-          updateUI(root, dataObj);
-        });
-      return true;
     };
   }
 
-  let intervalId,
-    attemptCount = 0;
+  let g,
+    b = 0;
 
-  function onReady(fn) {
-    if (document.readyState === "interactive" || document.readyState === "complete") {
-      fn();
-    } else {
-      document.addEventListener("DOMContentLoaded", fn);
-    }
+  function N(t) {
+    if (
+      document.readyState === "interactive" ||
+      document.readyState === "complete"
+    )
+      t("params");
+    else document.addEventListener("DOMContentLoaded", t.bind(null, "params"));
   }
 
-  function initLaskuWidget() {
-    if (!window.fetch) {
+  function w() {
+    if (!window.fetch) return false;
+    const t = Object.assign(window.__opLaskuOpts || {}, {});
+    if (b >= 5) {
+      clearInterval(g);
       return false;
-    }
-    const opts = Object.assign(window.__opLaskuOpts || {}, {});
-    if (attemptCount >= 5) {
-      clearInterval(intervalId);
-      return false;
-    }
-    if (!Object.keys(opts).length) {
+    } else if (Object.keys(t).length) {
+      window.clearInterval(g);
+      P(t.amount)
+        .then((e) => {
+          if (e.status === 200) return e.json();
+          throw (
+            (console.log("Virhe rajapinnassa, tarkista laskurin alustusarvot."),
+            new Error(`Status ${e.status}`))
+          );
+        })
+        .then((e) => {
+          let a = t;
+          a = Object.assign({ details: e }, a);
+          try {
+            const s = document,
+              o = "op-lasku--opened";
+            var n;
+            const i = p("div", {
+                className:
+                  "op-lasku__widget op-lasku__type--lasku op-lasku__type--multi",
+              }),
+              S = p("div", { className: "op-lasku-backdrop" }),
+              d = p("div", { className: "op-lasku-container" });
+            d.setAttribute("role", "dialog");
+            d.setAttribute("aria-labelledby", "op-lasku__heading");
+            const C = p("button", {
+              textContent: `${l(a.lang, "calc.openButton")} ${u(
+                a.details.installment / 100,
+                a.lang
+              )} ${l(a.lang, "calc.abbr.eurosPerMonth")}`,
+              classList: "op-lasku__btn-open",
+            });
+            x(i);
+            const r = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "svg"
+              ),
+              k = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+              );
+            r.setAttribute("viewbox", "0 0 32 32");
+            r.setAttribute("width", "32px");
+            r.setAttribute("height", "32px");
+            r.setAttribute("aria-label", l(a.lang, "calc.closeButton"));
+            r.setAttribute("tabindex", "0");
+            r.classList.add("op-lasku__btn-close");
+            k.setAttribute(
+              "d",
+              "M16.0001 14.7268L23.8637 6.86321C24.039 6.68796 24.2685 6.60009 24.4982 6.59961C24.7292 6.59913 24.9603 6.68699 25.1365 6.86321C25.3089 7.03558 25.3967 7.26047 25.4 7.48636C25.4034 7.72109 25.3156 7.9569 25.1365 8.13601L17.2729 15.9996L25.1365 23.8632C25.3219 24.0486 25.4095 24.2948 25.3993 24.5376C25.3902 24.7551 25.3026 24.9699 25.1365 25.136C24.9644 25.3081 24.7401 25.3959 24.5146 25.3995C24.2795 25.4033 24.0431 25.3154 23.8637 25.136L16.0001 17.2724L8.13649 25.136C7.96481 25.3077 7.74102 25.3955 7.51602 25.3995C7.28041 25.4036 7.04349 25.3158 6.8637 25.136C6.68594 24.9582 6.59808 24.7246 6.60013 24.4916C6.60214 24.264 6.69 24.0369 6.8637 23.8632L14.7273 15.9996L6.8637 8.13601C6.68765 7.95995 6.59978 7.7291 6.6001 7.49836C6.60042 7.26844 6.68828 7.03863 6.8637 6.86321C7.03928 6.68763 7.26936 6.59977 7.49949 6.59961C7.73002 6.59945 7.9606 6.68732 8.13649 6.86321L16.0001 14.7268Z"
+            );
+            k.setAttribute("fill", "#6C6C6C");
+            k.setAttribute("fill-rule", "evenodd");
+            k.setAttribute("clip-rule", "evenodd");
+            r.appendChild(k);
+            d.appendChild(r);
+            d.insertAdjacentHTML("beforeend", B(a));
+            i.appendChild(C);
+            i.appendChild(S);
+            i.appendChild(d);
+            const L = s.querySelector(
+              a.selector ? a.selector : "#op-lasku--init"
+            );
+            if (!L) {
+              console.warn(
+                `Financing calculator: Selector ${
+                  a.selector ? a.selector : "#op-lasku--init"
+                } does not exist!`
+              );
+              return false;
+            }
+            L.insertAdjacentElement("afterend", i);
+            const F = () => {
+              document.body.classList.add("op-lasku--prevent-scroll");
+            };
+            const $ = () => {
+              document.body.classList.remove("op-lasku--prevent-scroll");
+            };
+            const I = () => {
+              i.classList.add(o);
+              d.classList.add(o);
+              i.querySelector("#op-lasku__heading").focus();
+              F();
+            };
+            const v = () => {
+              i.classList.remove(o);
+              d.classList.remove(o);
+              i.querySelector(".op-lasku__btn-open").focus();
+              $();
+            };
+            C.addEventListener("click", () => {
+              I();
+            });
+            r.addEventListener("click", () => {
+              v();
+            });
+            r.addEventListener("keypress", function (h) {
+              if (h.code == "Space" || h.code == "Enter") {
+                v();
+                h.preventDefault();
+              }
+            });
+            window.__opLaskuCalcWidget = window.__opLaskuCalcWidget
+              ? window.__opLaskuCalcWidget
+              : {};
+            window.__opLaskuCalcWidget[a.type] = new W(i, a);
+          } catch (s) {
+            const o = document.querySelector("#op-lasku--init");
+            if (o) o.remove();
+            console.error(s);
+          }
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+      return true;
+    } else {
       console.log("Financing calculator: Cannot find options!");
-      console.log(`Financing calculator: Retrying ${attemptCount + 1} / 5 ...`);
-      attemptCount += 1;
-      if (!intervalId) {
-        intervalId = setInterval(initLaskuWidget, 5000);
+      console.log(`Financing calculator: Retrying ${b + 1} / 5 ...`);
+      b += 1;
+      if (!g) {
+        g = setInterval(w, 5e3);
       }
       return false;
     }
-
-    // We have options, proceed
-    window.clearInterval(intervalId);
-
-    P(opts.amount)
-      .then((res) => {
-        if (res.status === 200) return res.json();
-        console.log("Virhe rajapinnassa, tarkista laskurin alustusarvot.");
-        throw new Error(`Status ${res.status}`);
-      })
-      .then((json) => {
-        let dataObj = opts;
-        dataObj = Object.assign({ details: json }, dataObj);
-
-        try {
-          const doc = document;
-          const openedClass = "op-lasku--opened";
-
-          const widgetWrapper = el("div", {
-            className: "op-lasku__widget op-lasku__type--lasku op-lasku__type--multi",
-          });
-          const backdrop = el("div", { className: "op-lasku-backdrop" });
-          const container = el("div", { className: "op-lasku-container" });
-
-          container.setAttribute("role", "dialog");
-          container.setAttribute("aria-labelledby", "op-lasku__heading");
-
-          const openButton = el("button", {
-            textContent: `${translateString(dataObj.lang, "calc.openButton")} ${formatNumber(
-              dataObj.details.installment / 100,
-              dataObj.lang
-            )} ${translateString(dataObj.lang, "calc.abbr.eurosPerMonth")}`,
-            classList: "op-lasku__btn-open",
-          });
-
-          // Make the wrapper invalid by default (will be validated below)
-          invalidClass(widgetWrapper);
-
-          // Close button (SVG)
-          const closeBtnSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          closeBtnSvg.setAttribute("aria-hidden", "true");
-          closeBtnSvg.setAttribute("viewbox", "0 0 32 32");
-          closeBtnSvg.setAttribute("width", "32px");
-          closeBtnSvg.setAttribute("height", "32px");
-          closeBtnSvg.setAttribute("aria-label", translateString(dataObj.lang, "calc.closeButton"));
-          closeBtnSvg.setAttribute("tabindex", "0");
-          closeBtnSvg.classList.add("op-lasku__btn-close");
-          path.setAttribute(
-            "d",
-            "M16.0001 14.7268L23.8637 6.86321C24.039 6.68796 24.2685 6.60009 24.4982 6.59961C24.7292 6.59913 24.9603 6.68699 25.1365 6.86321C25.3089 7.03558 25.3967 7.26047 25.4 7.48636C25.4034 7.72109 25.3156 7.9569 25.1365 8.13601L17.2729 15.9996L25.1365 23.8632C25.3219 24.0486 25.4095 24.2948 25.3993 24.5376C25.3902 24.7551 25.3026 24.9699 25.1365 25.136C24.9644 25.3081 24.7401 25.3959 24.5146 25.3995C24.2795 25.4033 24.0431 25.3154 23.8637 25.136L16.0001 17.2724L8.13649 25.136C7.96481 25.3077 7.74102 25.3955 7.51602 25.3995C7.28041 25.4036 7.04349 25.3158 6.8637 25.136C6.68594 24.9582 6.59808 24.7246 6.60013 24.4916C6.60214 24.264 6.69 24.0369 6.8637 23.8632L14.7273 15.9996L6.8637 8.13601C6.68765 7.95995 6.59978 7.7291 6.6001 7.49836C6.60042 7.26844 6.68828 7.03863 6.8637 6.86321C7.03928 6.68763 7.26936 6.59977 7.49949 6.59961C7.73002 6.59945 7.9606 6.68732 8.13649 6.86321L16.0001 14.7268Z"
-          );
-          path.setAttribute("fill", "#6C6C6C");
-          path.setAttribute("fill-rule", "evenodd");
-          path.setAttribute("clip-rule", "evenodd");
-          closeBtnSvg.appendChild(path);
-
-          container.appendChild(closeBtnSvg);
-          container.insertAdjacentHTML("beforeend", modalContent(dataObj));
-          widgetWrapper.appendChild(openButton);
-          widgetWrapper.appendChild(backdrop);
-          widgetWrapper.appendChild(container);
-
-          const initElem = doc.querySelector(dataObj.selector ? dataObj.selector : "#op-lasku--init");
-          if (!initElem) {
-            console.warn(
-              `Financing calculator: Selector ${
-                dataObj.selector ? dataObj.selector : "#op-lasku--init"
-              } does not exist!`
-            );
-            return false;
-          }
-          initElem.insertAdjacentElement("afterend", widgetWrapper);
-
-          // Lock scroll
-          const lockScroll = () => {
-            document.body.classList.add("op-lasku--prevent-scroll");
-          };
-          // Unlock scroll
-          const unlockScroll = () => {
-            document.body.classList.remove("op-lasku--prevent-scroll");
-          };
-          const openModal = () => {
-            widgetWrapper.classList.add(openedClass);
-            container.classList.add(openedClass);
-            widgetWrapper.querySelector("#op-lasku__heading").focus();
-            lockScroll();
-          };
-          const closeModal = () => {
-            widgetWrapper.classList.remove(openedClass);
-            container.classList.remove(openedClass);
-            widgetWrapper.querySelector(".op-lasku__btn-open").focus();
-            unlockScroll();
-          };
-
-          // Add event handlers
-          openButton.addEventListener("click", () => {
-            openModal();
-          });
-          closeBtnSvg.addEventListener("click", () => {
-            closeModal();
-          });
-          closeBtnSvg.addEventListener("keypress", function (evt) {
-            if (evt.code === "Space" || evt.code === "Enter") {
-              closeModal();
-              evt.preventDefault();
-            }
-          });
-
-          // Expose constructor on window for later usage
-          window.__opLaskuCalcWidget = window.__opLaskuCalcWidget
-            ? window.__opLaskuCalcWidget
-            : {};
-          window.__opLaskuCalcWidget[dataObj.type] = new LaskuWidget(widgetWrapper, dataObj);
-        } catch (err) {
-          const initElem = document.querySelector("#op-lasku--init");
-          if (initElem) initElem.remove();
-          console.error(err);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-
-    return true;
   }
 
-  onReady(() => {
+  // Expose the w() function as window.opLaskuInit
+  window.opLaskuInit = w;
+
+  N((t) => {
     setTimeout(() => {
-      initLaskuWidget();
+      w();
     }, 10);
   });
-
-  return initLaskuWidget;
 })();

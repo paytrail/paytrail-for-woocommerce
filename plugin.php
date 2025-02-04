@@ -21,8 +21,6 @@
 
 namespace Paytrail\WooCommercePaymentGateway;
 
-use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
-
 // Ensure that the file is being run within the WordPress context.
 if ( ! defined( 'ABSPATH' ) ) {
     die;
@@ -524,7 +522,7 @@ final class Plugin {
         $settings = get_option('woocommerce_paytrail_settings');
         
         if($settings['op_lasku_calculator'] == 'yes') {
-           new OPLasku();
+           new \Paytrail\WooCommercePaymentGateway\Providers\OPLasku();
         }
     }
 }
