@@ -100,7 +100,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		// Register OP Lasku scripts on cart page
 		if (is_cart()) { 
 			$settings = get_option('woocommerce_paytrail_settings');
-			if (isset($settings['op_lasku_calculator']) && $settings['op_lasku_calculator'] === 'yes') {
+			if (isset($settings['op_lasku_calculator']) && 'yes' === $settings['op_lasku_calculator']) {
 				OPLasku::register_blocks_cart_scripts();
 				$script_handles[] = 'paytrail-op-lasku-helper-blocks';
 			}
