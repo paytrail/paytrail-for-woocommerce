@@ -521,7 +521,7 @@ final class Plugin {
     public function op_lasku_init() {
         $settings = get_option('woocommerce_paytrail_settings');
         
-        if($settings['op_lasku_calculator'] == 'yes') {
+        if(isset($settings['op_lasku_calculator']) && 'yes' === $settings['op_lasku_calculator']) {
            new \Paytrail\WooCommercePaymentGateway\Providers\OPLasku();
         }
     }
