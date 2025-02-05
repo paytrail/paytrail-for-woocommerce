@@ -10,14 +10,14 @@ if (typeof window.op_lasku_data !== 'undefined') {
   if (op_lasku_data?.product_price) {
     // Product page
     window.__opLaskuOpts = {
-      amount: op_lasku_data.product_price * 100,
+      amount: Math.round(op_lasku_data.product_price * 100),
       lang: lang,
       type: "lasku",
     };
   } else if (op_lasku_data?.cart_total) {
     // Cart page
     window.__opLaskuOpts = {
-      amount: op_lasku_data.cart_total * 100,
+      amount: Math.round(op_lasku_data.cart_total * 100),
       lang: lang,
       type: "lasku",
     };
@@ -32,7 +32,7 @@ if (typeof window.op_lasku_data !== 'undefined') {
         .replace(",", ".");
 
       window.__opLaskuOpts = {
-        amount: parseFloat(cartTotal) * 100,
+        amount: Math.round(parseFloat(cartTotal) * 100),
         lang: lang,
         type: "lasku",
       };
