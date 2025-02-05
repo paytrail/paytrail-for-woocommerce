@@ -98,9 +98,12 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		}
 
 		// Register OP Lasku scripts on cart page
-		if (is_cart() && ( get_option('woocommerce_paytrail_settings')['op_lasku_calculator'] ?? 'no' ) === 'yes') { 
-			OPLasku::register_blocks_cart_scripts();
-			$script_handles[] = 'paytrail-op-lasku-helper-blocks';
+		if (is_cart()) { 
+			$settings = get_option('woocommerce_paytrail_settings');
+			if (isset($settings['op_lasku_calculator']) && $settings['op_lasku_calculator'] === 'yes') {
+				OPLasku::register_blocks_cart_scripts();
+				$script_handles[] = 'paytrail-op-lasku-helper-blocks';
+			}
 		}
 
 		return $script_handles;
