@@ -108,7 +108,7 @@ class OPLasku {
 	public static function settings_title() {
 		$icon_url = sprintf('%s/assets/img/icon_oplasku_admin.svg', Plugin::plugin_url());
 		return sprintf(
-			__('OP Invoice', 'paytrail-for-woocommerce') . '<br><img src="%s" alt="OP Invoice calculator" style="width: 70px; height: auto; margin-top: 5px;">',
+			__('OP Lasku', 'paytrail-for-woocommerce') . '<br><img src="%s" alt="OP Lasku calculator" style="width: 70px; height: auto; margin-top: 5px;">',
 			esc_url($icon_url)
 		);
 	}

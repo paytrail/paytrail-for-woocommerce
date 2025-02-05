@@ -406,9 +406,9 @@ final class Gateway extends \WC_Payment_Gateway {
 			'op_lasku_calculator' => [
 				'title'       => OPLasku::settings_title(),
 				'type'        => 'checkbox',
-				'label'       => __('Enable OP Invoice calculator', 'paytrail-for-woocommerce'),
+				'label'       => __('Enable OP Lasku calculator', 'paytrail-for-woocommerce'),
 				'default'     => 'no',
-				'description' => __('Display OP Invoice calculator on the product and cart page.', 'paytrail-for-woocommerce'),
+				'description' => __('Display OP Lasku calculator on the product and cart page.', 'paytrail-for-woocommerce'),
 			],
 			// Advanced settings
 			'advanced_settings_title' => [
