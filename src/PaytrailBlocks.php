@@ -97,11 +97,11 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			wp_set_script_translations( 'paytrail-block-payment', \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'languages/' );
 		}
 
-        // Register OP Lasku scripts on cart page
-        if(is_cart() && (get_option('woocommerce_paytrail_settings')['op_lasku_calculator'] ?? 'no') === 'yes') { 
+		// Register OP Lasku scripts on cart page
+		if (is_cart() && ( get_option('woocommerce_paytrail_settings')['op_lasku_calculator'] ?? 'no' ) === 'yes') { 
 			OPLasku::register_blocks_cart_scripts();
 			$script_handles[] = 'paytrail-op-lasku-helper-blocks';
-        }
+		}
 
 		return $script_handles;
 	}
