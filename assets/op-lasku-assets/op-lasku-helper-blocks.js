@@ -5,7 +5,7 @@ import { registerPlugin } from "@wordpress/plugins";
 import { ExperimentalOrderMeta } from "@woocommerce/blocks-checkout";
 
 const render = () => {
-  if (typeof ExperimentalOrderMeta === "undefined") {
+  if (typeof ExperimentalOrderMeta === "undefined" || typeof window.op_lasku_data === "undefined") {
     return null;
   }
 
@@ -29,7 +29,7 @@ const render = () => {
 
     window.__opLaskuOpts = {
       amount: cartTotal,
-      lang: (window.op_lasku_data && window.op_lasku_data.language) || "fi",
+      lang: window.op_lasku_data.language || "fi",
       type: "lasku",
     };
   };

@@ -1503,7 +1503,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const render = () => {
-  if (typeof _woocommerce_blocks_checkout__WEBPACK_IMPORTED_MODULE_4__.ExperimentalOrderMeta === "undefined") {
+  if (typeof _woocommerce_blocks_checkout__WEBPACK_IMPORTED_MODULE_4__.ExperimentalOrderMeta === "undefined" || typeof window.op_lasku_data === "undefined") {
     return null;
   }
 
@@ -1524,7 +1524,7 @@ const render = () => {
     }
     window.__opLaskuOpts = {
       amount: cartTotal,
-      lang: window.op_lasku_data && window.op_lasku_data.language || "fi",
+      lang: window.op_lasku_data.language || "fi",
       type: "lasku"
     };
   };
