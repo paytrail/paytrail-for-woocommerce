@@ -26,6 +26,7 @@ use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use Paytrail\WooCommercePaymentGateway\Providers\ApplePay;
+use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
 use WC_Order;
 use WC_Order_Query;
 use WC_Order_Item;
@@ -400,6 +401,14 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'       => __('Enable Apple Pay', 'paytrail-for-woocommerce'),
 				'default'     => 'no',
 				'description' => ApplePay::settings_description($this->apple_pay_active),
+			],
+			// OP Lasku
+			'op_lasku_calculator' => [
+				'title'       => OPLasku::settings_title(),
+				'type'        => 'checkbox',
+				'label'       => __('Enable OP Lasku calculator', 'paytrail-for-woocommerce'),
+				'default'     => 'no',
+				'description' => __('Display OP Lasku calculator on the product and cart page.', 'paytrail-for-woocommerce'),
 			],
 			// Advanced settings
 			'advanced_settings_title' => [
