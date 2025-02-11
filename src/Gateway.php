@@ -1052,7 +1052,22 @@ final class Gateway extends \WC_Payment_Gateway {
 					break;
 				}
 				$order->update_status('failed');
-				$order->add_order_note(__('Payment failed.', 'paytrail-for-woocommerce'));
+				$failed_order_note = __('Payment failed.', 'paytrail-for-woocommerce');
+				
+				$latest_order_note = wc_get_order_notes([
+					'order_id' => $order->get_id(),
+					'limit'    => 1,
+					'orderby'  => 'date_created',
+					'order'    => 'DESC',
+				]);
+
+				if (is_array($latest_order_note) && isset($latest_order_note[0])) {
+					if ($latest_order_note[0]->content === $failed_order_note) {
+						break;//Don't add another note if the latest note is the same
+					}
+				}
+
+				$order->add_order_note($failed_order_note);
 				break;
 		}
 	}
