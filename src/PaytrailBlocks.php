@@ -9,6 +9,7 @@ use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Automattic\WooCommerce\StoreApi\Payments\PaymentResult;
 use Automattic\WooCommerce\StoreApi\Payments\PaymentContext;
+use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
 use WC_Payment_Tokens;
 use WC_Logger;
 
@@ -72,6 +73,8 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 * @return array Script handles.
 	 */
 	public function get_payment_method_script_handles() {
+		$script_handles = [];
+
 		$script_path       = '/dist/assets/frontend/blocks.js';
 		$script_asset_path = \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'dist/assets/frontend/blocks.asset.php';
 		$script_asset      = file_exists( $script_asset_path ) ? require $script_asset_path : [
@@ -88,11 +91,22 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			true
 		);
 
+		$script_handles[] = 'paytrail-block-payment';
+
 		if ( function_exists( 'wp_set_script_translations' ) ) {
 			wp_set_script_translations( 'paytrail-block-payment', \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'languages/' );
 		}
 
-		return [ 'paytrail-block-payment' ];
+		// Register OP Lasku scripts on cart page
+		if (is_cart()) { 
+			$settings = get_option('woocommerce_paytrail_settings');
+			if (isset($settings['op_lasku_calculator']) && 'yes' === $settings['op_lasku_calculator']) {
+				OPLasku::register_blocks_cart_scripts();
+				$script_handles[] = 'paytrail-op-lasku-helper-blocks';
+			}
+		}
+
+		return $script_handles;
 	}
 
 	/**

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Paytrail WooCommerce Payment Gateway\n"
-"POT-Creation-Date: 2025-01-14 08:48+0200\n"
+"POT-Creation-Date: 2025-02-05 10:29+0200\n"
 "PO-Revision-Date: 2019-03-26 15:25+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,55 +21,55 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.js\n"
 
-#: plugin.php:274
+#: plugin.php:277
 msgid "Payment page personalization"
 msgstr ""
 
-#: plugin.php:279
+#: plugin.php:282
 msgid "Payment method group background"
 msgstr ""
 
-#: plugin.php:284
+#: plugin.php:287
 msgid "Payment method group text"
 msgstr ""
 
-#: plugin.php:289
+#: plugin.php:292
 msgid "Selected payment method group background"
 msgstr ""
 
-#: plugin.php:294
+#: plugin.php:297
 msgid "Selected payment method group text"
 msgstr ""
 
-#: plugin.php:299
+#: plugin.php:302
 msgid "Payment method group background hover"
 msgstr ""
 
-#: plugin.php:304
+#: plugin.php:307
 msgid "Payment method group text hover"
 msgstr ""
 
-#: plugin.php:309
+#: plugin.php:312
 msgid "Selected payment method"
 msgstr ""
 
-#: plugin.php:314
+#: plugin.php:317
 msgid "Payment method hover"
 msgstr ""
 
 #. translators: The placeholder contains the current PHP version.
-#: plugin.php:417
+#: plugin.php:420
 #, php-format
 msgid ""
 "Paytrail payment gateway plugin requires a PHP version of at least 7.3. You "
 "are currently running version %1$s."
 msgstr ""
 
-#: plugin.php:432
+#: plugin.php:435
 msgid "Paytrail payment gateway plugin requires WooCommerce to be activated."
 msgstr ""
 
-#: plugin.php:464
+#: plugin.php:467
 msgid "Paytrail gateway plugin requires WooCommerce version of 3.5 or greater."
 msgstr ""
 
@@ -100,59 +100,59 @@ msgid "Card was added successfully"
 msgstr ""
 
 #. Plugin Name of the plugin/theme
-#: src/Gateway.php:309
+#: src/Gateway.php:311
 msgid "Paytrail for WooCommerce"
 msgstr ""
 
-#: src/Gateway.php:310
+#: src/Gateway.php:312
 msgid ""
 "Paytrail for WooCommerce - the most comprehensive suite of payment methods "
 "in the market with a single contract"
 msgstr ""
 
-#: src/Gateway.php:332
+#: src/Gateway.php:334
 msgid "Payment gateway status"
 msgstr ""
 
-#: src/Gateway.php:334
+#: src/Gateway.php:336
 msgid "Enable Paytrail for WooCommerce"
 msgstr ""
 
-#: src/Gateway.php:339
+#: src/Gateway.php:341
 msgid "Credentials"
 msgstr ""
 
-#: src/Gateway.php:344
+#: src/Gateway.php:346
 msgid "Paytrail Merchant ID"
 msgstr ""
 
-#: src/Gateway.php:346
+#: src/Gateway.php:348
 msgid "Merchant ID"
 msgstr ""
 
-#: src/Gateway.php:351
+#: src/Gateway.php:353
 msgid "Paytrail Secret key"
 msgstr ""
 
-#: src/Gateway.php:353
+#: src/Gateway.php:355
 msgid "Secret key"
 msgstr ""
 
-#: src/Gateway.php:355
+#: src/Gateway.php:357
 msgid ""
 "Credentials can be found in <a target=\"_blank\" href=\"https://merchant."
 "paytrail.com/\">the merchant panel</a>."
 msgstr ""
 
-#: src/Gateway.php:360 src/View/Intro-form.php:55
+#: src/Gateway.php:362 src/View/Intro-form.php:55
 msgid "Test mode"
 msgstr ""
 
-#: src/Gateway.php:362
+#: src/Gateway.php:364
 msgid "Enable test mode"
 msgstr ""
 
-#: src/Gateway.php:364
+#: src/Gateway.php:366
 msgid ""
 "You can use test mode to simulate payments with Paytrail's <a "
 "target=\"_blank\" href=\"https://docs.paytrail.com/#/?id=test-"
@@ -160,97 +160,105 @@ msgid ""
 "the Credentials and save settings."
 msgstr ""
 
-#: src/Gateway.php:369
+#: src/Gateway.php:371
 msgid "General settings"
 msgstr ""
 
-#: src/Gateway.php:374
+#: src/Gateway.php:376
 msgid "Payment provider selection"
 msgstr ""
 
-#: src/Gateway.php:376
+#: src/Gateway.php:378
 msgid "Enable payment provider selection in the checkout page"
 msgstr ""
 
-#: src/Gateway.php:378
+#: src/Gateway.php:380
 msgid ""
 "Choose whether you want the payment provider selection to happen in the "
 "checkout page or in a separate page."
 msgstr ""
 
-#: src/Gateway.php:382
+#: src/Gateway.php:384
 msgid "Payment provider title"
 msgstr ""
 
-#: src/Gateway.php:384 src/Gateway.php:391
+#: src/Gateway.php:386 src/Gateway.php:393
 msgid "Used on the Checkout page title"
 msgstr ""
 
-#: src/Gateway.php:386
+#: src/Gateway.php:388
 msgid ""
 "This title is displayed on the Checkout page before the payment provider "
 "images."
 msgstr ""
 
-#: src/Gateway.php:389
+#: src/Gateway.php:391
 msgid "Payment provider description"
 msgstr ""
 
-#: src/Gateway.php:393
+#: src/Gateway.php:395
 msgid ""
 "Depending on your theme, this description might be displayed on the Checkout "
 "page before the payment provider images."
 msgstr ""
 
-#: src/Gateway.php:399
+#: src/Gateway.php:401
 msgid "Enable Apple Pay"
 msgstr ""
 
-#: src/Gateway.php:405
+#: src/Gateway.php:409
+msgid "Enable OP Lasku calculator"
+msgstr ""
+
+#: src/Gateway.php:411
+msgid "Display OP Lasku calculator on the product and cart page."
+msgstr ""
+
+#: src/Gateway.php:415
 msgid "Advanced settings"
 msgstr ""
 
-#: src/Gateway.php:409
+#: src/Gateway.php:419
 msgid "Enable individual settlements"
 msgstr ""
 
-#: src/Gateway.php:412
+#: src/Gateway.php:422
 msgid ""
 "This setting is required only if you are using transaction-by-transaction "
 "settlements in Paytrail."
 msgstr ""
 
-#: src/Gateway.php:415
+#: src/Gateway.php:425
 msgid "Bank reference prefix"
 msgstr ""
 
-#: src/Gateway.php:417
+#: src/Gateway.php:427
 msgid "Add Prefix"
 msgstr ""
 
-#: src/Gateway.php:421
+#: src/Gateway.php:431
 msgid "Default country"
 msgstr ""
 
-#: src/Gateway.php:423
+#: src/Gateway.php:433
 msgid "Fallback country"
 msgstr ""
 
-#: src/Gateway.php:425
+#: src/Gateway.php:435
 msgid ""
 "Select country to be used as fallback if no country specified in checkout."
 msgstr ""
 
-#: src/Gateway.php:430
+#: src/Gateway.php:440
 msgid "Debug log"
 msgstr ""
 
-#: src/Gateway.php:432
+#: src/Gateway.php:442
 msgid "Enable logging"
 msgstr ""
 
 #. translators: %s: URL
-#: src/Gateway.php:435
+#: src/Gateway.php:445
 #, php-format
 msgid ""
 "This enables logging all payment gateway events. The log will be written in "
@@ -258,16 +266,16 @@ msgid ""
 "data. All logs can be viewed here: %2$s"
 msgstr ""
 
-#: src/Gateway.php:439
+#: src/Gateway.php:449
 msgid "Update tokens"
 msgstr ""
 
-#: src/Gateway.php:441
+#: src/Gateway.php:451
 msgid "Enable token update"
 msgstr ""
 
 #. translators: %s: URL
-#: src/Gateway.php:444
+#: src/Gateway.php:454
 msgid ""
 "Choose this to update card information (tokens) from the old Checkout "
 "Finland for WooCommerce -plugin. The update is done upon saving settings. "
@@ -276,172 +284,180 @@ msgid ""
 "be reverted."
 msgstr ""
 
-#: src/Gateway.php:498
+#: src/Gateway.php:508
 msgid ""
 "Paytrail for WooCommerce test mode is enabled. Please disable it to insert "
 "your Merchant ID and secret key."
 msgstr ""
 
 #. translators: If you have not registered yet, you can do so on our website %s to get your credentials!
-#: src/Gateway.php:501
+#: src/Gateway.php:511
 #, php-format
 msgid ""
 "If you have not registered yet, you can do so on our website %s to get your "
 "credentials!"
 msgstr ""
 
-#: src/Gateway.php:502
+#: src/Gateway.php:512
 msgid "here"
 msgstr ""
 
+#: src/Gateway.php:538
+msgid "Paytrail for WooCommerce - Unsupported Currency Chosen."
+msgstr ""
+
+#: src/Gateway.php:540
+msgid "Please set the WooCommerce currency to Euro (€)"
+msgstr ""
+
 #. translators: 1: last 4 digits 2: expiry month 3: expiry year
-#: src/Gateway.php:741
+#: src/Gateway.php:780
 #, php-format
 msgid "xxxx xxxx xxxx %1$s %2$s/%3$s"
 msgstr ""
 
-#: src/Gateway.php:810
+#: src/Gateway.php:849
 msgid "Payment failed or was cancelled. Please try again"
 msgstr ""
 
 #. translators: First parameter is transaction ID, the other is the name of the payment provider.
-#: src/Gateway.php:962
+#: src/Gateway.php:1001
 #, php-format
 msgid "Payment completed with transaction ID %1$s and payment provider %2$s."
 msgstr ""
 
-#: src/Gateway.php:973
+#: src/Gateway.php:1012
 #, php-format
 msgid "Payment completed with transaction ID %s."
 msgstr ""
 
-#: src/Gateway.php:999
+#: src/Gateway.php:1038
 msgid "Payment pending."
 msgstr ""
 
-#: src/Gateway.php:1007
+#: src/Gateway.php:1046
 msgid "Payment failed."
 msgstr ""
 
-#: src/Gateway.php:1117
+#: src/Gateway.php:1156
 msgid "Refund cannot be found."
 msgstr ""
 
-#: src/Gateway.php:1133
+#: src/Gateway.php:1172
 msgid "Refund process completed."
 msgstr ""
 
-#: src/Gateway.php:1143
+#: src/Gateway.php:1182
 msgid "Refund was cancelled by the payment provider."
 msgstr ""
 
-#: src/Gateway.php:1227
+#: src/Gateway.php:1266
 msgid "The payment provider was not chosen."
 msgstr ""
 
-#: src/Gateway.php:1295
+#: src/Gateway.php:1334
 msgid "An error occurred validating the payment."
 msgstr ""
 
-#: src/Gateway.php:1304
+#: src/Gateway.php:1343
 msgid "An error occurred performing the payment request."
 msgstr ""
 
-#: src/Gateway.php:1381
+#: src/Gateway.php:1420
 #, php-format
 msgid "Transaction %1$s created with payment provider %2$s."
 msgstr ""
 
-#: src/Gateway.php:1399
+#: src/Gateway.php:1438
 #, php-format
 msgid ""
 "Transaction %1$s created and user redirected to the payment provider "
 "selection page."
 msgstr ""
 
-#: src/Gateway.php:1431 src/Gateway.php:1491
+#: src/Gateway.php:1470 src/Gateway.php:1530
 msgid "Failed to create token payment using card."
 msgstr ""
 
-#: src/Gateway.php:1454
+#: src/Gateway.php:1493
 #, php-format
 msgid ""
 "Transaction %1$s created by token payment using card. Requires 3DS: %2$s"
 msgstr ""
 
-#: src/Gateway.php:1458
+#: src/Gateway.php:1497
 msgid "yes"
 msgstr ""
 
-#: src/Gateway.php:1458
+#: src/Gateway.php:1497
 msgid "no"
 msgstr ""
 
-#: src/Gateway.php:1509
+#: src/Gateway.php:1548
 #, php-format
 msgid "Transaction %1$s created by token payment using card."
 msgstr ""
 
-#: src/Gateway.php:1644 src/Gateway.php:1670
+#: src/Gateway.php:1683 src/Gateway.php:1709
 msgid "Rounding"
 msgstr ""
 
-#: src/Gateway.php:1724
+#: src/Gateway.php:1763
 msgid "Cannot schedule subscription payment. No valid tokens found for order."
 msgstr ""
 
-#: src/Gateway.php:1793
+#: src/Gateway.php:1832
 msgid "The refund amount must be larger than 0."
 msgstr ""
 
-#: src/Gateway.php:1832
+#: src/Gateway.php:1871
 #, php-format
 msgid "Refunding process started.%s"
 msgstr ""
 
-#: src/Gateway.php:1833
+#: src/Gateway.php:1872
 msgid " Reason: "
 msgstr ""
 
-#: src/Gateway.php:1869
+#: src/Gateway.php:1908
 msgid ""
 "The payment provider does not support either regular or email refunds. The "
 "refund was cancelled."
 msgstr ""
 
-#: src/Gateway.php:1880
+#: src/Gateway.php:1919
 msgid "Something went wrong with the email refund and it was cancelled."
 msgstr ""
 
-#: src/Gateway.php:1894
+#: src/Gateway.php:1933
 msgid "Something went wrong with the refund and it was cancelled."
 msgstr ""
 
-#: src/Gateway.php:2075
+#: src/Gateway.php:2114
 msgid "An error occurred loading the payment providers."
 msgstr ""
 
-#: src/Gateway.php:2192
+#: src/Gateway.php:2231
 msgid "fee"
 msgstr ""
 
-#: src/Gateway.php:2196
+#: src/Gateway.php:2235
 msgid "shipping"
 msgstr ""
 
-#: src/Gateway.php:2456
+#: src/Gateway.php:2495
 msgid "An error occurred validating the signature."
 msgstr ""
 
-#: src/PaytrailBlocks.php:128 src/PaytrailBlocks.php:154
+#: src/PaytrailBlocks.php:139 src/PaytrailBlocks.php:165
 msgid "Payment failed, please try again."
 msgstr ""
 
-#: src/Providers/ApplePay.php:72
+#: src/Providers/ApplePay.php:70
 msgid "Apple Pay"
 msgstr ""
 
-#: src/Providers/ApplePay.php:83
+#: src/Providers/ApplePay.php:82
 msgid ""
 "Requires activation and domain registration in the Paytrail Merchant panel, "
 "see <a target=\"_blank\" href=\"https://support.paytrail.com/hc/fi/"
@@ -450,16 +466,20 @@ msgid ""
 "added by the plugin."
 msgstr ""
 
-#: src/Providers/ApplePay.php:84
+#: src/Providers/ApplePay.php:83
 msgid "Verification file found"
 msgstr ""
 
-#: src/Providers/ApplePay.php:85
+#: src/Providers/ApplePay.php:84
 msgid "Verification file not found, please save the settings again"
 msgstr ""
 
-#: src/Providers/ApplePay.php:120
+#: src/Providers/ApplePay.php:118
 msgid "Mobile payment methods"
+msgstr ""
+
+#: src/Providers/OPLasku.php:111
+msgid "OP Lasku"
 msgstr ""
 
 #: src/View/ApplePayCheckout.php:12
@@ -470,11 +490,11 @@ msgstr ""
 msgid "Apple Pay Button"
 msgstr ""
 
-#: src/View/ApplePayCheckout.php:27
+#: src/View/ApplePayCheckout.php:29
 msgid "Something went wrong, please go back to the checkout"
 msgstr ""
 
-#: src/View/ApplePayCheckout.php:48
+#: src/View/ApplePayCheckout.php:50
 msgid ""
 "Apple Pay is not available, please go back to the checkout and use another "
 "payment method."
@@ -636,12 +656,4 @@ msgstr ""
 
 #. Author URI of the plugin/theme
 msgid "https://www.paytrail.com/"
-msgstr ""
-
-#: src/Gateway.php:502
-msgid "Paytrail for WooCommerce - Unsupported Currency Chosen."
-msgstr ""
-
-#: src/Gateway.php:504
-msgid "Please set the WooCommerce currency to Euro (€)"
 msgstr ""

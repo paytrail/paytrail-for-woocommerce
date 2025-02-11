@@ -3,7 +3,7 @@
  * Plugin Name: Paytrail for WooCommerce
  * Plugin URI: https://github.com/paytrail/paytrail-for-woocommerce
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
- * Version: 2.3.0
+ * Version: 2.4.0
  * Requires at least: 4.9
  * Requires Plugins: woocommerce
  * Tested up to: 6.7
@@ -154,6 +154,9 @@ final class Plugin {
         // Enqueue jQuery
         add_action('admin_enqueue_scripts', array($this, 'enqueue_jquery'));
         add_action('admin_enqueue_scripts', array($this, 'enque_jquery_scripts'));
+
+        //Add OP Lasku calculator to the product and cart page
+        add_action('woocommerce_init', array($this, 'op_lasku_init'));
     }
 
     /**
@@ -511,6 +514,17 @@ final class Plugin {
 	public static function plugin_abspath() {
 		return trailingslashit( plugin_dir_path( __FILE__ ) );
 	}
+
+    /**
+     * Initialize OP Lasku calculator for product and cart page
+     */
+    public function op_lasku_init() {
+        $settings = get_option('woocommerce_paytrail_settings');
+        
+        if(isset($settings['op_lasku_calculator']) && 'yes' === $settings['op_lasku_calculator']) {
+           new \Paytrail\WooCommercePaymentGateway\Providers\OPLasku();
+        }
+    }
 }
 
 add_action( 'plugins_loaded', function() {
