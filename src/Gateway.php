@@ -1685,16 +1685,16 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setUnits(1);
 			$rounding_item->setUnitPrice(abs($diff));
 			$rounding_item->setProductCode('rounding-row');
-
+			$rounding_item->setStamp($this->helper->generate_item_stamp($order->get_id()));
 			$items[] = $rounding_item;
 		} elseif ($diff < 0) {
-			$items = $this->fix_rounding_error($items, $diff);
+			$items = $this->fix_rounding_error($items, $diff, $order->get_id());
 		}
 
 		return $items;
 	}
 
-	private function fix_rounding_error( $items, $diff) {
+	private function fix_rounding_error( $items, $diff, $order_id ) {
 		// Subtract rounding error from first not zero price item if sub sum is too high.
 		$lastItemKey = $this->getLastNonZeroItemKey($items, $diff);
 		$lastItem = $items[$lastItemKey];
@@ -1711,6 +1711,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$rounding_item->setUnits(1);
 			$rounding_item->setUnitPrice(abs($difference));
 			$rounding_item->setProductCode('rounding-row');
+			$rounding_item->setStamp($this->helper->generate_item_stamp($order_id));
 
 			$items[] = $rounding_item;
 		}
