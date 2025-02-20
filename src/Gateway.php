@@ -820,6 +820,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$reference        = filter_input(INPUT_GET, 'checkout-reference');
 		$cancel_order     = filter_input(INPUT_GET, 'cancel_order');
 		$pay_for_order    = filter_input(INPUT_GET, 'pay_for_order');
+		$payment_method = filter_input(INPUT_POST, 'payment_method');
 
 		if (!$status && !$reference && !$refund_callback && !$refund_unique_id) {
 			//no log to reduce number of log entries
@@ -843,7 +844,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ($pay_for_order) {
-			//Do not attempt to process further, the customer will be shown a page to choose payment methods
+			//The customer will be shown a page to choose payment methods
 			wc_clear_notices();
 			$message = __(
 				'Payment failed or was cancelled. Please try again',
@@ -852,6 +853,14 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			wc_add_notice( $message, 'notice');
 			$this->log('Paytrail: check_paytrail_response, pay_for_order is true. Payment page will be shown. Reference: ' . $reference, 'debug');
+
+			//Check to see if this is the first load of the page
+			if (!$payment_method) {
+				//Handle the payment response so that orders will change to Failed status
+				$this->log('Paytrail: Start handle_payment_response for reference ' . $reference, 'debug');
+				$this->handle_payment_response( $status );
+			}
+
 			return;
 		}
 
@@ -1043,7 +1052,22 @@ final class Gateway extends \WC_Payment_Gateway {
 					break;
 				}
 				$order->update_status('failed');
-				$order->add_order_note(__('Payment failed.', 'paytrail-for-woocommerce'));
+				$failed_order_note = __('Payment failed.', 'paytrail-for-woocommerce');
+				
+				$latest_order_note = wc_get_order_notes([
+					'order_id' => $order->get_id(),
+					'limit'    => 1,
+					'orderby'  => 'date_created',
+					'order'    => 'DESC',
+				]);
+
+				if (is_array($latest_order_note) && isset($latest_order_note[0])) {
+					if ($latest_order_note[0]->content === $failed_order_note) {
+						break;//Don't add another note if the latest note is the same
+					}
+				}
+
+				$order->add_order_note($failed_order_note);
 				break;
 		}
 	}
