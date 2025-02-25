@@ -84,4 +84,15 @@ class Helper {
 		return $locale;
 	}
 
+	/**
+	 * Generate a unique id for use as payment item stamp
+	 *
+	 * @param $order_id
+	 *
+	 * @return string
+	 */
+	public function generate_item_stamp ( $order_id) {
+		return uniqid($order_id . '-', true);
+	}
+
 }
