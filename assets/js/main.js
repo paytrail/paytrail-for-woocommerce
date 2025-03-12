@@ -42,7 +42,7 @@ const handleApplePay = function () {
         const providers = providerList.textContent.split(',').map(provider => provider.trim());
         const hasOtherProviders = providers.some(provider => provider !== 'Apple Pay');
 
-        // Hide manually created mobile group if there are no other mobile providers and apple pay is not available
+        // Hide mobile group if there are no other mobile providers and apple pay is not available
         if (!hasOtherProviders && !applePay?.canMakePayment()) {
             groupDiv.style.display = 'none';
         } else if (hasOtherProviders && !applePay?.canMakePayment() && providerText.includes('Apple Pay')) {
@@ -50,7 +50,7 @@ const handleApplePay = function () {
             providerList.textContent = providerText.replace(/,\s*Apple Pay|Apple Pay,\s*|Apple Pay/g, '').trim();
         }
         //Display Apple Pay button if it is available
-        if (button.length > 0 && applePay?.canMakePayment()) {
+        if (applePay?.canMakePayment()) {
             button[0].classList.remove('apple-pay');
         }
     }
