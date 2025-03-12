@@ -23,10 +23,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const settings = (0,_woocommerce_settings__WEBPACK_IMPORTED_MODULE_1__.getSetting)('paytrail_data', {});
-const applePayActive = settings.apple_pay_active;
-//Hide manually created mobile group if Apple Pay is not supported and there are no other mobile providers
+
+//Hide mobile group if Apple Pay is not supported and there are no other mobile providers
 const hasOtherProviders = settings.groups.some(group => group.id === 'mobile' && group.providers.some(provider => provider.id !== 'apple-pay'));
-const hideMobileGroup = providerGroup => applePayActive && providerGroup.id === 'mobile' && !hasOtherProviders && !paytrail?.applePayButton?.canMakePayment();
+const hideMobileGroup = providerGroup => providerGroup.id === 'mobile' && !hasOtherProviders && !paytrail?.applePayButton?.canMakePayment();
 const PaymentMethods = () => {
   // Check if no providers should be displayed
   if (!settings.groups || settings.groups.length === 0) {

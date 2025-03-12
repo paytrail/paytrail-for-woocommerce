@@ -232,7 +232,6 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			'description'           => $gateway->description,
 			'supports'              => array_filter( $gateway->supports, [ $gateway, 'supports' ] ),
 			'groups' => isset($grouped_providers['groups']) ? $grouped_providers['groups'] : [],
-			'apple_pay_active' => $gateway->apple_pay_active,
 			'terms'  => isset($grouped_providers['terms']) ? $grouped_providers['terms'] : '',
 			'saved_payment_methods' => ! empty( $tokens ) ? array_map(
 				function ( $token ) {
