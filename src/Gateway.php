@@ -2131,10 +2131,6 @@ final class Gateway extends \WC_Payment_Gateway {
 			$address->setCountry($this->get_option('fallback_country', ''));
 		}
 
-		if (empty($address->getPostalCode())) {
-			$address->setPostalCode('N/A');
-		}
-
 		// If we have any of the listed properties, we are good to go
 		$has_values = array_filter(
 			[ 'StreetAddress', 'PostalCode', 'City', 'County' ],
