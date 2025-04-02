@@ -4,10 +4,6 @@ import { ProviderGroup } from './provider-group';
 
 const settings = getSetting('paytrail_data', {});
 
-//Hide mobile group if Apple Pay is not supported and there are no other mobile providers
-const hasOtherProviders = settings.groups.some(group => group.id === 'mobile' && group.providers.some(provider => provider.id !== 'apple-pay'));
-const hideMobileGroup = (providerGroup) => (providerGroup.id === 'mobile' && !hasOtherProviders && !paytrail?.applePayButton?.canMakePayment())
-
 export const PaymentMethods = () => {
     // Check if no providers should be displayed
     if (!settings.groups || settings.groups.length === 0) {
@@ -31,8 +27,8 @@ export const PaymentMethods = () => {
     return (
         <div className="payment_box payment_method_paytrail">
             <PaytrailTerms />
-            {settings.groups.map(providerGroup => (
-		    hideMobileGroup(providerGroup) ? null : <ProviderGroup group={providerGroup} key={providerGroup.id}/>
+            {settings.groups.map((providerGroup) => (
+		    <ProviderGroup group={providerGroup} key={providerGroup.id}/>
 		))}
         </div>
     );
