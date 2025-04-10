@@ -276,36 +276,6 @@ const handleResize = function () {
     handleSize(paytrailContainer[0], Math.round(container.offsetWidth));
   }
 };
-//Handle Apple Pay button and mobile group visibility
-const handleApplePay = function () {
-  if (typeof paytrail !== 'undefined') {
-    const applePay = paytrail.applePayButton;
-    const button = document.getElementsByClassName('paytrail-woocommerce-payment-fields--list-item apple-pay');
-    // Return if there is no Apple Pay button (for blocks order-pay page)
-    if (button.length === 0) {
-      return;
-    }
-    const groupDiv = button[0].parentNode.previousElementSibling;
-    // Select the provider list within the mobile group
-    const providerList = groupDiv.getElementsByClassName('provider-list')[0];
-    const providerText = providerList.textContent.trim();
-    // Check if there are other providers besides Apple Pay
-    const providers = providerList.textContent.split(',').map(provider => provider.trim());
-    const hasOtherProviders = providers.some(provider => provider !== 'Apple Pay');
-
-    // Hide mobile group if there are no other mobile providers and apple pay is not available
-    if (!hasOtherProviders && !applePay?.canMakePayment()) {
-      groupDiv.style.display = 'none';
-    } else if (hasOtherProviders && !applePay?.canMakePayment() && providerText.includes('Apple Pay')) {
-      // If there are other mobile providers and Apple Pay is not available, remove Apple Pay title from the list
-      providerList.textContent = providerText.replace(/,\s*Apple Pay|Apple Pay,\s*|Apple Pay/g, '').trim();
-    }
-    //Display Apple Pay button if it is available
-    if (applePay?.canMakePayment()) {
-      button[0].classList.remove('apple-pay');
-    }
-  }
-};
 window.initPaytrail = () => {
   const paytrailProviderGroups = document.getElementsByClassName('paytrail-provider-group');
   if (paytrailProviderGroups.length === 1) {
@@ -358,7 +328,6 @@ window.initPaytrail = () => {
     });
   }
   handleResize();
-  handleApplePay();
 };
 document.addEventListener('DOMContentLoaded', function (event) {
   initPaytrail();

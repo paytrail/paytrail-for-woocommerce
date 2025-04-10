@@ -2332,14 +2332,6 @@ final class Gateway extends \WC_Payment_Gateway {
 			[],
 			$plugin_version
 		);
-
-		//Register the library script
-			wp_register_script(
-				'paytrail-woocommerce-paytrail-library',
-				$plugin_dir_url . 'assets/js/paytrail.js',
-				[],
-				$plugin_version
-			);
 	}
 
 	public function enqueue_admin_scripts() {

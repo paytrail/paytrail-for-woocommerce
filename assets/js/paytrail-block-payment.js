@@ -6,7 +6,6 @@ import { PaytrailContainer } from './containers/paytrail-container';
 import {label, PaytrailLabel} from './components/paytrail-label';
 
 import '../scss/payment_blocks.scss';
-import './paytrail'
 
 const settings = getSetting( 'paytrail_data', {} );
 
