@@ -20,7 +20,7 @@ wp_enqueue_script('paytrail-woocommerce-payment-fields');
 // Something went wrong loading the providers.
 if (! empty($data['error'])) {
 	printf(
-		'<p class="paytrail-for-woocommerce-payment-fields__error">%s</p>',
+		'<p class="paytrail-for-woocommerce-payment-fields__error" role="alert">%s</p>',
 		esc_html($data['error'])
 	);
 	return;
@@ -28,14 +28,14 @@ if (! empty($data['error'])) {
 
 // Terms
 $terms_link = $data['terms'];
-echo '<div class="checkout-terms-link">' . wp_kses($terms_link, $allowed_html) . '</div>';
+echo '<div class="checkout-terms-link" role="link" aria-label="' . esc_attr__('Payment terms', 'paytrail-for-woocommerce') . '">' . wp_kses($terms_link, $allowed_html) . '</div>';
 array_walk($data['groups'], function ( $group) {
 	if (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() && 'creditcard' == $group['id']) {
-		echo '<div class="paytrail-provider-group">';
+		echo '<div class="paytrail-provider-group" tabindex="0" role="button">';
 	} elseif (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		echo '<div class="paytrail-provider-group" style="display:none;">';
 	} else {
-		echo '<div class="paytrail-provider-group">';
+		echo '<div class="paytrail-provider-group" tabindex="0" role="button">';
 	}
 	$providers_list = [];
 	//var_dump($group['providers']);
@@ -62,22 +62,22 @@ array_walk($data['groups'], function ( $group) {
 
 	}
 	echo '</style>';
-	echo '<div class="paytrail-provider-group-title ' . esc_attr($group['id']) . '">';
-	echo '<i></i>';
+	echo '<div class="paytrail-provider-group-title ' . esc_attr($group['id']) . '" id="group-title-' . esc_attr($group['id']) . '">';
+	echo '<i aria-hidden="true"></i>';
 	echo esc_html($group['name']);
 	echo '</div>';
 	echo '<div class="provider-list">';
 	echo esc_html(implode(', ', $providers_list));
 	echo '</div>';
 	echo '</div>';
-	echo '<ul class="paytrail-woocommerce-payment-fields hidden">';
+	echo '<ul class="paytrail-woocommerce-payment-fields hidden" aria-labelledby="group-title-' . esc_attr($group['id']) . '">';
 	if (!\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		array_walk($group['providers'], function ( $provider) {
 			echo '<li class="paytrail-woocommerce-payment-fields--list-item">';
-			echo '<label>';
+			echo '<label aria-label="' . esc_attr($provider->getName()) . '">';
 			echo '<input class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . esc_attr($provider->getId()) . '">';
 			echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper">';
-			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . esc_url($provider->getSvg()) . '">';
+			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . esc_url($provider->getSvg()) . '" alt="' . esc_attr($provider->getName()) . '">';
 			echo '</div>';
 			echo '</label>';
 			echo '</li>';
@@ -87,7 +87,7 @@ array_walk($data['groups'], function ( $group) {
 		( new \Paytrail\WooCommercePaymentGateway\Gateway() )->render_saved_payment_methods();
 	} elseif (get_option('users_can_register') == 1 && 'creditcard' == $group['id']) {
 		$mypage_link = get_permalink(wc_get_page_id('myaccount'));
-		echo '<p class="add-card-login-description">';
+		echo '<p class="add-card-login-description" role="link">';
 		/* translators: %s - Logging link */
 		echo sprintf(__('You can save your card details for next time by <a href="%s">logging in to the store or by creating an account.</a>'), esc_html($mypage_link));
 		echo '</p>';

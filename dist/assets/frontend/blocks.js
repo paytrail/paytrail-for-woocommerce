@@ -2258,65 +2258,11 @@ exports.jsxs = jsxs;
 "use strict";
 
 
-if (false) {} else {
+if (false) // removed by dead control flow
+{} else {
   module.exports = __webpack_require__(/*! ./cjs/react-jsx-runtime.development.js */ "./node_modules/react/cjs/react-jsx-runtime.development.js");
 }
 
-
-/***/ }),
-
-/***/ "react":
-/*!************************!*\
-  !*** external "React" ***!
-  \************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["React"];
-
-/***/ }),
-
-/***/ "@woocommerce/blocks-registry":
-/*!******************************************!*\
-  !*** external ["wc","wcBlocksRegistry"] ***!
-  \******************************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["wc"]["wcBlocksRegistry"];
-
-/***/ }),
-
-/***/ "@woocommerce/settings":
-/*!************************************!*\
-  !*** external ["wc","wcSettings"] ***!
-  \************************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["wc"]["wcSettings"];
-
-/***/ }),
-
-/***/ "@wordpress/html-entities":
-/*!**************************************!*\
-  !*** external ["wp","htmlEntities"] ***!
-  \**************************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["wp"]["htmlEntities"];
-
-/***/ }),
-
-/***/ "@wordpress/i18n":
-/*!******************************!*\
-  !*** external ["wp","i18n"] ***!
-  \******************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["wp"]["i18n"];
 
 /***/ }),
 
@@ -3413,6 +3359,61 @@ function useWindowSize(options = {}) {
 
 
 
+/***/ }),
+
+/***/ "@woocommerce/blocks-registry":
+/*!******************************************!*\
+  !*** external ["wc","wcBlocksRegistry"] ***!
+  \******************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wc"]["wcBlocksRegistry"];
+
+/***/ }),
+
+/***/ "@woocommerce/settings":
+/*!************************************!*\
+  !*** external ["wc","wcSettings"] ***!
+  \************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wc"]["wcSettings"];
+
+/***/ }),
+
+/***/ "@wordpress/html-entities":
+/*!**************************************!*\
+  !*** external ["wp","htmlEntities"] ***!
+  \**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["htmlEntities"];
+
+/***/ }),
+
+/***/ "@wordpress/i18n":
+/*!******************************!*\
+  !*** external ["wp","i18n"] ***!
+  \******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["i18n"];
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["React"];
+
 /***/ })
 
 /******/ 	});
@@ -3496,7 +3497,7 @@ function useWindowSize(options = {}) {
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
 /*!*********************************************!*\

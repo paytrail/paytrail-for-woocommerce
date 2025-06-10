@@ -1353,30 +1353,11 @@ exports.jsxs = jsxs;
 
 
 
-if (false) {} else {
+if (false) // removed by dead control flow
+{} else {
   module.exports = __webpack_require__(/*! ./cjs/react-jsx-runtime.development.js */ "./node_modules/react/cjs/react-jsx-runtime.development.js");
 }
 
-
-/***/ }),
-
-/***/ "react":
-/*!************************!*\
-  !*** external "React" ***!
-  \************************/
-/***/ ((module) => {
-
-module.exports = window["React"];
-
-/***/ }),
-
-/***/ "@woocommerce/blocks-checkout":
-/*!****************************************!*\
-  !*** external ["wc","blocksCheckout"] ***!
-  \****************************************/
-/***/ ((module) => {
-
-module.exports = window["wc"]["blocksCheckout"];
 
 /***/ }),
 
@@ -1387,6 +1368,16 @@ module.exports = window["wc"]["blocksCheckout"];
 /***/ ((module) => {
 
 module.exports = window["wc"]["wcBlocksData"];
+
+/***/ }),
+
+/***/ "@woocommerce/blocks-checkout":
+/*!****************************************!*\
+  !*** external ["wc","blocksCheckout"] ***!
+  \****************************************/
+/***/ ((module) => {
+
+module.exports = window["wc"]["blocksCheckout"];
 
 /***/ }),
 
@@ -1407,6 +1398,16 @@ module.exports = window["wp"]["data"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["plugins"];
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ ((module) => {
+
+module.exports = window["React"];
 
 /***/ })
 
@@ -1479,7 +1480,7 @@ module.exports = window["wp"]["plugins"];
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 /*!**********************************************************!*\
   !*** ./assets/op-lasku-assets/op-lasku-helper-blocks.js ***!
