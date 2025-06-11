@@ -7,7 +7,8 @@ export const Provider = ({provider, index}) => {
     const providerUniqueId = `${provider.id}-${index}`;
     return (
         <li 
-            className={`paytrail-woocommerce-payment-fields--list-item ${activeProvider === providerUniqueId ? "selected" : ""}`} 
+            className={`paytrail-woocommerce-payment-fields--list-item ${activeProvider === providerUniqueId ? "selected" : ""}`}
+            role="radio"
             onClick={() => setActiveProvider(providerUniqueId)}
         >
             <label htmlFor={`provider-${provider.id}-${index}`}>

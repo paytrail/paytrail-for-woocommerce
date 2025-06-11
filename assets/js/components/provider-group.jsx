@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import { Provider } from './provider';
 import {PaytrailContext} from '../context/paytrail-context';
 import { getSetting } from '@woocommerce/settings';
@@ -10,18 +10,33 @@ export const ProviderGroup = ({group}) => {
         return null;
     }
 
-	const {activeProvider} = useContext(PaytrailContext);
-	const getProviderUniqueId = (provider, index) => `${provider.id}-${index}`;
-	const [isOpen, setIsOpen] = useState(
-		group.providers.some((provider, index) => activeProvider === getProviderUniqueId(provider, index))
-	);
+	const {activeGroup, setActiveGroup} = useContext(PaytrailContext);
+	const isOpen = activeGroup === group.id;
 
-	const toggle = () => setIsOpen(!isOpen);
+	const toggle = (event) => {
+		if (event?.type === 'keydown') {
+			// Only proceed if it's Enter or Space key
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				setActiveGroup(isOpen ? '' : group.id);
+			}
+			return;
+		}
+		
+		// Handle non-keyboard events
+		setActiveGroup(isOpen ? '' : group.id);
+	};
 
 	return (
 		<>
-			<div className={"paytrail-provider-group"} onClick={toggle} >
-				<img src={group.icon} className="provider-group-icon" height={28} width={28} />
+			<div 
+				className={"paytrail-provider-group"} 
+				tabIndex={0} 
+				role="button" 
+				onClick={toggle}
+				onKeyDown={toggle}
+			>
+				<img src={group.icon} className="provider-group-icon" height={28} width={28} alt={group.name} aria-hidden="true" />
 				<div className="paytrail-provider-group-title">{group.name}</div>
 			</div>
 			<div className="provider-list">
