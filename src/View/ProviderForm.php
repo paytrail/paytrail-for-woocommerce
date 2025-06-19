@@ -28,14 +28,14 @@ if (! empty($data['error'])) {
 
 // Terms
 $terms_link = $data['terms'];
-echo '<div class="checkout-terms-link" role="link" aria-label="' . esc_attr__('Payment terms', 'paytrail-for-woocommerce') . '">' . wp_kses($terms_link, $allowed_html) . '</div>';
+echo '<div class="checkout-terms-link" aria-label="' . esc_attr__('Payment terms', 'paytrail-for-woocommerce') . '">' . wp_kses($terms_link, $allowed_html) . '</div>';
 array_walk($data['groups'], function ( $group) {
 	if (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() && 'creditcard' == $group['id']) {
-		echo '<div class="paytrail-provider-group" tabindex="0" role="button">';
+		echo '<div class="paytrail-provider-group" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">';
 	} elseif (\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		echo '<div class="paytrail-provider-group" style="display:none;">';
 	} else {
-		echo '<div class="paytrail-provider-group" tabindex="0" role="button">';
+		echo '<div class="paytrail-provider-group" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">';
 	}
 	$providers_list = [];
 	//var_dump($group['providers']);
@@ -73,11 +73,18 @@ array_walk($data['groups'], function ( $group) {
 	echo '<ul class="paytrail-woocommerce-payment-fields hidden" aria-labelledby="group-title-' . esc_attr($group['id']) . '">';
 	if (!\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		array_walk($group['providers'], function ( $provider) {
+			$provider_name = esc_attr($provider->getName());
+			$provider_id = esc_attr($provider->getId());
+			$provider_svg = esc_url($provider->getSvg());
+			
+			// Create unique ID for credit cards
+			$input_id = ($provider_id === 'creditcard') ? 'creditcard-' . $provider_name : $provider_id;
+			
 			echo '<li class="paytrail-woocommerce-payment-fields--list-item">';
-			echo '<label aria-label="' . esc_attr($provider->getName()) . '">';
-			echo '<input class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . esc_attr($provider->getId()) . '">';
-			echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper">';
-			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . esc_url($provider->getSvg()) . '" alt="' . esc_attr($provider->getName()) . '">';
+			echo '<label for="' . $input_id . '">';
+			echo '<input id="' . $input_id . '" class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . $provider_id . '" aria-label="' . $provider_name . '">';
+			echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper" aria-hidden="true">';
+			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . $provider_svg . '" alt="' . $provider_name . '">';
 			echo '</div>';
 			echo '</label>';
 			echo '</li>';

@@ -35,21 +35,27 @@ const handleSelection = function(e) {
     
     e.preventDefault();
     if (this.classList.contains('selected')) {
+        this.setAttribute('aria-expanded', 'false');
         this.classList.remove('selected');
         this.nextSibling.classList.add('hidden');
         return;
     }
+
     // Clear active state
     const active = document.getElementsByClassName('paytrail-provider-group selected');
     if (active.length !== 0) {
+        active[0].setAttribute('aria-expanded', 'false');
         active[0].classList.remove('selected');
     }
+
     // Hide payment fields
     const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
     Array.from(fields).map(field => field.classList.add('hidden'))
+
     // Show current group
     this.classList.add('selected');
     this.nextSibling.classList.remove('hidden');
+    this.setAttribute('aria-expanded', 'true');
 
     //For keyboard events, focus the first radio button in the group
     const firstRadio = this.nextSibling.querySelector('input[type="radio"]');
