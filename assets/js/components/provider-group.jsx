@@ -13,16 +13,15 @@ export const ProviderGroup = ({group}) => {
 	const {activeGroup, setActiveGroup} = useContext(PaytrailContext);
 	const isOpen = activeGroup === group.id;
 
-	const toggle = (event) => {
-		if (event?.type === 'keydown') {
+	const toggle = (e) => {
+		if (e?.type === 'keydown') {
 			// Only proceed if it's Enter or Space key
-			if (event.key === 'Enter' || event.key === ' ') {
-				event.preventDefault();
-				setActiveGroup(isOpen ? '' : group.id);
+			if (e.key !== 'Enter' && e.key !== ' ') {
+				return;
 			}
-			return;
+			e.preventDefault();
+			setActiveGroup(isOpen ? '' : group.id);
 		}
-		
 		// Handle non-keyboard events
 		setActiveGroup(isOpen ? '' : group.id);
 	};

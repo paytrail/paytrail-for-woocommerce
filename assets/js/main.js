@@ -29,11 +29,13 @@ const handleResize = function () {
 // Function to handle both click and keyboard events
 const handleSelection = function(e) {
     // Only handle Enter or Space for keyboard events
-    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') {
-        return;
+    if (e.type === 'keydown') {
+        if (e.key !== 'Enter' && e.key !== ' ') {
+            return;
+        }
+        e.preventDefault();
     }
     
-    e.preventDefault();
     if (this.classList.contains('selected')) {
         this.setAttribute('aria-expanded', 'false');
         this.classList.remove('selected');
