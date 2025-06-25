@@ -35,12 +35,18 @@ export const ProviderGroup = ({group}) => {
 				role="button" 
 				onClick={toggle}
 				onKeyDown={toggle}
+				aria-haspopup="true"
+				aria-expanded={isOpen}
 			>
-				<img src={group.icon} className="provider-group-icon" height={28} width={28} alt={group.name} aria-hidden="true" />
+				<img src={group.icon} className="provider-group-icon" height={28} width={28} alt="" aria-hidden="true" />
 				<div className="paytrail-provider-group-title">{group.name}</div>
 			</div>
 			<div className="provider-list">
-				<ul className="paytrail-woocommerce-payment-fields">
+				<ul 
+					className="paytrail-woocommerce-payment-fields"
+					aria-hidden={!isOpen}
+					aria-labelledby={group.id}
+				>
 				{isOpen && group.providers.map((provider, index) => (
 					<Provider
 						provider={provider}
