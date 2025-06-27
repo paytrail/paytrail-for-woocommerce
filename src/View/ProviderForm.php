@@ -62,7 +62,7 @@ array_walk($data['groups'], function ( $group) {
 
 	}
 	echo '</style>';
-	echo '<div class="paytrail-provider-group-title ' . esc_attr($group['id']) . '" id="group-title-' . esc_attr($group['id']) . '">';
+	echo '<div class="paytrail-provider-group-title ' . esc_attr($group['id']) . '" id="paytrail-provider-group-title-' . esc_attr($group['id']) . '">';
 	echo '<i aria-hidden="true"></i>';
 	echo esc_html($group['name']);
 	echo '</div>';
@@ -70,7 +70,7 @@ array_walk($data['groups'], function ( $group) {
 	echo esc_html(implode(', ', $providers_list));
 	echo '</div>';
 	echo '</div>';
-	echo '<ul class="paytrail-woocommerce-payment-fields hidden" aria-labelledby="group-title-' . esc_attr($group['id']) . '">';
+	echo '<ul class="paytrail-woocommerce-payment-fields hidden" aria-labelledby="paytrail-provider-group-title-' . esc_attr($group['id']) . '">';
 	if (!\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		array_walk($group['providers'], function ( $provider) {
 			$provider_name = esc_attr($provider->getName());

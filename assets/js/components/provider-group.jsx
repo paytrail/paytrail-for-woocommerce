@@ -15,14 +15,12 @@ export const ProviderGroup = ({group}) => {
 
 	const toggle = (e) => {
 		if (e?.type === 'keydown') {
-			// Only proceed if it's Enter or Space key
+			// Only handle Enter or Space for keyboard events
 			if (e.key !== 'Enter' && e.key !== ' ') {
 				return;
 			}
 			e.preventDefault();
-			setActiveGroup(isOpen ? '' : group.id);
 		}
-		// Handle non-keyboard events
 		setActiveGroup(isOpen ? '' : group.id);
 	};
 
@@ -31,7 +29,8 @@ export const ProviderGroup = ({group}) => {
 			<div 
 				className={"paytrail-provider-group"} 
 				tabIndex={0} 
-				role="button" 
+				role="button"
+				id={`paytrail-provider-group-${group.id}`} 
 				onClick={toggle}
 				onKeyDown={toggle}
 				aria-haspopup="true"
@@ -44,7 +43,7 @@ export const ProviderGroup = ({group}) => {
 				<ul 
 					className="paytrail-woocommerce-payment-fields"
 					aria-hidden={!isOpen}
-					aria-labelledby={group.id}
+					aria-labelledby={`paytrail-provider-group-${group.id}`}
 				>
 				{isOpen && group.providers.map((provider, index) => (
 					<Provider
