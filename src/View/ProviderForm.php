@@ -73,18 +73,18 @@ array_walk($data['groups'], function ( $group) {
 	echo '<ul class="paytrail-woocommerce-payment-fields hidden" aria-labelledby="paytrail-provider-group-title-' . esc_attr($group['id']) . '">';
 	if (!\Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled()) {
 		array_walk($group['providers'], function ( $provider) {
-			$provider_name = esc_attr($provider->getName());
-			$provider_id = esc_attr($provider->getId());
-			$provider_svg = esc_url($provider->getSvg());
+			$provider_name = $provider->getName();
+			$provider_id = $provider->getId();
+			$provider_svg = $provider->getSvg();
 			
 			// Create unique ID for credit cards
-			$input_id = ($provider_id === 'creditcard') ? 'creditcard-' . $provider_name : $provider_id;
+			$input_id = ( 'creditcard' === $provider_id ) ? 'creditcard-' . $provider_name : $provider_id;
 			
 			echo '<li class="paytrail-woocommerce-payment-fields--list-item">';
-			echo '<label for="' . $input_id . '">';
-			echo '<input id="' . $input_id . '" class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . $provider_id . '" aria-label="' . $provider_name . '">';
+			echo '<label for="' . esc_attr($input_id) . '">';
+			echo '<input id="' . esc_attr($input_id) . '" class="paytrail-woocommerce-payment-fields--list-item--input" type="radio" name="payment_provider" value="' . esc_attr($provider_id) . '" aria-label="' . esc_attr($provider_name) . '">';
 			echo '<div class="paytrail-woocommerce-payment-fields--list-item--wrapper" aria-hidden="true">';
-			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . $provider_svg . '" alt="' . $provider_name . '">';
+			echo '<img class="paytrail-woocommerce-payment-fields--list-item--img" src="' . esc_url($provider_svg) . '" alt="' . esc_attr($provider_name) . '">';
 			echo '</div>';
 			echo '</label>';
 			echo '</li>';
