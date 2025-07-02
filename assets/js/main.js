@@ -26,6 +26,50 @@ const handleResize = function () {
     }
 };
 
+// Function to handle both click and keyboard events
+const handleSelection = function(e) {
+    // Only handle Enter or Space for keyboard events
+    if (e.type === 'keydown') {
+        if (e.key !== 'Enter' && e.key !== ' ') {
+            return;
+        }
+        e.preventDefault();
+    }
+    
+    if (this.classList.contains('selected')) {
+        this.setAttribute('aria-expanded', 'false');
+        this.classList.remove('selected');
+        this.nextSibling.classList.add('hidden');
+        return;
+    }
+
+    // Clear active state
+    const active = document.getElementsByClassName('paytrail-provider-group selected');
+    if (active.length !== 0) {
+        active[0].setAttribute('aria-expanded', 'false');
+        active[0].classList.remove('selected');
+    }
+
+    // Hide payment fields
+    const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
+    Array.from(fields).map(field => field.classList.add('hidden'))
+
+    // Show current group
+    this.classList.add('selected');
+    this.nextSibling.classList.remove('hidden');
+    this.setAttribute('aria-expanded', 'true');
+
+    //For keyboard events, focus the first radio button in the group
+    const firstRadio = this.nextSibling.querySelector('input[type="radio"]');
+    if (e.type === 'keydown' && firstRadio) {
+        firstRadio.focus();
+        firstRadio.checked = true;
+    }
+    // Use scrolIntoView(alignTo) method
+    const closestUl = this.nextSibling.closest('ul');
+    closestUl.scrollIntoView(false); // align to the bottom of the scrollable element
+};
+
 window.initPaytrail = () => {
     const paytrailProviderGroups = document.getElementsByClassName('paytrail-provider-group');
     if (paytrailProviderGroups.length === 1) {
@@ -37,28 +81,9 @@ window.initPaytrail = () => {
     } else if (paytrailProviderGroups.length > 1) {
         Array.from(paytrailProviderGroups).map(providerGroup => {
             if (providerGroup && !providerGroup.hasAttribute('listenerOnClick')) {
-                providerGroup.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    if (this.classList.contains('selected')) {
-                        this.classList.remove('selected');
-                        this.nextSibling.classList.add('hidden');
-                        return;
-                    }
-                    // Clear active state
-                    const active = document.getElementsByClassName('paytrail-provider-group selected');
-                    if (active.length !== 0) {
-                        active[0].classList.remove('selected');
-                    }
-                    // Hide payment fields
-                    const fields = document.getElementsByClassName('paytrail-woocommerce-payment-fields');
-                    Array.from(fields).map(field => field.classList.add('hidden'))
-                    // Show current group
-                    this.classList.add('selected');
-                    this.nextSibling.classList.remove('hidden');
-                    // Use scrolIntoView(alignTo) method
-                    const closestUl = this.nextSibling.closest('ul');
-                    closestUl.scrollIntoView(false); // align to the bottom of the scrollable element
-                });
+                // Add both click and keyboard event listeners
+                providerGroup.addEventListener('click', handleSelection);
+                providerGroup.addEventListener('keydown', handleSelection);
                 providerGroup.setAttribute('listenerOnClick', 'true');
             }
         })

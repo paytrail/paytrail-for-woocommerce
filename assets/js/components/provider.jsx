@@ -7,19 +7,21 @@ export const Provider = ({provider, index}) => {
     const providerUniqueId = `${provider.id}-${index}`;
     return (
         <li 
-            className={`paytrail-woocommerce-payment-fields--list-item ${activeProvider === providerUniqueId ? "selected" : ""}`} 
+            className={`paytrail-woocommerce-payment-fields--list-item ${activeProvider === providerUniqueId ? "selected" : ""}`}
             onClick={() => setActiveProvider(providerUniqueId)}
         >
-            <label htmlFor={`provider-${provider.id}-${index}`}>
+            <label htmlFor={providerUniqueId}>
                 <input
+                    id={providerUniqueId}
                     type="radio"
                     className="paytrail-woocommerce-payment-fields--list-item--input"
                     name="payment_provider"
                     value={provider.id}
                     checked={activeProvider === providerUniqueId}  
                     onChange={() => setActiveProvider(providerUniqueId)}
+                    aria-label={provider.name}
                 />
-                <div className="paytrail-woocommerce-payment-fields--list-item--wrapper">
+                <div className="paytrail-woocommerce-payment-fields--list-item--wrapper" aria-hidden="true">
                     <img src={provider.svg} alt={provider.name} className="paytrail-woocommerce-payment-fields--list-item--img" />
                 </div>
             </label>

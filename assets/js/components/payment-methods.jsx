@@ -18,6 +18,7 @@ export const PaymentMethods = () => {
         return (
             <div
                 className="checkout-terms-link"
+                aria-label="Payment terms and conditions"
                 dangerouslySetInnerHTML={{ __html: settings.terms }}
             ></div>
         );
