@@ -36,7 +36,8 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 	<?php esc_html_e('Add new card', 'paytrail-for-woocommerce'); ?>
 </a>
 
-<script>
+<?php ob_start(); ?>
+
 	jQuery(document).ready(function () {
 		openTokenizedCardProviderGroupSelection();
 	});
@@ -74,4 +75,5 @@ $delete_card_url = Router::get_url(Plugin::CARD_ENDPOINT, 'delete');
 			}
 		})
 	});
-</script>
+
+<?php wp_print_inline_script_tag(ob_get_clean()); ?>
