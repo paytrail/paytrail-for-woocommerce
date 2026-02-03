@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-01-28
+### Added
+- Added support for manual activation of invoices for payments made with Walley and Klarna invoice methods.
+### Fixed
+- Fixed compatibility issue with Visma Pay.
+
 ## [2.5.3] - 2025-07-02
 ### Added
 - Added missing accessibility features 

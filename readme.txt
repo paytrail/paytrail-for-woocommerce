@@ -3,8 +3,8 @@ Contributors: loueranta, kotivuori
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
-Tested up to: 6.8
-Stable tag: 2.5.3
+Tested up to: 6.9
+Stable tag: 2.6.0
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -55,6 +55,9 @@ Test credentials:
 With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
+= 2.6.0 =
+- Added support for manual activation of invoices for payments made with Walley and Klarna invoice methods.
+- Fixed compatibility issue with Visma Pay.
 
 = 2.5.3 =
 - Added missing accessibility features

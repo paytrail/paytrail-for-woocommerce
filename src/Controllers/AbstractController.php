@@ -7,11 +7,11 @@ namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
 abstract class AbstractController {
 
-	public function execute( $action = null) {
-		if (method_exists($this, $action)) {
+	public function execute( $action = null ) {
+		if ( method_exists( $this, $action ) ) {
 			$this->$action();
 		} else {
-			echo esc_html('Not found');
+			echo esc_html( 'Not found' );
 			return;
 		}
 	}

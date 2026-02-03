@@ -14,18 +14,18 @@ class PaymentTokenMigration implements MigrationInterface {
 	protected $tokens;
 
 	public function __construct() {
-		$this->tokens = \WC_Payment_Tokens::get_tokens(['gateway_id' => 'checkout_finland']);
+		$this->tokens = \WC_Payment_Tokens::get_tokens( array( 'gateway_id' => 'checkout_finland' ) );
 	}
 
 	/**
 	 * Executes migration for subscriptions
 	 */
 	public function execute() {
-		if (empty($this->tokens)) {
+		if ( empty( $this->tokens ) ) {
 			return;
 		}
-		foreach ($this->tokens as $token) {
-			$token->set_gateway_id('paytrail');
+		foreach ( $this->tokens as $token ) {
+			$token->set_gateway_id( 'paytrail' );
 			$token->save();
 		}
 	}

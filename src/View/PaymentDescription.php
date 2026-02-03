@@ -3,42 +3,42 @@
  * Checkout payment description
  */
 
-$allowedHtml = [
-	'a'          => [
+$allowedHtml = array(
+	'a'          => array(
 		'href'  => true,
-		'title' => true
-	],
-	'abbr'       => [
-		'title' => true
-	],
-	'acronym'    => [
-		'title' => true
-	],
-	'b'          => [],
-	'blockquote' => [
-		'cite' => true
-	],
-	'cite'       => [],
-	'code'       => [],
-	'del'        => [
-		'datetime' => true
-	],
-	'em'         => [],
-	'i'          => [],
-	'q'          => [
-		'cite' => true
-	],
-	's'          => [],
-	'strike'     => [],
-	'strong'     => [],
-	'img'        => [
+		'title' => true,
+	),
+	'abbr'       => array(
+		'title' => true,
+	),
+	'acronym'    => array(
+		'title' => true,
+	),
+	'b'          => array(),
+	'blockquote' => array(
+		'cite' => true,
+	),
+	'cite'       => array(),
+	'code'       => array(),
+	'del'        => array(
+		'datetime' => true,
+	),
+	'em'         => array(),
+	'i'          => array(),
+	'q'          => array(
+		'cite' => true,
+	),
+	's'          => array(),
+	'strike'     => array(),
+	'strong'     => array(),
+	'img'        => array(
 		'src'      => true,
 		'class'    => true,
 		'alt'      => true,
 		'title'    => true,
-		'longdesc' => true
-	]
-];
+		'longdesc' => true,
+	),
+);
 
 // Ensure that the file is being run within the WordPress context.
 if ( ! defined( 'ABSPATH' ) ) {

@@ -29,8 +29,8 @@ class View {
 	 *
 	 * @param string $template The template to render.
 	 */
-	public function __construct( $template) {
-		$this->template = $this->get_template_path($template);
+	public function __construct( $template ) {
+		$this->template = $this->get_template_path( $template );
 	}
 
 	/**
@@ -39,7 +39,7 @@ class View {
 	 * @param mixed $data The data to render the view with.
 	 * @return void
 	 */
-	public function render( $data = null) {
+	public function render( $data = null ) {
  // @codingStandardsIgnoreLine
 	require $this->template;
 	}
@@ -52,7 +52,7 @@ class View {
 	 *
 	 * @throws \Exception An exception if the template file given was not found.
 	 */
-	protected function get_template_path( $template) {
+	protected function get_template_path( $template ) {
 		$plugin_instance = Plugin::instance();
 
 		$plugin_dir = $plugin_instance->get_plugin_dir();
@@ -60,10 +60,10 @@ class View {
 		$templateFile = $plugin_dir . '/src/View/' . $template . '.php';
 
 		// Check the existence of the template.
-		if (file_exists($templateFile)) {
+		if ( file_exists( $templateFile ) ) {
 			return $templateFile;
 		} else {
-			throw new \Exception("Template $template ($templateFile) could not be found.");
+			throw new \Exception( "Template $template ($templateFile) could not be found." );
 		}
 	}
 }
