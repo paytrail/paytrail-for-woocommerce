@@ -211,8 +211,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->register_scripts();
 
 		new Controllers\MetaBox();
-
-		add_action( 'template_redirect', array( $this, 'on_redirect_to_thankyou_page' ) );
 	}
 
 	/**
