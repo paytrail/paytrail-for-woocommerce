@@ -213,7 +213,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	public function get_payment_method_data( $context = null ) {
 		$gateway = $this->get_gateway();
 
-		// If we don't have a gateway instance yet, return an empty array to avoid errors in blocks.
+		// If we don't have a gateway instance yet, return an array with empty or default values to prevent errors in blocks.
 		if ( null === $gateway ) {
 			return array(
 				'title'        => '',
