@@ -176,23 +176,26 @@ final class Plugin {
 		add_action( 'woocommerce_init', array( $this, 'op_lasku_init' ) );
 
 		add_action( 'init', array( $this, 'initialize_gateway' ) );
+		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_gateway' ) );
 	}
 
 	/**
-	 * Initialize the gateway
+	 * Initialize the gateway class to make sure it is loaded and initialized early.
 	 */
 	public function initialize_gateway() {
 		$this->gateway();
+	}
 
-		add_filter(
-			'woocommerce_payment_gateways',
-			function ( $gateways ) {
-				$gateways[] = $this->gateway();
-				add_action( 'template_redirect', array( $this->gateway, 'on_redirect_to_thankyou_page' ) );
+	/**
+	 * Register the gateway class with WooCommerce so that it appears in the list of available payment methods in the WooCommerce settings.
+	 *
+	 * @param  array $gateways Array of registered gateways.
+	 * @return array
+	 */
+	public function register_gateway( $gateways ) {
+		$gateways[] = $this->gateway();
 
-				return $gateways;
-			}
-		);
+		return $gateways;
 	}
 
 	/**
