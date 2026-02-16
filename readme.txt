@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 4.9
 Tested up to: 6.9
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 Requires PHP: 7.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -55,6 +55,10 @@ Test credentials:
 With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
+= 2.6.1 =
+- Fixed a potential fatal error that could happen in the theme customizer if the gateway was not registered with WooCommerce when getting the block checkout data for the payment method.
+- Fixed a compatibility issue with Custom Order Status Manager for WooCommerce in version 4.6.0, caused by changing to registering the gateway with WooCommerce on the init action on priority 10 which happens after the plugin loads available gateways in WooCommerce.
+
 = 2.6.0 =
 - Added support for manual activation of invoices for payments made with Walley and Klarna invoice methods.
 - Fixed compatibility issue with Visma Pay.

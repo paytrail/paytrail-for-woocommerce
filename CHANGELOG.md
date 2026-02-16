@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-02-16
+### Fixed
+- Fixed a potential fatal error that could happen in the theme customizer if the gateway was not registered with WooCommerce when getting the block checkout data for the payment method.
+- Fixed a compatibility issue with Custom Order Status Manager for WooCommerce in version 4.6.0, caused by changing to registering the gateway with WooCommerce on the init action on priority 10 which happens after the plugin loads available gateways in WooCommerce.
+
 ## [2.6.0] - 2026-01-28
 ### Added
 - Added support for manual activation of invoices for payments made with Walley and Klarna invoice methods.
