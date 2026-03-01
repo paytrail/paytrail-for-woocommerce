@@ -30,6 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<p><input type="submit" value="<?php esc_html_e( 'Submit', 'paytrail-for-woocommerce' ); ?>" /></p>
 </form>
 
-<script>
-	document.getElementById( 'checkout-redirect-form' ).submit();
-</script>
+<?php
+wp_print_inline_script_tag("
+    document.getElementById( 'checkout-redirect-form' ).submit();
+");
+?>

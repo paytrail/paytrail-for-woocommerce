@@ -120,10 +120,8 @@ array_walk(
 // @todo move this where it is more suitable
 // toggle payment method group sections' visibility
 // add class to handle different theme layouts 2 or 5 items per row
-echo "
-<script>
+wp_print_inline_script_tag("
 	if (typeof initPaytrail === 'function'){
 		initPaytrail();
 	}
-</script>
-";
+");
