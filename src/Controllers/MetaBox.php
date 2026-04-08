@@ -7,7 +7,6 @@
 
 namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
-use Paytrail\SDK\Response\InvoiceActivationResponse;
 use Paytrail\WooCommercePaymentGateway\Plugin;
 use Paytrail\WooCommercePaymentGateway\View;
 use Paytrail\WooCommercePaymentGateway\Model;
@@ -24,8 +23,6 @@ class MetaBox extends AbstractController {
 	 */
 	public function __construct() {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ), 10, 2 );
-
-		add_action( 'woocommerce_order_status_completed', array( $this, 'maybe_handle_manual_invoice_request' ) );
 	}
 
 	/**
@@ -81,46 +78,5 @@ class MetaBox extends AbstractController {
 		}
 
 		( new View( 'MetaBox' ) )->render( $data );
-	}
-
-	/**
-	 * Handles manual invoice request if submitted.
-	 *
-	 * @param int $order_id The WC order ID.
-	 * @return void
-	 */
-	public function maybe_handle_manual_invoice_request( $order_id ) {
-		$order = wc_get_order( $order_id );
-		try {
-			if ( ! $order ) {
-				return;
-			}
-
-			// If the WooCommerce order is not for Paytrail or it has already been paid.
-			if ( Plugin::GATEWAY_ID !== $order->get_payment_method() ) {
-				return;
-			}
-
-			// Only if the order is for a manual invoice order.
-			$model            = new Model\MetaBox( $order );
-			$payment_status   = $model->get_payment_status();
-			$payment_provider = $payment_status ? strtolower( $payment_status->getProvider() ) : '';
-
-			// Ensure the payment status was retrieved, is still pending, and the provider is one that supports manual invoices. Otherwise skip.
-			if ( empty( $payment_status ) || 'pending' !== $payment_status->getStatus() || ( ! str_contains( $payment_provider, 'walley' ) && ! str_contains( $payment_provider, 'klarna' ) ) ) {
-				return;
-			}
-
-			$gateway  = Plugin::instance()->gateway();
-			$client   = $gateway->get_client();
-			$response = $client->activateInvoice( $order->get_transaction_id() );
-			Plugin::instance()->gateway()->log(  InvoiceActivationResponse::class . " Successfully activated invoice for order $order_id with transaction id {$order->get_transaction_id()}: " . json_encode( $response ) );
-		} catch ( \Exception $e ) {
-			$message = $e->getMessage();
-			$gateway->log( "Failed to send manual invoice for order $order_id with transaction id {$order->get_transaction_id()}: $message", 'error' );
-			$order->set_status( 'on-hold', __( 'Failed to activate manual invoice: ' . $message, 'paytrail-for-woocommerce' ) );
-			$order->save();
-			return;
-		}
 	}
 }

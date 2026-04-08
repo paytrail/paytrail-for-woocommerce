@@ -184,7 +184,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		$blocks_css_url      = plugins_url( 'dist/assets/frontend/blocks.css', __DIR__ );
 		$blocks_css_file     = plugin_dir_path( __DIR__ ) . 'dist/assets/frontend/blocks.css';
 
-		if ( ! wp_style_is( $style_handle, 'enqueued' ) ) {
+		if ( ! wp_style_is( $style_handle, 'enqueued' ) && ( is_cart() || is_checkout() ) ) {
 			wp_enqueue_style( $style_handle );
 		}
 

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-03-31
+### Added
+- Added support for cancelling pending Klarna invoices.
+### Changed
+- Removed hardcoded script tags and now use official core APIs, allowing plugins to filter script attributes. Thanks to [@oxyc](https://github.com/oxyc) for contributing this improvement!
+- Updated PHP-SDK version to ^2.8.0.
+### Fixed
+- Resolved a CSS compatibility issue with the Divi theme that affected the appearance editor menu layout.
+
 ## [2.6.1] - 2026-02-16
 ### Fixed
 - Fixed a potential fatal error that could happen in the theme customizer if the gateway was not registered with WooCommerce when getting the block checkout data for the payment method.

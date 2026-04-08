@@ -23,7 +23,7 @@
     "require": {
         "php": ">=7.3",
         "ext-mbstring": "*",
-        "paytrail/paytrail-php-sdk": "^2.7.3"
+        "paytrail/paytrail-php-sdk": "^2.8.0"
     },
     "config": {
         "allow-plugins": {

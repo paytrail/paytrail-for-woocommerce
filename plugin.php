@@ -3,13 +3,13 @@
  * Plugin Name: Paytrail for WooCommerce
  * Plugin URI: https://github.com/paytrail/paytrail-for-woocommerce
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
- * Version: 2.6.1
+ * Version: 2.7.0
  * Requires at least: 4.9
  * Requires Plugins: woocommerce
  * Tested up to: 6.9
  * Requires PHP: 7.3
  * WC requires at least: 3.5
- * WC tested up to: 10.5.1
+ * WC tested up to: 10.6.1
  * Author: Paytrail
  * Author URI: https://www.paytrail.com/
  * Text Domain: paytrail-for-woocommerce
@@ -20,6 +20,8 @@
  */
 
 namespace Paytrail\WooCommercePaymentGateway;
+
+use Paytrail\WooCommercePaymentGateway\Controllers\OrderManagement;
 
 // Ensure that the file is being run within the WordPress context.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -176,6 +178,7 @@ final class Plugin {
 		add_action( 'woocommerce_init', array( $this, 'op_lasku_init' ) );
 
 		add_action( 'init', array( $this, 'initialize_gateway' ) );
+		add_action( 'init', array( $this, 'initialize_order_management' ) );
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_gateway' ) );
 	}
 
@@ -184,6 +187,13 @@ final class Plugin {
 	 */
 	public function initialize_gateway() {
 		$this->gateway();
+	}
+
+	/**
+	 * Initialize order management.
+	 */
+	public function initialize_order_management() {
+		new OrderManagement();
 	}
 
 	/**

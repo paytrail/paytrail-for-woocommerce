@@ -1,40 +1,36 @@
-.form-columns{
-    display:flex;
-}
-.form-column{
-    flex: 1;
-    margin-right: 20px;
-}
-.button-primary {
-    background-color: #D92D83;
-    border-color: #D92D83;
-    color: #fff; /* Text color */
-}
-.form-group {
-    margin-bottom: 20px;
+.paytrail-registration-container {
+   .form-columns {
+      display: flex;
+   }
+   .form-column {
+      flex: 1;
+      margin-right: 20px;
+   }
+
+   .form-group {
+      margin-bottom: 20px;
+   }
+
+   label {
+      display: block;
+      font-weight: bold;
+   }
+
+   input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+   }
+
+   .button-primary {
+      cursor: pointer;
+   }
 }
 
-label {
-    display: block;
-    font-weight: bold;
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
-.button-primary {
-    background-color: #0073e6;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-}
 .overlay-hidden {
       display: none !important;
 }
+
 #paytrail-overlay-container {
    position: fixed;
    top: 0;
