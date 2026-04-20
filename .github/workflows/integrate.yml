@@ -1,0 +1,35 @@
+name: Integrate
+
+on:
+  - push
+  - pull_request
+  - fork
+
+jobs:
+  run-checks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.3'
+          coverage: none
+
+      - name: Validate Composer Files
+        run: composer validate --strict
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: highest
+
+      - name: Check PSR-4 mapping
+        run: composer dump-autoload --dev --optimize --strict-psr
+
+      - name: Run linter
+        run: composer run lint
