@@ -9,3 +9,4 @@ vendor/*
 .DS_Store
 composer.lock
 phpcs-report.txt
+dist/assets/frontend/*.map
