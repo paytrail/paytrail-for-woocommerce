@@ -1,3 +1,9 @@
+<?php
+/**
+ * Paytrail onboarding intro form.
+ */
+
+?>
 <div id="paytrail-overlay-container">
 	<div class="paytrail-intro-container">
 		<div class="paytrail-intro-header">

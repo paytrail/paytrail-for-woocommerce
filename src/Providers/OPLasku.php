@@ -5,18 +5,35 @@ namespace Paytrail\WooCommercePaymentGateway\Providers;
 use Paytrail\WooCommercePaymentGateway\Plugin;
 use Paytrail\WooCommercePaymentGateway\Helper;
 
+/**
+ * Renders the OP Lasku instalment calculator on the product and cart pages.
+ */
 class OPLasku {
 
+	/**
+	 * Price of the product currently being viewed.
+	 *
+	 * @var int|float
+	 */
 	private $product_price = 0;
-	private $cart_total    = 0;
 
+	/**
+	 * Current cart total.
+	 *
+	 * @var int|float
+	 */
+	private $cart_total = 0;
+
+	/**
+	 * Register the hooks the calculator renders from.
+	 */
 	public function __construct() {
-		// Hooks for product and classic cart page
+		// Hooks for product and classic cart page.
 		add_action( 'woocommerce_before_add_to_cart_form', array( $this, 'product_page' ) );
 		add_action( 'woocommerce_proceed_to_checkout', array( $this, 'cart_page' ) );
-		// Register scripts and styles
+		// Register scripts and styles.
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
-		// Enqueue blocks cart scripts and styles
+		// Enqueue blocks cart scripts and styles.
 		add_action( 'woocommerce_blocks_cart_enqueue_data', array( $this, 'enqueue_blocks_cart_assets' ) );
 	}
 

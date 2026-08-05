@@ -56,6 +56,8 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 *  Transaction settlement declaration
+	 *
+	 * @var bool
 	 */
 	protected $transaction_settlement_enable;
 
@@ -161,7 +163,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->description = ! empty( $this->get_option( 'custom_provider_description' ) ) ? $this->get_option( 'custom_provider_description' ) : $this->method_info['description'];
 
 		// Icon temporarily disabled for size issues
-		// $this->icon = Plugin::ICON_URL;
+		// $this->icon = Plugin::ICON_URL;.
 
 		// Set gateway admin settings fields.
 		$this->set_form_fields();
@@ -276,17 +278,19 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Display the user_data_form as an overlay
 	 */
 	public function display_user_data_form() {
-		$merchant_id               = $this->get_option( 'merchant_id' );
-		$test_mode_enabled         = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
-		$current_screen            = get_current_screen();
+		$merchant_id       = $this->get_option( 'merchant_id' );
+		$test_mode_enabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
+		$current_screen    = get_current_screen();
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read only, to decide whether the onboarding notice is shown.
 		$is_paytrail_settings_page = (
 			! $test_mode_enabled &&
 			$current_screen && 'woocommerce_page_wc-settings' === $current_screen->id &&
 			isset( $_GET['tab'] ) && 'checkout' === $_GET['tab'] &&
 			isset( $_GET['section'] ) && 'paytrail' === $_GET['section']
 		);
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		// Check if merchant_id is already submitted
+		// Check if merchant_id is already submitted.
 		if ( ! empty( $merchant_id ) || $this->get_option( 'enable_test_mode', 'no' ) === 'yes' ) {
 			return;
 		}
@@ -297,7 +301,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				include_once $template_path;
 			}
 		}
-		$this->user_data_form(); // Output the user_data_form content
+		$this->user_data_form(); // Output the user_data_form content.
 	}
 
 	/**
@@ -314,7 +318,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$company_name    = isset( $wc_billing_data['company'] ) ? $wc_billing_data['company'] : '';
 			$phone_number    = isset( $wc_billing_data['phone'] ) ? $wc_billing_data['phone'] : '';
 
-			// Fetch shop's address using WC_Countries
+			// Fetch shop's address using WC_Countries.
 			$wc_countries  = WC()->countries;
 			$shop_address  = $wc_countries->get_base_address();
 			$shop_city     = $wc_countries->get_base_city();
@@ -371,18 +375,18 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'   => __( 'Enable Paytrail for WooCommerce', 'paytrail-for-woocommerce' ),
 				'default' => 'yes',
 			),
-			// Credentials
+			// Credentials.
 			'credentials_title'           => array(
 				'title' => __( 'Credentials', 'paytrail-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			// Paytrail credentials
+			// Paytrail credentials.
 			'merchant_id'                 => array(
 				'title'    => __( 'Paytrail Merchant ID', 'paytrail-for-woocommerce' ),
 				'type'     => 'text',
 				'label'    => __( 'Merchant ID', 'paytrail-for-woocommerce' ),
 				'default'  => '',
-				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked
+				'disabled' => $merchant_id_disabled, // Disable if enable_test_mode is checked.
 			),
 			'secret_key'                  => array(
 				'title'       => __( 'Paytrail Secret key', 'paytrail-for-woocommerce' ),
@@ -390,23 +394,23 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'       => __( 'Secret key', 'paytrail-for-woocommerce' ),
 				'default'     => '',
 				'description' => __( 'Credentials can be found in <a target="_blank" href="https://merchant.paytrail.com/">the merchant panel</a>.', 'paytrail-for-woocommerce' ),
-				'disabled'    => $secret_key_disabled, // Disable if enable_test_mode is checked
+				'disabled'    => $secret_key_disabled, // Disable if enable_test_mode is checked.
 			),
-			// Whether test mode is enabled
+			// Whether test mode is enabled.
 			'enable_test_mode'            => array(
 				'title'       => __( 'Test mode', 'paytrail-for-woocommerce' ),
 				'type'        => 'checkbox',
 				'label'       => __( 'Enable test mode', 'paytrail-for-woocommerce' ),
 				'default'     => 'no',
 				'description' => __( 'You can use test mode to simulate payments with Paytrail\'s <a target="_blank" href="https://docs.paytrail.com/#/?id=test-credentials">test credentials</a>. To enable test mode, please first clear the Credentials and save settings.', 'paytrail-for-woocommerce' ),
-				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value
+				'disabled'    => $enable_test_mode_disabled, // Disable the checkbox if merchant_id or secret_key has a value.
 			),
-			// General settings
+			// General settings.
 			'general_settings_title'      => array(
 				'title' => __( 'General settings', 'paytrail-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			// Whether to show the payment provider wall or choose the method in the store
+			// Whether to show the payment provider wall or choose the method in the store.
 			'provider_selection'          => array(
 				'title'       => __( 'Payment provider selection', 'paytrail-for-woocommerce' ),
 				'type'        => 'checkbox',
@@ -414,7 +418,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'yes',
 				'description' => __( 'Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce' ),
 			),
-			// Alternative text + description to show on the Checkout page
+			// Alternative text + description to show on the Checkout page.
 			'custom_provider_name'        => array(
 				'title'       => __( 'Payment provider title', 'paytrail-for-woocommerce' ),
 				'type'        => 'text',
@@ -429,7 +433,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'Paytrail for WooCommerce',
 				'description' => __( 'Depending on your theme, this description might be displayed on the Checkout page before the payment provider images.', 'paytrail-for-woocommerce' ),
 			),
-			// OP Lasku
+			// OP Lasku.
 			'op_lasku_calculator'         => array(
 				'title'       => OPLasku::settings_title(),
 				'type'        => 'checkbox',
@@ -437,7 +441,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				'default'     => 'no',
 				'description' => __( 'Display OP Lasku calculator on the product and cart page.', 'paytrail-for-woocommerce' ),
 			),
-			// Advanced settings
+			// Advanced settings.
 			'advanced_settings_title'     => array(
 				'title' => __( 'Advanced settings', 'paytrail-for-woocommerce' ),
 				'type'  => 'title',
@@ -469,22 +473,22 @@ final class Gateway extends \WC_Payment_Gateway {
 				'description' => __( 'Select country to be used as fallback if no country specified in checkout.', 'paytrail-for-woocommerce' ),
 				'options'     => array_merge( array( '' => 'Select country' ), WC()->countries->get_countries() ),
 			),
-			// Whether debug mode is enabled
+			// Whether debug mode is enabled.
 			'debug'                       => array(
 				'title'       => __( 'Debug log', 'paytrail-for-woocommerce' ),
 				'type'        => 'checkbox',
 				'label'       => __( 'Enable logging', 'paytrail-for-woocommerce' ),
 				'default'     => 'no',
-				// translators: %s: URL
+				// translators: %s: URL.
 				'description' => sprintf( __( 'This enables logging all payment gateway events. The log will be written in %1$s. Recommended only for debugging purposes as this might save personal data. All logs can be viewed here: %2$s', 'paytrail-for-woocommerce' ), '<code>' . \WC_Log_Handler_File::get_log_file_path( Plugin::GATEWAY_ID ) . '</code>', '<a target="_blank" href="/wp-admin/admin.php?page=wc-status&tab=logs">Logs</a>' ),
 			),
-			// Update tokens if enabled
+			// Update tokens if enabled.
 			'tokenize'                    => array(
 				'title'       => __( 'Update tokens', 'paytrail-for-woocommerce' ),
 				'type'        => 'checkbox',
 				'label'       => __( 'Enable token update', 'paytrail-for-woocommerce' ),
 				'default'     => 'no',
-				// translators: %s: URL
+				// translators: %s: URL.
 				'description' => __( 'Choose this to update card information (tokens) from the old Checkout Finland for WooCommerce -plugin. The update is done upon saving settings. This will also update tokens for the current WooCommerce Subscriptions orders, if that module is in use. </br> <b>CAUTION:</b> This action cannot be reverted.', 'paytrail-for-woocommerce' ),
 			),
 		);
@@ -507,7 +511,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->logger->clear( Plugin::GATEWAY_ID );
 		}
 
-		// Update tokens if checkbx was checked
+		// Update tokens if checkbx was checked.
 		if ( 'yes' === $this->get_option( 'tokenize', 'yes' ) ) {
 			$token_migration = new PaymentTokenMigration();
 			$token_migration->execute();
@@ -522,10 +526,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Display a notice when test mode is enabled.
 	 */
 	public function display_test_mode_notice() {
-		// Check if test mode is enabled
+		// Check if test mode is enabled.
 		$test_mode_enabled = $this->get_option( 'enable_test_mode', 'no' ) === 'yes';
 
-		// Check if the notice should be displayed
+		// Check if the notice should be displayed.
 		if ( $test_mode_enabled ) {
 			?>
 			<div class="notice notice-warning">
@@ -550,11 +554,11 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function display_currency_notice() {
-		// Check the currently selected currency
+		// Check the currently selected currency.
 		$current_currency          = get_woocommerce_currency();
-		$currency_is_not_supported = ! in_array( $current_currency, self::SUPPORTED_CURRENCIES );
+		$currency_is_not_supported = ! in_array( $current_currency, self::SUPPORTED_CURRENCIES, true );
 
-		// Check if the notice should be displayed
+		// Check if the notice should be displayed.
 		if ( $currency_is_not_supported ) {
 			$currency_settings_url = admin_url( 'admin.php?page=wc-settings&tab=general' );
 			?>
@@ -583,6 +587,9 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 * Calculate bank reference
+	 *
+	 * @param string $base The base to calculate the reference from.
+	 * @return string
 	 */
 	private function calculate_reference( $base ) {
 		$base          = sprintf( '%s%s', $this->settlement_prefix, $base );
@@ -592,13 +599,14 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$weights = array( 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7, 3, 1, 7 );
 
-		$sum = 0;
-		for ( $i = 0; $i < count( $reversed_base ); $i++ ) {
+		$sum             = 0;
+		$reversed_length = count( $reversed_base );
+		for ( $i = 0; $i < $reversed_length; $i++ ) {
 			$coefficient = array_shift( $weights );
 			$sum        += intval( $reversed_base[ $i ] ) * $coefficient;
 		}
 
-		$checksum = ( 0 == ( $sum % 10 ) ) ? 0 : ( 10 - ( $sum % 10 ) );
+		$checksum = ( 0 === ( $sum % 10 ) ) ? 0 : ( 10 - ( $sum % 10 ) );
 
 		$reference = sprintf( '%s%d', implode( '', $base ), $checksum );
 
@@ -632,9 +640,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Add card form
 	 *
-	 * @param string $context
-	 * @throws HmacException
-	 * @throws ValidationException
+	 * @param string $context The context the card is being added from.
+	 * @return void
+	 * @throws HmacException If the response signature does not validate.
+	 * @throws ValidationException If the request is rejected by the API.
 	 */
 	public function add_card_form( $context = Plugin::ADD_CARD_CONTEXT_CHECKOUT ) {
 		$datetime       = new \DateTime();
@@ -669,10 +678,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		$add_card_form_request->setLanguage( Helper::getLocale() );
 
 		// Create a addCardFormRequest via Paytrail SDK
-		// @var \GuzzleHttp\Psr7\Response $response
+		// @var \GuzzleHttp\Psr7\Response $response.
 		$response = $this->client->createAddCardFormRequest( $add_card_form_request );
 
 		if ( $response->getHeader( 'Location' ) ) {
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Redirect target is the Paytrail hosted card form.
 			wp_redirect( $response->getHeader( 'Location' )[0] );
 			exit;
 		}
@@ -682,15 +692,15 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Process card token
 	 *
 	 * @return bool
-	 * @throws HmacException
-	 * @throws ValidationException
+	 * @throws HmacException If the response signature does not validate.
+	 * @throws ValidationException If the request is rejected by the API.
 	 */
 	public function process_card_token() {
-		$getTokenRequest = new GetTokenRequest();
-		$getTokenRequest->setCheckoutTokenizationId( filter_input( INPUT_GET, 'checkout-tokenization-id' ) );
+		$get_token_request = new GetTokenRequest();
+		$get_token_request->setCheckoutTokenizationId( filter_input( INPUT_GET, 'checkout-tokenization-id' ) );
 		$this->log( 'Paytrail: process_card_token', 'debug' );
 
-		$response = $this->client->createGetTokenRequest( $getTokenRequest );
+		$response = $this->client->createGetTokenRequest( $get_token_request );
 
 		return (bool) $this->save_card_token( $response );
 	}
@@ -698,7 +708,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Save card token
 	 *
-	 * @param GetTokenResponse $card_token
+	 * @param GetTokenResponse $card_token The token response returned by the API.
+	 * @return bool
 	 */
 	private function save_card_token( GetTokenResponse $card_token ) {
 		$this->log( 'Paytrail: save_card_token', 'debug' );
@@ -720,8 +731,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Add payment method
 	 *
 	 * @return array
-	 * @throws HmacException
-	 * @throws ValidationException
+	 * @throws HmacException If the response signature does not validate.
+	 * @throws ValidationException If the request is rejected by the API.
 	 */
 	public function add_payment_method() {
 		$this->add_card_form( Plugin::ADD_CARD_CONTEXT_MY_ACCOUNT );
@@ -768,8 +779,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Get token payment option
 	 *
-	 * @param $html
-	 * @param $token
+	 * @param string               $html  The markup rendered so far.
+	 * @param \WC_Payment_Token_CC $token The stored card token.
 	 * @return string
 	 */
 	public function get_token_payment_option_html( $html, $token ) {
@@ -797,7 +808,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Get card display info
 	 *
-	 * @param $token
+	 * @param \WC_Payment_Token_CC $token The stored card token.
 	 * @return string
 	 */
 	private function get_display_name( $token ) {
@@ -815,7 +826,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Get card image
 	 *
-	 * @param $token
+	 * @param \WC_Payment_Token_CC $token The stored card token.
 	 * @return string
 	 */
 	private function get_card_image( $token ) {
@@ -849,7 +860,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$payment_method   = filter_input( INPUT_POST, 'payment_method' );
 
 		if ( ! $status && ! $reference && ! $refund_callback && ! $refund_unique_id ) {
-			// no log to reduce number of log entries
+			// no log to reduce number of log entries.
 			return;
 		}
 
@@ -864,13 +875,13 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ( $cancel_order ) {
-			// Do not attempt to process further. Woo Commerce will cancel the order
+			// Do not attempt to process further. Woo Commerce will cancel the order.
 			$this->log( 'Paytrail: check_paytrail_response, cancel_order is true. Order will be cancelled. Reference: ' . $reference, 'debug' );
 			return;
 		}
 
 		if ( $pay_for_order ) {
-			// The customer will be shown a page to choose payment methods
+			// The customer will be shown a page to choose payment methods.
 			wc_clear_notices();
 			$message = __(
 				'Payment failed or was cancelled. Please try again',
@@ -880,9 +891,9 @@ final class Gateway extends \WC_Payment_Gateway {
 			wc_add_notice( $message, 'notice' );
 			$this->log( 'Paytrail: check_paytrail_response, pay_for_order is true. Payment page will be shown. Reference: ' . $reference, 'debug' );
 
-			// Check to see if this is the first load of the page
+			// Check to see if this is the first load of the page.
 			if ( ! $payment_method ) {
-				// Handle the payment response so that orders will change to Failed status
+				// Handle the payment response so that orders will change to Failed status.
 				$this->log( 'Paytrail: Start handle_payment_response for reference ' . $reference, 'debug' );
 				$this->handle_payment_response( $status );
 			}
@@ -890,17 +901,17 @@ final class Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 
-		$sleepTime         = wp_rand( 0, 3 );
-		$sleepTimeCallback = wp_rand( 3, 6 );
+		$sleep_time          = wp_rand( 0, 3 );
+		$sleep_time_callback = wp_rand( 3, 6 );
 
 		if ( true === $this->callback_mode ) {
 			$this->log( 'Paytrail: Callback check_paytrail_response for order ' . $reference, 'debug' );
-			$this->log( 'Paytrail: Wait for ' . $sleepTimeCallback . ' seconds until processing order ' . $reference, 'debug' );
-			sleep( $sleepTimeCallback );
+			$this->log( 'Paytrail: Wait for ' . $sleep_time_callback . ' seconds until processing order ' . $reference, 'debug' );
+			sleep( $sleep_time_callback );
 		} else {
 			$this->log( 'Paytrail: Redirect check_paytrail_response for reference ' . $reference, 'debug' );
-			$this->log( 'Paytrail: Wait for ' . $sleepTime . ' seconds until processing reference ' . $reference, 'debug' );
-			sleep( $sleepTime );
+			$this->log( 'Paytrail: Wait for ' . $sleep_time . ' seconds until processing reference ' . $reference, 'debug' );
+			sleep( $sleep_time );
 		}
 
 		// Handle the response only if the status exists.
@@ -936,7 +947,9 @@ final class Gateway extends \WC_Payment_Gateway {
 			$orders = wc_get_orders(
 				array(
 					'limit'      => 1,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- The reference is the only key the callback can look the order up by.
 					'meta_key'   => '_checkout_reference',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- See above.
 					'meta_value' => $reference,
 				)
 			);
@@ -1107,8 +1120,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Validate payment processing
 	 *
-	 * @param WC_Order $order
-	 * @param bool     $retry Whether to try again after 15 seconds if order is being processed
+	 * @param WC_Order $order The order to validate.
+	 * @param bool     $retry Whether to try again after 15 seconds if order is being processed.
 	 * @return bool
 	 */
 	protected function validate_order_payment_processing( WC_Order $order, $retry = true ) {
@@ -1127,7 +1140,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			return false;
 		}
 
-		// If the transaction is currently being processed, wait for 15 seconds and check again
+		// If the transaction is currently being processed, wait for 15 seconds and check again.
 		if ( 'yes' === \get_transient( 'checkout_transaction_id_processing_' . $transaction_id ) ) {
 			$this->log( 'Paytrail: validate_order_payment_processing, order is currently being processed ' . $order->get_id(), 'debug' );
 
@@ -1147,6 +1160,12 @@ final class Gateway extends \WC_Payment_Gateway {
 		return true;
 	}
 
+	/**
+	 * Check whether the order still needs processing.
+	 *
+	 * @param WC_Order $order The order to check.
+	 * @return bool
+	 */
 	protected function validate_order_payment_process_status( WC_Order $order ) {
 		$order_status = $order->get_status();
 
@@ -1175,25 +1194,26 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function handle_refund_response( $refund_callback, $refund_unique_id, $order_id ) {
-		// Remove the callback indicators from the GET array
+		// Remove the callback indicators from the GET array.
 		$get = filter_input_array( INPUT_GET );
 
 		unset( $get['refund_callback'] );
 		unset( $get['refund_unique_id'] );
 		unset( $get['order_id'] );
 
-		// Check the HMAC
+		// Check the HMAC.
 		try {
 			$this->client->validateHmac( $get, '', filter_input( INPUT_GET, 'signature' ) );
 		} catch ( HmacException $exception ) {
 			$this->signature_error( $exception );
 		}
 
-		// Check if HPOS is enabled
+		// Check if HPOS is enabled.
 		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled() ) {
 			$refunds = \wc_get_orders(
 				array(
 					'type'       => 'shop_order_refund',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- The refund is only identifiable by its unique id meta.
 					'meta_query' => array(
 						array(
 							'key'     => '_checkout_refund_unique_id',
@@ -1280,37 +1300,36 @@ final class Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_payment( $order_id ) {
 		$this->log( 'Paytrail: process_payment', 'debug' );
-		// @var WC_Order $order
 		$order    = wc_get_order( $order_id );
 		$token_id = filter_input( INPUT_POST, 'wc-paytrail-payment-token' );
 
 		// Define if the process should die if an error occurs.
 		$die_on_error = filter_input( INPUT_POST, 'woocommerce_pay' ) ? true : false;
 
-		// Get the wanted payment provider and check that it exists
+		// Get the wanted payment provider and check that it exists.
 		if ( $this->use_provider_selection() ) {
 			$this->log( 'Paytrail: use_provider_selection true', 'debug' );
-			// Try to get payment provider from POST
+			// Try to get payment provider from POST.
 			$payment_provider = filter_input( INPUT_POST, 'payment_provider' );
 
-			// If empty, fallback to the meta data stored in the order
+			// If empty, fallback to the meta data stored in the order.
 			if ( empty( $payment_provider ) ) {
 				$payment_provider = get_post_meta( $order_id, '_payment_provider', true );
-				$this->log( 'Paytrail: payment_provider retrieved from meta: ' . print_r( $payment_provider, true ), 'debug' );
+				$this->log( 'Paytrail: payment_provider retrieved from meta: ' . $payment_provider, 'debug' );
 			} else {
-				$this->log( 'Paytrail: payment_provider from POST: ' . print_r( $payment_provider, true ), 'debug' );
+				$this->log( 'Paytrail: payment_provider from POST: ' . $payment_provider, 'debug' );
 			}
 		} else {
-			// Try to get payment method from POST
+			// Try to get payment method from POST.
 			$payment_provider = filter_input( INPUT_POST, 'payment_method' );
 			$this->log( 'Paytrail: use_provider_selection false', 'debug' );
 
-			// If empty, fallback to the meta data stored in the order
+			// If empty, fallback to the meta data stored in the order.
 			if ( empty( $payment_provider ) ) {
 				$payment_provider = get_post_meta( $order_id, '_payment_method', true );
-				$this->log( 'Paytrail: payment_method retrieved from meta: ' . print_r( $payment_provider, true ), 'debug' );
+				$this->log( 'Paytrail: payment_method retrieved from meta: ' . $payment_provider, 'debug' );
 			} else {
-				$this->log( 'Paytrail: payment_method from POST: ' . print_r( $payment_provider, true ), 'debug' );
+				$this->log( 'Paytrail: payment_method from POST: ' . $payment_provider, 'debug' );
 			}
 		}
 		return $this->process_paytrail_payment( $order, $token_id, $payment_provider, $die_on_error );
@@ -1319,10 +1338,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process the payment with Paytrail SDK and return the result.
 	 *
-	 * @param WC_Order $order
-	 * @param string   $token_id
-	 * @param string   $payment_provider
-	 * @param bool     $die_on_error Whether to die on error or not. If false, the error is handled by WooCommerce.
+	 * @param WC_Order $order            The order being paid.
+	 * @param string   $token_id         The stored card token to charge, if any.
+	 * @param string   $payment_provider The selected payment provider.
+	 * @param bool     $die_on_error     Whether to die on error or not. If false, the error is handled by WooCommerce.
 	 * @return array
 	 * @throws \Exception If the processing fails, this error is handled by WooCommerce.
 	 */
@@ -1357,6 +1376,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			if ( $token && method_exists( $token, 'get_token' ) ) {
 				$payment->setToken( $token->get_token() );
 			} else {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Diagnostic detail for the plugin's own log, not output.
 				$this->log( 'Paytrail: Token value: ' . print_r( $token, true ), 'debug' );
 			}
 		} else {
@@ -1364,7 +1384,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$payment = new PaymentRequest();
 		}
 
-		if ( 0 == floatval( $order->get_total() ) ) {
+		if ( 0.0 === floatval( $order->get_total() ) ) {
 			$this->log( 'Paytrail: process_payment, order total 0, payment complete, order needs processing' . $order->needs_processing(), 'debug' );
 			$order->payment_complete();
 
@@ -1381,11 +1401,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		$order->update_meta_data( '_checkout_reference', $payment->getReference() );
 		// Save it also as a key for fast indexed searches.
 		$order->update_meta_data( '_checkout_reference_' . $payment->getReference(), true );
-		// Save the wanted payment provider to the order
+		// Save the wanted payment provider to the order.
 		$order->update_meta_data( '_checkout_payment_provider', $payment_provider );
 		$order->save();
 
-		// Create a payment via Paytrail SDK
+		// Create a payment via Paytrail SDK.
 		try {
 			if ( $is_token_payment ) {
 				return $this->create_cit_payment( $payment, $order );
@@ -1409,38 +1429,35 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			$this->error( $exception, $message, $die_on_error );
 		}
-
 	}
 
 	/**
 	 * Create payment
 	 *
-	 * @param PaymentRequest|CitPaymentRequest $payment
-	 * @param WC_Order                         $order
-	 * @param $payment_provider
+	 * @param PaymentRequest|CitPaymentRequest $payment          The payment request to send.
+	 * @param WC_Order                         $order            The order being paid.
+	 * @param string                           $payment_provider The selected payment provider.
 	 * @return array
-	 * @throws HmacException
-	 * @throws ValidationException
-	 * @throws \Exception
+	 * @throws HmacException|ValidationException|\Exception If the payment cannot be created.
 	 */
 	private function create_normal_payment( $payment, $order, $payment_provider ) {
 		$this->log( 'Paytrail: create_normal_payment', 'debug' );
 
 		try {
 			// Log the payment request if debug log is enabled.
-			$this->log( 'Paytrail\SDK\Request\PaymentRequest: ' . json_encode( $payment ), 'info' );
+			$this->log( 'Paytrail\SDK\Request\PaymentRequest: ' . wp_json_encode( $payment ), 'info' );
 			$response = $this->client->createPayment( $payment );
 		} catch ( \Exception $exception ) {
 			// Log the error message if debug log is enabled.
 			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
 			new \WP_Error( $exception->getCode(), $exception->getMessage() );
 
-			// Add error messages to be displayed to the user by Woocommerce
-			$exceptionError = $exception->getMessage();
-			$jsonData       = json_decode( $exceptionError, true );
+			// Add error messages to be displayed to the user by Woocommerce.
+			$exception_error = $exception->getMessage();
+			$json_data       = json_decode( $exception_error, true );
 
-			// The API may return JSON data in the message rather than plain string
-			$display_message = ( $jsonData && isset( $jsonData['message'] ) ) ? $jsonData['message'] : ucwords( $exceptionError );
+			// The API may return JSON data in the message rather than plain string.
+			$display_message = ( $json_data && isset( $json_data['message'] ) ) ? $json_data['message'] : ucwords( $exception_error );
 
 			throw new \Exception( esc_html( $display_message ) );
 		}
@@ -1449,7 +1466,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log( 'Paytrail: create_normal_payment, use_provider_selection = true', 'debug' );
 			$providers = $response->getProviders();
 
-			// Get only the wanted payment provider object
+			// Get only the wanted payment provider object.
 			$wanted_provider = $this->get_wanted_provider( $providers, $payment_provider );
 
 			WC()->session->set( 'payment_provider', $wanted_provider );
@@ -1493,10 +1510,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Create CIT payment
 	 *
-	 * @param CitPaymentRequest $payment
-	 * @param WC_Order          $order
-	 * @throws HmacException
-	 * @throws ValidationException
+	 * @param CitPaymentRequest $payment The payment request to send.
+	 * @param WC_Order          $order   The order being paid.
+	 * @return array
+	 * @throws HmacException|ValidationException|\Exception If the payment cannot be charged.
 	 */
 	private function create_cit_payment( $payment, $order ) {
 		$this->log( 'Paytrail: create_cit_payment', 'debug' );
@@ -1505,7 +1522,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$response = $this->client->createCitPaymentCharge( $payment );
 
 			// Log the payment request if debug log is enabled.
-			$this->log( 'Paytrail\SDK\Request\CitPaymentRequest: ' . json_encode( $payment ), 'info' );
+			$this->log( 'Paytrail\SDK\Request\CitPaymentRequest: ' . wp_json_encode( $payment ), 'info' );
 		} catch ( \Exception $exception ) {
 			$fail_message = __( 'Failed to create token payment using card.', 'paytrail-for-woocommerce' );
 
@@ -1552,17 +1569,17 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Create MIT payment
 	 *
-	 * @param MitPaymentRequest $payment
-	 * @param WC_Order          $order
+	 * @param MitPaymentRequest $payment The payment request to send.
+	 * @param WC_Order          $order   The order being paid.
 	 * @return bool
-	 * @throws \Exception
+	 * @throws \Exception If the payment cannot be charged.
 	 */
 	private function create_mit_payment( $payment, $order ) {
 		try {
 			$response = $this->client->createMitPaymentCharge( $payment );
 
 			// Log the payment request if debug log is enabled.
-			$this->log( 'Paytrail\SDK\Request\MitPaymentRequest: ' . json_encode( $payment ), 'info' );
+			$this->log( 'Paytrail\SDK\Request\MitPaymentRequest: ' . wp_json_encode( $payment ), 'info' );
 		} catch ( \Exception $exception ) {
 			$fail_message = __( 'Failed to create token payment using card.', 'paytrail-for-woocommerce' );
 
@@ -1599,10 +1616,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Set payment data
 	 *
-	 * @param PaymentRequest|CitPaymentRequest|MitPaymentRequest $payment
-	 * @param WC_Order                                           $order
+	 * @param PaymentRequest|CitPaymentRequest|MitPaymentRequest $payment The payment request to populate.
+	 * @param WC_Order                                           $order   The order being paid.
 	 * @return mixed
-	 * @throws \Exception
+	 * @throws \Exception If the order data cannot be read.
 	 */
 	private function set_base_payment_data( $payment, $order ) {
 		// Set the order ID as the stamp to the payment request.
@@ -1671,9 +1688,9 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Get order items
 	 *
-	 * @param WC_Order|\WC_Subscription $order
+	 * @param WC_Order|\WC_Subscription $order The order to read the items from.
 	 * @return array
-	 * @throws \Exception
+	 * @throws \Exception If an item cannot be converted.
 	 */
 	private function get_order_items( $order ) {
 		/**
@@ -1722,16 +1739,24 @@ final class Gateway extends \WC_Payment_Gateway {
 		return $items;
 	}
 
+	/**
+	 * Spread a rounding difference onto the first non zero item.
+	 *
+	 * @param array      $items    The order items.
+	 * @param int        $diff     The rounding difference to apply.
+	 * @param int|string $order_id The order ID, used for logging.
+	 * @return array
+	 */
 	private function fix_rounding_error( $items, $diff, $order_id ) {
 		// Subtract rounding error from first not zero price item if sub sum is too high.
-		$lastItemKey = $this->getLastNonZeroItemKey( $items, $diff );
-		$lastItem    = $items[ $lastItemKey ];
-		$lastItem->setUnitPrice( $lastItem->getUnitPrice() + $diff );
-		$items[ $lastItemKey ] = $lastItem;
+		$last_item_key = $this->getLastNonZeroItemKey( $items, $diff );
+		$last_item     = $items[ $last_item_key ];
+		$last_item->setUnitPrice( $last_item->getUnitPrice() + $diff );
+		$items[ $last_item_key ] = $last_item;
 
 		// If item quantity is not one, there's still negative difference to fix.
-		if ( $lastItem->getUnits() > 1 ) {
-			$difference = ( $lastItem->getUnits() - 1 ) * $diff;
+		if ( $last_item->getUnits() > 1 ) {
+			$difference = ( $last_item->getUnits() - 1 ) * $diff;
 
 			$rounding_item = new Item();
 			$rounding_item->setDescription( __( 'Rounding', 'paytrail-for-woocommerce' ) );
@@ -1749,11 +1774,15 @@ final class Gateway extends \WC_Payment_Gateway {
 
 	/**
 	 * Loop items and find first non zero item to subtract difference.
+	 *
+	 * @param array $items The order items.
+	 * @param int   $diff  The rounding difference to apply.
+	 * @return int|string|null
 	 */
 	private function getLastNonZeroItemKey( $items, $diff ) {
 		foreach ( $items as $key => $item ) {
 			if ( ( $item->getUnitPrice() + $diff ) > 0 ) {
-				// Return on first non zero item
+				// Return on first non zero item.
 				return $key;
 			}
 		}
@@ -1762,12 +1791,12 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Get payment providers
 	 *
-	 * @param $providers
-	 * @param $payment_provider
+	 * @param array  $providers        The available providers.
+	 * @param string $payment_provider The wanted provider ID.
 	 * @return mixed|null
 	 */
 	private function get_wanted_provider( $providers, $payment_provider ) {
-		// Get only the wanted payment provider object
+		// Get only the wanted payment provider object.
 		return array_reduce(
 			$providers,
 			function ( $carry, $item = null ) use ( $payment_provider ) {
@@ -1782,30 +1811,30 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process scheduled payment
 	 *
-	 * @param $amount
-	 * @param WC_Order $order
-	 * @throws \Exception
+	 * @param float    $amount The amount to charge.
+	 * @param WC_Order $order  The renewal order.
+	 * @throws \Exception If the scheduled payment cannot be charged.
 	 */
 	public function scheduled_subscription_payment( $amount, $order ) {
 		$this->log( 'Paytrail: scheduled_subscription_payment', 'debug' );
 		$fail_message = __( 'Cannot schedule subscription payment. No valid tokens found for order.', 'paytrail-for-woocommerce' );
 
-		$tokens      = \WC_Payment_Tokens::get_order_tokens( $order->get_id() );
-		$validTokens = array();
+		$tokens       = \WC_Payment_Tokens::get_order_tokens( $order->get_id() );
+		$valid_tokens = array();
 		foreach ( $tokens as $token ) {
 			if ( ! $token->validate() ) {
 				continue;
 			}
-			$validTokens[] = $token;
+			$valid_tokens[] = $token;
 		}
-		if ( empty( $validTokens ) ) {
+		if ( empty( $valid_tokens ) ) {
 			// Log the error message if debug log is enabled.
 			$this->log( $fail_message, 'error' );
 			$order->add_order_note( $fail_message );
 			return false;
 		}
 		try {
-			$token = reset( $validTokens );
+			$token = reset( $valid_tokens );
 
 			$payment = new MitPaymentRequest();
 			$payment->setToken( $token->get_token() );
@@ -1841,7 +1870,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		try {
 			$order = \wc_get_order( $order_id );
 
-			// Create a unique identifier for the refund
+			// Create a unique identifier for the refund.
 			$refund_unique_id = sha1( uniqid( true ) );
 
 			$refund = new RefundRequest();
@@ -1901,7 +1930,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				)
 			);
 
-			// Do some additional stuff after the refund object has been created
+			// Do some additional stuff after the refund object has been created.
 			add_action(
 				'woocommerce_order_refunded',
 				function ( $order_id, $refund_id ) use ( $order, $refund, $reason, $transaction_id, $amount, $price, $refund_unique_id ) {
@@ -1912,7 +1941,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					} catch ( \Exception $e ) {
 						switch ( $e->getCode() ) {
 							case 422:
-								// An email refund request is needed
+								// An email refund request is needed.
 								$email = $order->get_billing_email();
 
 								$email_refund_request = new EmailRefundRequest();
@@ -2031,7 +2060,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$providers = $this->get_grouped_payment_providers( $cart_total, Helper::getLocale() );
 
-		// If there was an error getting the payment providers, show it
+		// If there was an error getting the payment providers, show it.
 		if ( ! empty( $providers['error'] ) ) {
 			echo '<p>' . esc_html( $providers['error'] ) . '</p>';
 			return;
@@ -2044,6 +2073,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		$provider_form_view->render( $res );
 	}
 
+	/**
+	 * Render the payment method description.
+	 *
+	 * @return void
+	 */
 	protected function payment_description() {
 		$data['description'] = $this->description;
 
@@ -2096,7 +2130,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Get the grouped list of payment providers
 	 *
 	 * @param integer $payment_amount Payment amount in currency minor unit, eg. cents.
-	 * @param string  $locale
+	 * @param string  $locale         The locale to request the providers in.
 	 * @return array
 	 */
 	public function get_grouped_payment_providers( $payment_amount = null, $locale = null ) {
@@ -2175,7 +2209,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$address_suffix = empty( $order->{ 'get_' . $prefix . 'address_2' }() )
 			? null : ' ' . $order->{ 'get_' . $prefix . 'address_2' }();
 
-		// Append 2nd address line to the address field if present
+		// Append 2nd address line to the address field if present.
 		$address->setStreetAddress( ( $order->{ 'get_' . $prefix . 'address_1' }() . $address_suffix ) )
 			->setPostalCode( $order->{ 'get_' . $prefix . 'postcode' }() )
 			->setCity( $order->{ 'get_' . $prefix . 'city' }() )
@@ -2186,7 +2220,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$address->setCountry( $this->get_option( 'fallback_country', '' ) );
 		}
 
-		// If we have any of the listed properties, we are good to go
+		// If we have any of the listed properties, we are good to go.
 		$has_values = array_filter(
 			array( 'StreetAddress', 'PostalCode', 'City', 'County' ),
 			function ( $key ) use ( $address ) {
@@ -2317,7 +2351,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$callback = new CallbackUrl();
 
 		$callback->setSuccess( $this->get_return_url( $order ) );
-		// Customers choosing cancel option will be shown a payment page to allow re-attempt to pay
+		// Customers choosing cancel option will be shown a payment page to allow re-attempt to pay.
 		$callback->setCancel( $order->get_checkout_payment_url() );
 		return $callback;
 	}
@@ -2362,6 +2396,11 @@ final class Gateway extends \WC_Payment_Gateway {
 		return $query;
 	}
 
+	/**
+	 * Get the current cart total in the currency minor unit.
+	 *
+	 * @return int
+	 */
 	public function get_cart_total() {
 		if ( WC()->cart && is_callable( array( WC()->cart, 'get_total' ) ) ) {
 			return (int) round( WC()->cart->get_total( 'edit' ) * 100 );
@@ -2385,16 +2424,22 @@ final class Gateway extends \WC_Payment_Gateway {
 			'paytrail-woocommerce-payment-fields',
 			$plugin_dir_url . 'dist/assets/frontend/main.js',
 			array(),
-			$plugin_version
+			$plugin_version,
+			false
 		);
 	}
 
+	/**
+	 * Enqueue the admin scripts on the WooCommerce settings page.
+	 *
+	 * @return void
+	 */
 	public function enqueue_admin_scripts() {
 		$screen = get_current_screen();
 
-		// Check if the current screen is the WooCommerce settings page
+		// Check if the current screen is the WooCommerce settings page.
 		if ( $screen && 'woocommerce_page_wc-settings' === $screen->id ) {
-			// Enqueue the introScripts only on the WooCommerce settings page
+			// Enqueue the introScripts only on the WooCommerce settings page.
 			wp_enqueue_script( 'introScripts' );
 		}
 	}
@@ -2426,12 +2471,17 @@ final class Gateway extends \WC_Payment_Gateway {
 		);
 	}
 
+	/**
+	 * Enqueue the admin styles on the WooCommerce settings page.
+	 *
+	 * @return void
+	 */
 	public function enqueue_admin_styles() {
 		$screen = get_current_screen();
 
-		// Check if the current screen is the WooCommerce settings page
+		// Check if the current screen is the WooCommerce settings page.
 		if ( $screen && 'woocommerce_page_wc-settings' === $screen->id ) {
-			// Enqueue the style 'paytrail-woocommerce-payment-fields'
+			// Enqueue the style 'paytrail-woocommerce-payment-fields'.
 			wp_enqueue_style( 'introStyles' );
 		}
 	}
@@ -2460,11 +2510,11 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @param \Exception $exception An exception instance.
 	 * @param string     $message   A message to print out for the end user.
-	 * @param bool       $die       Defines if the process should be terminated.
+	 * @param bool       $terminate Defines if the process should be terminated.
 	 * @throws \Exception If the process is not killed, the error is passed on.
 	 * @return never
 	 */
-	protected function error( \Exception $exception, $message, $die = true ) {
+	protected function error( \Exception $exception, $message, $terminate = true ) {
 		$glue = PHP_EOL . '- ';
 
 		$log_message = $message . $glue;
@@ -2478,7 +2528,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		 */
 		$error = apply_filters( 'paytrail_error_message', $message, $exception );
 
-		if ( true === $die ) {
+		if ( true === $terminate ) {
 			wp_die( esc_html( $error ), '', esc_html( $exception->getCode() ) );
 		}
 
@@ -2489,9 +2539,9 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Kills the process and prints out a signature error message.
 	 *
 	 * @param HmacException $exception The exception instance.
-	 * @param bool          $die       Defines if the process should be terminated.
+	 * @param bool          $terminate Defines if the process should be terminated.
 	 */
-	protected function signature_error( HmacException $exception, $die = true ) {
+	protected function signature_error( HmacException $exception, $terminate = true ) {
 		$message = __(
 			'An error occurred validating the signature.',
 			'paytrail-for-woocommerce'
@@ -2504,6 +2554,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		 */
 		$message = apply_filters( 'paytrail_signature_error', $message, $exception );
 
-		$this->error( $exception, $message, $die );
+		$this->error( $exception, $message, $terminate );
 	}
 }

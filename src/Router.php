@@ -10,6 +10,9 @@ use Paytrail\WooCommercePaymentGateway\Controllers\Card;
 use Paytrail\WooCommercePaymentGateway\Controllers\CardCancel;
 use Paytrail\WooCommercePaymentGateway\Controllers\CardSuccess;
 
+/**
+ * Maps the plugin's rewrite endpoints onto their controllers.
+ */
 class Router {
 
 	const ACTION_BASE_URL = 'paytrail-action';
@@ -27,8 +30,8 @@ class Router {
 	/**
 	 * Get route action url
 	 *
-	 * @param $route
-	 * @param $action
+	 * @param string $route  The route to build the URL for.
+	 * @param string $action The action to build the URL for.
 	 * @return string
 	 */
 	public static function get_url( $route, $action ) {
@@ -59,7 +62,7 @@ class Router {
 	/**
 	 * Get routes
 	 *
-	 * @param $template
+	 * @param string $template The template WordPress is about to include.
 	 * @return mixed
 	 */
 	public function routes( $template ) {

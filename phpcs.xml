@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<ruleset name="Krokedil Coding Standards">
+    <description>WooCommerce extension PHP_CodeSniffer ruleset.</description>
+
+    <!-- Exclude vendor, node_modules and build output from all rules -->
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/dist/*</exclude-pattern>
+
+    <!-- Exclude the tests folder -->
+    <exclude-pattern>tests/*</exclude-pattern>
+
+    <!-- Set minimum supported WordPress version and PHP test version -->
+    <config name="minimum_supported_wp_version" value="6.7" />
+    <config name="testVersion" value="7.4-" />
+
+    <!-- Use Wordpress Coding standards -->
+    <rule ref="WordPress" />
+
+    <!-- Check the code against the PHP versions the plugin supports -->
+    <rule ref="PHPCompatibilityWP" />
+
+    <!-- Enforce the correct text-domain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="paytrail-for-woocommerce" />
+                <element value="woocommerce" />
+            </property>
+        </properties>
+    </rule>
+
+    <!--  Remove WordPress.Files.FileName.InvalidClassFileName checks to allow for PSR-4 naming convention -->
+    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
+        <exclude-pattern>src/</exclude-pattern>
+        <!-- The bootstrap file name is fixed by the WordPress.org plugin slug -->
+        <exclude-pattern>plugin.php</exclude-pattern>
+    </rule>
+
+    <!-- Remove WordPress.Files.FileName.NotHyphenatedLowercase checks to allow for PSR-4 naming convention -->
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <exclude-pattern>src/</exclude-pattern>
+    </rule>
+
+    <!-- Remove need for package tag in file block comments -->
+    <rule ref="Squiz.Commenting.FileComment.MissingPackageTag">
+        <exclude-pattern>src/</exclude-pattern>
+    </rule>
+
+    <!-- Remove need for file comment -->
+    <rule ref="Squiz.Commenting.FileComment.Missing">
+        <exclude-pattern>src/</exclude-pattern>
+    </rule>
+
+    <!-- Helper's static methods are part of the plugin's public API, so they keep their camelCase names -->
+    <rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+        <exclude-pattern>src/Helper.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow the usage of shorthand arrays -->
+    <rule ref="Generic.Arrays.DisallowShortArraySyntax">
+        <exclude-pattern>src/</exclude-pattern>
+    </rule>
+    <rule ref="Universal.Arrays.DisallowShortArraySyntax.Found">
+        <exclude-pattern>src/</exclude-pattern>
+    </rule>
+</ruleset>

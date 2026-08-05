@@ -20,7 +20,7 @@ jobs:
       - name: Run composer install
         uses: php-actions/composer@v6
         with:
-          php_version: 7.3
+          php_version: 7.4
 
       - name: Run linter
         run: composer lint

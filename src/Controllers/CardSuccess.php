@@ -9,8 +9,16 @@ use Paytrail\SDK\Exception\HmacException;
 use Paytrail\SDK\Exception\ValidationException;
 use Paytrail\WooCommercePaymentGateway\Plugin;
 
+/**
+ * Handles the redirect back from a successful card addition.
+ */
 class CardSuccess extends AbstractController {
 
+	/**
+	 * Store the card and return the customer to the checkout.
+	 *
+	 * @return void
+	 */
 	protected function checkout() {
 		$gateway = Plugin::instance()->gateway();
 		try {
@@ -25,6 +33,11 @@ class CardSuccess extends AbstractController {
 		exit;
 	}
 
+	/**
+	 * Store the card and return the customer to the payment methods page.
+	 *
+	 * @return void
+	 */
 	protected function my_account() {
 		$gateway = Plugin::instance()->gateway();
 		try {
@@ -39,6 +52,11 @@ class CardSuccess extends AbstractController {
 		exit;
 	}
 
+	/**
+	 * Store the card and return the customer to the subscriptions page.
+	 *
+	 * @return void
+	 */
 	protected function change_payment_method() {
 		$gateway = Plugin::instance()->gateway();
 		try {

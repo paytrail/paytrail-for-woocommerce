@@ -59,7 +59,7 @@ $delete_card_url = Router::get_url( Plugin::CARD_ENDPOINT, 'delete' );
 	jQuery(".paytrail-for-woocommerce-tokenized-payment-method-links.delete-card-button").click(function (evt) {
 		evt.preventDefault();
 		let cardTokenId = jQuery("input[name='wc-paytrail-payment-token']:checked").val();
-		const isSubscriptionPage = <?php echo json_encode( $is_subscription_page ); ?>;
+		const isSubscriptionPage = <?php echo wp_json_encode( $is_subscription_page ); ?>;
 
 		jQuery.ajax({
 			type: 'POST',
