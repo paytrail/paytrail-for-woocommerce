@@ -162,8 +162,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->title       = ! empty( $this->get_option( 'custom_provider_name' ) ) ? $this->get_option( 'custom_provider_name' ) : $this->method_info['title'];
 		$this->description = ! empty( $this->get_option( 'custom_provider_description' ) ) ? $this->get_option( 'custom_provider_description' ) : $this->method_info['description'];
 
-		// Icon temporarily disabled for size issues
-		// $this->icon = Plugin::ICON_URL;.
+		// $this->icon = Plugin::ICON_URL;
+		// Icon temporarily disabled for size issues.
 
 		// Set gateway admin settings fields.
 		$this->set_form_fields();
@@ -511,7 +511,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->logger->clear( Plugin::GATEWAY_ID );
 		}
 
-		// Update tokens if checkbx was checked.
+		// Update tokens if checkbox was checked.
 		if ( 'yes' === $this->get_option( 'tokenize', 'yes' ) ) {
 			$token_migration = new PaymentTokenMigration();
 			$token_migration->execute();

@@ -43,9 +43,9 @@ class Helper {
 	}
 
 	/**
-	 * Check whether the request is a subscription payment method change.
+	 * Get the change_payment_method query arg, set when a subscription's payment method is being changed.
 	 *
-	 * @return string|null
+	 * @return string|null The query arg value, or null when it is not present.
 	 */
 	public static function getIsChangeSubscriptionPaymentMethod() {
 		return filter_input( INPUT_GET, 'change_payment_method' );
