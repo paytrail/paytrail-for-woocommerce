@@ -13,9 +13,23 @@ use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
 use WC_Payment_Tokens;
 use WC_Logger;
 
+/**
+ * Registers the Paytrail gateway with the WooCommerce block checkout.
+ */
 class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 
+	/**
+	 * Payment method name.
+	 *
+	 * @var string
+	 */
 	protected $name = 'paytrail';
+
+	/**
+	 * Gateway instance.
+	 *
+	 * @var Gateway
+	 */
 	protected $gateway;
 
 	/**
@@ -97,7 +111,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 			wp_set_script_translations( 'paytrail-block-payment', \Paytrail\WooCommercePaymentGateway\Plugin::plugin_abspath() . 'languages/' );
 		}
 
-		// Register OP Lasku scripts on cart page
+		// Register OP Lasku scripts on cart page.
 		if ( is_cart() ) {
 			$settings = get_option( 'woocommerce_paytrail_settings' );
 			if ( isset( $settings['op_lasku_calculator'] ) && 'yes' === $settings['op_lasku_calculator'] ) {

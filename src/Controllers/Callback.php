@@ -7,6 +7,9 @@ namespace Paytrail\WooCommercePaymentGateway\Controllers;
 
 use Paytrail\WooCommercePaymentGateway\Plugin;
 
+/**
+ * Handles the payment callback Paytrail sends server to server.
+ */
 class Callback extends AbstractController {
 
 	/**

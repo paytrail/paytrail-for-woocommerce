@@ -3,7 +3,7 @@
  * Checkout payment description
  */
 
-$allowedHtml = array(
+$allowed_html = array(
 	'a'          => array(
 		'href'  => true,
 		'title' => true,
@@ -48,4 +48,4 @@ if ( ! $data['description'] ) {
 	return;
 }
 ?>
-<p><?php echo wp_kses( $data['description'], $allowedHtml ); ?> </p>
+<p><?php echo wp_kses( $data['description'], $allowed_html ); ?> </p>

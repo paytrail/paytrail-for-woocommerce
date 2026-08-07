@@ -4,10 +4,10 @@
  * Plugin URI: https://github.com/paytrail/paytrail-for-woocommerce
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
  * Version: 2.7.1
- * Requires at least: 4.9
+ * Requires at least: 6.7
  * Requires Plugins: woocommerce
  * Tested up to: 7.0.2
- * Requires PHP: 7.3
+ * Requires PHP: 7.4
  * WC requires at least: 3.5
  * WC tested up to: 10.9.4
  * Author: Paytrail
@@ -17,6 +17,8 @@
  * License: MIT
  * License URI: https://opensource.org/licenses/MIT
  * Copyright: Paytrail
+ *
+ * @package Paytrail\WooCommercePaymentGateway
  */
 
 namespace Paytrail\WooCommercePaymentGateway;
@@ -203,35 +205,38 @@ final class Plugin {
 	 * Register intro scripts
 	 */
 	public static function register_intro_scripts() {
-		// Get plugin directory URL
+		// Get plugin directory URL.
 		$plugin_instance = self::instance();
 		$plugin_dir_url  = $plugin_instance->get_plugin_dir_url();
 		$plugin_version  = $plugin_instance->get_plugin_info()['Version'];
 
-		// Register the custom script
+		// Register the custom script.
 		wp_register_script(
 			'introScripts',
 			$plugin_dir_url . 'dist/assets/frontend/intro-scripts.js',
-			array( 'jquery' ), // Dependency on jQuery
+			array( 'jquery' ), // Dependency on jQuery.
 			$plugin_version,
-			true // Enqueue in the footer
+			true // Enqueue in the footer.
 		);
 
-		// Enqueue the custom script
+		// Enqueue the custom script.
 		wp_enqueue_script( 'introScripts' );
 	}
 
 	/**
 	 * Enqueue jQuery UI from WordPress core
+	 *
+	 * @param string $hook The current admin page hook suffix.
 	 */
 	public function enqueue_jquery_scripts( $hook ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read only, to decide which admin assets to enqueue.
 		if ( 'woocommerce_page_wc-settings' === $hook && isset( $_GET['tab'] ) && 'checkout' === $_GET['tab'] && isset( $_GET['section'] ) && 'paytrail' === $_GET['section'] ) {
 
-			// Enqueue jQuery UI Dialog (pulls in jquery-ui-core and jquery automatically)
+			// Enqueue jQuery UI Dialog (pulls in jquery-ui-core and jquery automatically).
 			wp_enqueue_script( 'jquery-ui-dialog' );
-			// Add jQuery UI styles
+			// Add jQuery UI styles.
 			wp_enqueue_style( 'jquery-ui-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.12.1' );
-			// Enqueue intro scripts
+			// Enqueue intro scripts.
 			self::register_intro_scripts();
 		}
 	}
@@ -262,10 +267,10 @@ final class Plugin {
 					color: <?php echo esc_attr( get_theme_mod( 'paytrail_group_highlighted_text', '#ffffff' ) ); ?> !important;
 				}
 				.woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item--input:checked+.paytrail-woocommerce-payment-fields--list-item--wrapper, .woocommerce-checkout #payment .paytrail-woocommerce-payment-fields--list-item:hover .paytrail-woocommerce-payment-fields--list-item--wrapper {
-					border: 2px solid <?php esc_html_e( get_theme_mod( 'paytrail_method_highlighted', '#33798d' ) ); ?> !important;
+					border: 2px solid <?php echo esc_attr( get_theme_mod( 'paytrail_method_highlighted', '#33798d' ) ); ?> !important;
 				}
 				.woocommerce-checkout #payment ul.payment_methods li.paytrail-woocommerce-payment-fields--list-item .paytrail-woocommerce-payment-fields--list-item--wrapper:hover {
-					border: 2px solid <?php esc_html_e( get_theme_mod( 'paytrail_method_hover', '#5399ad' ) ); ?> !important;
+					border: 2px solid <?php echo esc_attr( get_theme_mod( 'paytrail_method_hover', '#5399ad' ) ); ?> !important;
 				}
 			</style>
 		<?php
@@ -273,9 +278,11 @@ final class Plugin {
 
 	/**
 	 * Customizer options
+	 *
+	 * @param \WP_Customize_Manager $wp_customize The customizer manager instance.
 	 */
 	public function checkout_customizations( $wp_customize ) {
-		// Settings
+		// Settings.
 		$wp_customize->add_setting(
 			'paytrail_group_background',
 			array(
@@ -332,7 +339,7 @@ final class Plugin {
 				'transport' => 'refresh',
 			)
 		);
-		// Section
+		// Section.
 		$wp_customize->add_section(
 			'paytrail_checkout_customize_section',
 			array(
@@ -340,7 +347,7 @@ final class Plugin {
 				'priority' => 30,
 			)
 		);
-		// Controls
+		// Controls.
 		$wp_customize->add_control(
 			new \WP_Customize_Color_Control(
 				$wp_customize,
@@ -455,15 +462,15 @@ final class Plugin {
 	}
 
 	/**
-	 * Ensure that the PHP version is at least 7.3.
+	 * Ensure that the PHP version is at least 7.4.
 	 *
 	 * @return string|null
 	 */
 	public static function check_php_version(): ?string {
-		if ( ! version_compare( PHP_VERSION, '7.3.0', '>=' ) ) {
+		if ( ! version_compare( PHP_VERSION, '7.4.0', '>=' ) ) {
 			return sprintf(
 				// translators: The placeholder contains the current PHP version.
-				esc_html__( 'Paytrail payment gateway plugin requires a PHP version of at least 7.3. You are currently running version %1$s.', 'paytrail-for-woocommerce' ),
+				esc_html__( 'Paytrail payment gateway plugin requires a PHP version of at least 7.4. You are currently running version %1$s.', 'paytrail-for-woocommerce' ),
 				esc_html( PHP_VERSION )
 			);
 		}

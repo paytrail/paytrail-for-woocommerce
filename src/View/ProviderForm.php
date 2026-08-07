@@ -26,13 +26,13 @@ if ( ! empty( $data['error'] ) ) {
 	return;
 }
 
-// Terms
+// Terms.
 $terms_link = $data['terms'];
 echo '<div class="checkout-terms-link" aria-label="' . esc_attr__( 'Payment terms', 'paytrail-for-woocommerce' ) . '">' . wp_kses( $terms_link, $allowed_html ) . '</div>';
 array_walk(
 	$data['groups'],
 	function ( $group ) {
-		if ( \Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() && 'creditcard' == $group['id'] ) {
+		if ( \Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() && 'creditcard' === $group['id'] ) {
 			echo '<div class="paytrail-provider-group" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">';
 		} elseif ( \Paytrail\WooCommercePaymentGateway\Helper::getIsSubscriptionsEnabled() ) {
 			echo '<div class="paytrail-provider-group" style="display:none;">';
@@ -40,12 +40,11 @@ array_walk(
 			echo '<div class="paytrail-provider-group" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">';
 		}
 		$providers_list = array();
-		// var_dump($group['providers']);
 		echo '<style type="text/css">';
 		foreach ( $group['providers'] as $key => $provider ) {
-			// Create simple list of provider names only
+			// Create simple list of provider names only.
 			$providers_list[] = $provider->getName();
-			// Styles for group icons
+			// Styles for group icons.
 			$group_id   = $group['id'];
 			$group_icon = $group['icon'];
 			if ( 0 === $key ) { ?>
@@ -80,7 +79,7 @@ array_walk(
 					$provider_id   = $provider->getId();
 					$provider_svg  = $provider->getSvg();
 
-					// Create unique ID for credit cards
+					// Create unique ID for credit cards.
 					$input_id = ( 'creditcard' === $provider_id ) ? 'creditcard-' . $provider_name : $provider_id;
 
 					echo '<li class="paytrail-woocommerce-payment-fields--list-item">';
@@ -94,9 +93,9 @@ array_walk(
 				}
 			);
 		}
-		if ( is_user_logged_in() && 'creditcard' == $group['id'] ) {
+		if ( is_user_logged_in() && 'creditcard' === $group['id'] ) {
 			\Paytrail\WooCommercePaymentGateway\Gateway::render_saved_payment_methods();
-		} elseif ( get_option( 'users_can_register' ) == 1 && 'creditcard' == $group['id'] ) {
+		} elseif ( 1 === intval( get_option( 'users_can_register' ) ) && 'creditcard' === $group['id'] ) {
 			$mypage_link = get_permalink( wc_get_page_id( 'myaccount' ) );
 			echo '<p class="add-card-login-description" role="link">';
 			printf(
@@ -120,8 +119,10 @@ array_walk(
 // @todo move this where it is more suitable
 // toggle payment method group sections' visibility
 // add class to handle different theme layouts 2 or 5 items per row
-wp_print_inline_script_tag("
+wp_print_inline_script_tag(
+	"
 	if (typeof initPaytrail === 'function'){
 		initPaytrail();
 	}
-");
+"
+);

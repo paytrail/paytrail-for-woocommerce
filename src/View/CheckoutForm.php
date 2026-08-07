@@ -31,7 +31,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 </form>
 
 <?php
-wp_print_inline_script_tag("
+wp_print_inline_script_tag(
+	"
     document.getElementById( 'checkout-redirect-form' ).submit();
-");
+"
+);
 ?>
