@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 6.7
 Tested up to: 7.0.2
-Stable tag: 2.7.1
+Stable tag: 2.8.0
 Requires PHP: 7.4
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -56,9 +56,12 @@ With test credentials, you can test most of the payment methods included in Payt
 
 == Changelog ==
 
-= 2.7.1 =
+= 2.8.0 =
+- Raised the minimum supported versions to WordPress 6.7 and PHP 7.4.
 - Fixed an issue where payment errors during checkout could be silently discarded instead of being shown to customers.
 - Fixed a compatibility issue with sequential order number plugins in the block checkout, where the assigned order number was not included in the payment request.
+- Fixed the selected and hovered payment method border colors in the checkout appearance settings, which were passed through the translation functions and could therefore be replaced by a translation or another plugin.
+- Fixed the untranslatable placeholder used as the error message shown when a saved card could not be deleted.
 - Fixed invalid HTML attributes in the plugin's onboarding form that could affect its appearance. Thanks to @szepeviktor for contributing this fix!
 - Fixed duplicate script loading caused by redundant jQuery enqueue calls. Thanks to @szepeviktor for contributing this improvement!
 

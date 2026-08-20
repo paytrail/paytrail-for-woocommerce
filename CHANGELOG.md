@@ -4,17 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.8.0] - 2026-08-20
 ### Changed
 - Raised the minimum supported versions to WordPress 6.7 and PHP 7.4.
 ### Fixed
-- Fixed the checkout appearance settings: the selected and hovered payment method border colours were passed through the translation system, so a translation or another plugin could replace the colour value with arbitrary text.
-- Fixed the error shown when a saved card cannot be deleted. It was an untranslatable placeholder and now reads "Card could not be deleted".
-
-## [2.7.1] - 2026-06-24
-### Fixed
 - Fixed an issue where payment errors during checkout could be silently discarded instead of being shown to customers.
 - Fixed a compatibility issue with sequential order number plugins in the block checkout, where the assigned order number was not included in the payment request.
+- Fixed the selected and hovered payment method border colors in the checkout appearance settings, which were passed through the translation functions and could therefore be replaced by a translation or another plugin.
+- Fixed the untranslatable placeholder used as the error message shown when a saved card could not be deleted.
 - Fixed invalid HTML attributes in the plugin's onboarding form that could affect its appearance. Thanks to [@szepeviktor](https://github.com/szepeviktor) for contributing this fix!
 - Fixed duplicate script loading caused by redundant jQuery enqueue calls. Thanks to [@szepeviktor](https://github.com/szepeviktor) for contributing this improvement!
 
