@@ -1452,14 +1452,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
 			new \WP_Error( $exception->getCode(), $exception->getMessage() );
 
-			// Add error messages to be displayed to the user by Woocommerce.
-			$exception_error = $exception->getMessage();
-			$json_data       = json_decode( $exception_error, true );
-
-			// The API may return JSON data in the message rather than plain string.
-			$display_message = ( $json_data && isset( $json_data['message'] ) ) ? $json_data['message'] : ucwords( $exception_error );
-
-			throw new \Exception( esc_html( $display_message ) );
+			throw new \Exception( esc_html__( 'We couldn\'t process your payment. You have not been charged. Please check your payment details and try again, or contact us if the problem continues.', 'paytrail-for-woocommerce' ) );
 		}
 
 		if ( $this->use_provider_selection() ) {
