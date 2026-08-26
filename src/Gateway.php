@@ -1450,7 +1450,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		} catch ( \Exception $exception ) {
 			// Log the error message if debug log is enabled.
 			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
-			new \WP_Error( $exception->getCode(), $exception->getMessage() );
 
 			throw new \Exception( esc_html__( 'We couldn\'t process your payment. You have not been charged. Please check your payment details and try again, or contact us if the problem continues.', 'paytrail-for-woocommerce' ) );
 		}
