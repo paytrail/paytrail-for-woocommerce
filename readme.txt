@@ -3,7 +3,7 @@ Contributors: loueranta, kotivuori
 Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 6.7
-Tested up to: 7.0.2
+Tested up to: 7.1
 Stable tag: 2.8.0
 Requires PHP: 7.4
 License: MIT
@@ -58,7 +58,9 @@ With test credentials, you can test most of the payment methods included in Payt
 
 = 2.8.0 =
 - Raised the minimum supported versions to WordPress 6.7 and PHP 7.4.
+- Payment errors during checkout are now shown to the customer as a generic message instead of the error returned by the Paytrail API. The API errors are intended to be consumed server-side, and are still written to the plugin's debug log for troubleshooting.
 - Fixed an issue where payment errors during checkout could be silently discarded instead of being shown to customers.
+- Fixed missing script dependencies in the block checkout assets, which could prevent the Paytrail payment method from loading in the block checkout.
 - Fixed a compatibility issue with sequential order number plugins in the block checkout, where the assigned order number was not included in the payment request.
 - Fixed the selected and hovered payment method border colors in the checkout appearance settings, which were passed through the translation functions and could therefore be replaced by a translation or another plugin.
 - Fixed the untranslatable placeholder used as the error message shown when a saved card could not be deleted.
