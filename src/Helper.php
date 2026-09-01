@@ -8,6 +8,9 @@ namespace Paytrail\WooCommercePaymentGateway;
 use Exception;
 use LogicException;
 
+/**
+ * Helper class for shared payment related utilities.
+ */
 class Helper {
 
 	/**
@@ -27,7 +30,7 @@ class Helper {
 		}
 		if ( class_exists( '\WC_Subscriptions_Admin' ) ) {
 			$accept_manual_renewals = ( 'no' !== get_option( \WC_Subscriptions_Admin::$option_prefix . '_accept_manual_renewals', 'no' ) );
-			if ( true == $accept_manual_renewals ) {
+			if ( true === $accept_manual_renewals ) {
 				return false;
 			}
 		}
@@ -39,6 +42,11 @@ class Helper {
 		);
 	}
 
+	/**
+	 * Get the change_payment_method query arg, set when a subscription's payment method is being changed.
+	 *
+	 * @return string|null The query arg value, or null when it is not present.
+	 */
 	public static function getIsChangeSubscriptionPaymentMethod() {
 		return filter_input( INPUT_GET, 'change_payment_method' );
 	}
@@ -64,12 +72,17 @@ class Helper {
 		return $this->handle_currency( $sum );
 	}
 
+	/**
+	 * Map the WordPress locale to a locale supported by the Paytrail API.
+	 *
+	 * @return string
+	 */
 	public static function getLocale() {
 		$full_locale = get_locale();
 
 		$short_locale = substr( $full_locale, 0, 2 );
 
-		// Get and assign the WordPress locale
+		// Get and assign the WordPress locale.
 		switch ( $short_locale ) {
 			case 'sv':
 				$locale = 'SV';
@@ -87,7 +100,7 @@ class Helper {
 	/**
 	 * Generate a unique id for use as payment item stamp
 	 *
-	 * @param $order_id
+	 * @param int|string $order_id The order ID.
 	 *
 	 * @return string
 	 */

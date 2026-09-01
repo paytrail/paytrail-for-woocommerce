@@ -39,9 +39,9 @@ class View {
 	 * @param mixed $data The data to render the view with.
 	 * @return void
 	 */
-	public function render( $data = null ) {
- // @codingStandardsIgnoreLine
-	require $this->template;
+	public function render( $data = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found -- $data is consumed by the required template.
+		// @codingStandardsIgnoreLine
+		require $this->template;
 	}
 
 	/**
@@ -57,13 +57,13 @@ class View {
 
 		$plugin_dir = $plugin_instance->get_plugin_dir();
 
-		$templateFile = $plugin_dir . '/src/View/' . $template . '.php';
+		$template_file = $plugin_dir . '/src/View/' . $template . '.php';
 
 		// Check the existence of the template.
-		if ( file_exists( $templateFile ) ) {
-			return $templateFile;
+		if ( file_exists( $template_file ) ) {
+			return $template_file;
 		} else {
-			throw new \Exception( "Template $template ($templateFile) could not be found." );
+			throw new \Exception( esc_html( "Template $template ($template_file) could not be found." ) );
 		}
 	}
 }

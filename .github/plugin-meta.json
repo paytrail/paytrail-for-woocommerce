@@ -1,0 +1,16 @@
+{
+  "pluginDevZipE2e": {
+    "pages": [
+      {
+        "url": "/wp-admin/admin.php?page=wc-settings&tab=checkout&section=paytrail&from=WCADMIN_PAYMENT_SETTINGS",
+        "assertions": [
+          {
+            "selector": "#mainform",
+            "text": "Paytrail for WooCommerce",
+            "match": "contains"
+          }
+        ]
+      }
+    ]
+  }
+}

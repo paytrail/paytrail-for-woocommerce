@@ -48,33 +48,33 @@ module.exports = {
 			requestToHandle
 		}),
 		new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[id].css',
-          }),
+			filename: '[name].css',
+			chunkFilename: '[id].css',
+		}),
 	],
 	module: {
 		rules: [
 			{
-                test: /\.css$/,
-                use: [
-                'css-loader',
-                'postcss-loader',
-                ],
-            },
-            {
-                test: /\.scss$/,
-                use: [
-                    'css-loader',
-                    'postcss-loader',
-                    'sass-loader',
-                ],
-            },
-            {
-                test: /\.(woff(2)?|eot|ttf|otf)(\?[a-z0-9=\.]+)?$/,
-                use: {
-                    loader: 'url-loader?name=../fonts/[name].[ext]'
-                }
-            },
+				test: /\.css$/,
+				use: [
+					'css-loader',
+					'postcss-loader',
+				],
+			},
+			{
+				test: /\.scss$/,
+				use: [
+					'css-loader',
+					'postcss-loader',
+					'sass-loader',
+				],
+			},
+			{
+				test: /\.(woff(2)?|eot|ttf|otf)(\?[a-z0-9=\.]+)?$/,
+				use: {
+					loader: 'url-loader?name=../fonts/[name].[ext]'
+				}
+			},
 			...defaultConfig.module.rules
 		]
 	}
