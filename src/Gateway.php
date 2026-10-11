@@ -1006,6 +1006,10 @@ final class Gateway extends \WC_Payment_Gateway {
 		switch ( $status ) {
 			case 'ok':
 				$this->log( 'Paytrail: handle_payment_response, case = ok for order ' . $order->get_id(), 'debug' );
+				if ( ! $this->callback_mode && ! $this->validate_order_payment_process_status( $order ) ) {
+					// The callback paid the order before the customer returned, so the cart still needs clearing.
+					WC()->cart->empty_cart();
+				}
 				if ( ! $this->validate_order_payment_processing( $order ) ) {
 					return;
 				}
@@ -1132,9 +1136,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			return false;
 		}
 
-		$order_status = $order->get_status();
-
-		if ( 'completed' === $order_status || 'processing' === $order_status ) {
+		if ( ! $this->validate_order_payment_process_status( $order ) ) {
 			$this->log( 'Paytrail: validate_order_payment_processing, order already processed ' . $order->get_id(), 'debug' );
 			// This order has already been processed.
 			return false;
