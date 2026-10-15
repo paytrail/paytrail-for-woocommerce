@@ -2157,7 +2157,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			// Do some additional stuff after the refund object has been created.
 			add_action(
 				'woocommerce_order_refunded',
-				function ( $order_id, $refund_id ) use ( $order, $refund, $reason, $transaction_id, $amount, $price, $refund_unique_id ) {
+				function ( $order_id, $refund_id ) use ( $order, $refund, $transaction_id, $amount, $price, $refund_unique_id ) {
 					$refund_object = wc_get_order( $refund_id );
 
 					try {
