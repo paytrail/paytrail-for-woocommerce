@@ -9,11 +9,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 $gateway = Plugin::instance()->gateway();
 
-$saved_methods = wc_get_customer_saved_methods_list( get_current_user_id() );
-$has_methods   = (bool) $saved_methods;
+$show_card_saving = $gateway->use_card_saving();
+$has_methods      = (bool) $gateway->get_tokens();
 
-if ( \Paytrail\WooCommercePaymentGateway\Helper::getIsChangeSubscriptionPaymentMethod() ) {
-	$add_card_form_url    = Router::get_url( Plugin::CARD_ENDPOINT, 'add' ) . '?change_payment_method=1';
+// Nothing to show: card saving is disabled and there are no cards saved earlier.
+if ( ! $show_card_saving && ! $has_methods ) {
+	return;
+}
+
+$change_payment_method = \Paytrail\WooCommercePaymentGateway\Helper::getIsChangeSubscriptionPaymentMethod();
+
+if ( $change_payment_method ) {
+	$add_card_form_url    = add_query_arg(
+		'change_payment_method',
+		$change_payment_method,
+		Router::get_url( Plugin::CARD_ENDPOINT, 'add' )
+	);
 	$is_subscription_page = true;
 } else {
 	$add_card_form_url    = Router::get_url( Plugin::CARD_ENDPOINT, 'add' );
@@ -30,11 +41,13 @@ $delete_card_url = Router::get_url( Plugin::CARD_ENDPOINT, 'delete' );
 	<a class="paytrail-for-woocommerce-tokenized-payment-method-links delete-card-button button"
 		href="#"><?php esc_html_e( 'Delete selected card', 'paytrail-for-woocommerce' ); ?></a>
 <?php endif; ?>
-<a class="paytrail-for-woocommerce-tokenized-payment-method-links add-card-button button"
-	href="<?php echo esc_url( $add_card_form_url ); ?>">
-	<span class="paytrail-for-woocommerce-tokenized-payment-add-card-button dashicons dashicons-plus"></span>
-	<?php esc_html_e( 'Add new card', 'paytrail-for-woocommerce' ); ?>
-</a>
+<?php if ( $show_card_saving ) : ?>
+	<a class="paytrail-for-woocommerce-tokenized-payment-method-links add-card-button button"
+		href="<?php echo esc_url( $add_card_form_url ); ?>">
+		<span class="paytrail-for-woocommerce-tokenized-payment-add-card-button dashicons dashicons-plus"></span>
+		<?php esc_html_e( 'Add new card', 'paytrail-for-woocommerce' ); ?>
+	</a>
+<?php endif; ?>
 
 <?php ob_start(); ?>
 

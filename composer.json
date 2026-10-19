@@ -2,23 +2,35 @@
     "name": "paytrail/paytrail-for-woocommerce",
     "type": "wordpress-plugin",
     "description": "Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.",
-    "authors": [{
-        "name": "Joonas Loueranta",
-        "email": "joonas.loueranta@paytrail.com",
-        "homepage": "https://github.com/loueranta-paytrail",
-        "role": "Manager"
-    }],
+    "authors": [
+        {
+            "name": "Joonas Loueranta",
+            "email": "joonas.loueranta@paytrail.com",
+            "homepage": "https://github.com/loueranta-paytrail",
+            "role": "Manager"
+        }
+    ],
     "support": {
         "email": "asiakaspalvelu@paytrail.com",
         "issues": "https://github.com/paytrail/paytrail-for-woocommerce/issues",
         "source": "https://github.com/paytrail/paytrail-for-woocommerce"
     },
     "keywords": [
-        "wordpress", "woocommerce", "payment gateway", "paytrail"
+        "wordpress",
+        "woocommerce",
+        "payment gateway",
+        "paytrail"
     ],
     "license": "MIT",
     "autoload": {
-        "psr-4": { "Paytrail\\WooCommercePaymentGateway\\": "src/" }
+        "psr-4": {
+            "Paytrail\\WooCommercePaymentGateway\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "require": {
         "php": ">=7.4",
@@ -26,6 +38,11 @@
         "paytrail/paytrail-php-sdk": "^2.8.0"
     },
     "config": {
+        "process-timeout": 0,
+        "platform-check": false,
+        "platform": {
+            "php": "8.0"
+        },
         "allow-plugins": {
             "composer/installers": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
@@ -33,12 +50,95 @@
     },
     "require-dev": {
         "wp-coding-standards/wpcs": "^3.3",
-        "phpcompatibility/phpcompatibility-wp": "^2.1"
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "lucatume/wp-browser": "^4.7",
+        "allure-framework/allure-codeception": "^2",
+        "composer/installers": "^2.0",
+        "wpackagist-plugin/woocommerce": "^10.0",
+        "wpackagist-plugin/sqlite-database-integration": "^2.2",
+        "wpackagist-theme/storefront": "^4.6",
+        "php-stubs/woocommerce-stubs": "^10.8.0",
+        "php-stubs/woocommerce-subscriptions-stubs": "*",
+        "symplify/phpstan-rules": "^14.10.0",
+        "szepeviktor/phpstan-wordpress": "^2.0.3"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
+        }
+    ],
+    "extra": {
+        "installer-paths": {
+            "tests/_plugins/{$name}/": [
+                "type:wordpress-plugin"
+            ],
+            "tests/_themes/{$name}/": [
+                "type:wordpress-theme"
+            ]
+        }
     },
     "scripts": {
         "lint": "vendor/bin/phpcs . --standard=phpcs.xml --extensions=php -q",
         "lint:fix": "vendor/bin/phpcbf . --standard=phpcs.xml --extensions=php -q",
         "lint:changes": "git diff --name-only HEAD~1 | grep '\\.php$' | xargs -r vendor/bin/phpcs --standard=phpcs.xml --extensions=php -q",
-        "lint:fix:changes": "git diff --name-only HEAD~1 | grep '\\.php$' | xargs -r vendor/bin/phpcbf --standard=phpcs.xml --extensions=php -q"
+        "lint:fix:changes": "git diff --name-only HEAD~1 | grep '\\.php$' | xargs -r vendor/bin/phpcbf --standard=phpcs.xml --extensions=php -q",
+        "lint:tests": "vendor/bin/phpcs --standard=tests/phpcs.xml tests -q",
+        "lint:tests:fix": "vendor/bin/phpcbf --standard=tests/phpcs.xml tests -q",
+        "test:bootstrap": "@php tests/_support_scripts/install-test-env.php",
+        "test:chromedriver": "vendor/bin/codecept chromedriver:update",
+        "post-autoload-dump": [
+            "@test:bootstrap"
+        ],
+        "test:setup": [
+            "@test:bootstrap",
+            "vendor/bin/codecept build"
+        ],
+        "test:integration": [
+            "@test:setup",
+            "vendor/bin/codecept run Integration --xml report-integration.xml"
+        ],
+        "test:integration:snapshots": [
+            "@test:setup",
+            "UPDATE_SNAPSHOTS=1 vendor/bin/codecept run Integration"
+        ],
+        "test:harness": [
+            "@test:setup",
+            "vendor/bin/codecept run Harness --xml report-harness.xml"
+        ],
+        "test:report": "bash tests/_support_scripts/generate-report.sh",
+        "test:report:share": "bash tests/_support_scripts/generate-report.sh --share",
+        "test:report:reset": "rm -rf tests/_output/allure-results tests/_output/report tests/_output/report-share",
+        "dev:start": "vendor/bin/codecept dev:start",
+        "dev:stop": "vendor/bin/codecept dev:stop",
+        "test:e2e": [
+            "@test:chromedriver",
+            "@test:setup",
+            "@dev:stop",
+            "vendor/bin/codecept run EndToEnd --xml report-endtoend.xml",
+            "@dev:stop"
+        ],
+        "test:regenerate-dump": "bash tests/_support_scripts/regenerate-dump.sh",
+        "phpstan": "./vendor/bin/phpstan analyse --memory-limit=2G",
+        "phpstan:baseline": "./vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline"
+    },
+    "scripts-descriptions": {
+        "test:bootstrap": "Set up the local test WP install: scaffold core, configure it against SQLite, install WP, place the SQLite drop-in and copy tests/_mu-plugins/. Idempotent, and a no-op without the dev dependencies.",
+        "test:setup": "Bootstrap the test env and regenerate the Codeception Actor classes. Called by the test:* scripts.",
+        "test:integration": "Run the Integration suite. Shares the SQLite database with test:harness, so never run the two at once.",
+        "test:integration:snapshots": "Rewrite the request fixtures in tests/Support/Data/snapshots/ from what the plugin currently sends, then review the diff. Run after an intended change to a Paytrail payload.",
+        "test:harness": "Run the tests covering the harness itself rather than the plugin. Shares the SQLite database with test:integration.",
+        "test:report": "Render the Allure report from whichever suite results are present into tests/_output/report/.",
+        "test:report:share": "Same, but one self-contained tests/_output/report-share/index.html for sharing.",
+        "test:report:reset": "Delete all accumulated Allure results and rendered reports.",
+        "test:chromedriver": "Download a Chromedriver build matching the local Chrome. Run once after a Chrome update if E2E tests start failing with a \"session not created\" driver mismatch.",
+        "test:e2e": "Run the EndToEnd suite. Needs NGROK_DOMAIN, NGROK_AUTHTOKEN and PAYTRAIL_WORDPRESS_URL in tests/.env, plus a generated tests/Support/Data/dump.sql.",
+        "test:regenerate-dump": "Rebuild tests/Support/Data/dump.sql from a clean WP + WooCommerce + plugin install. Run after upstream changes that affect the baseline schema or options.",
+        "phpstan": "Run PHPStan static analysis with a 2G memory limit.",
+        "phpstan:baseline": "Generate a PHPStan baseline with a 2G memory limit."
     }
 }

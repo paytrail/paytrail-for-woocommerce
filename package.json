@@ -10,6 +10,7 @@
     "devDependencies": {
         "@woocommerce/dependency-extraction-webpack-plugin": "5.1.0",
         "@wordpress/scripts": "^34.1.0",
+        "allure": "^3.17.0",
         "cross-env": "^10.1.0",
         "css-loader": "^7.1.4",
         "cssnano": "^8.0.1",

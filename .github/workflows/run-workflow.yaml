@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v3
 
@@ -20,7 +19,8 @@ jobs:
       - name: Run composer install
         uses: php-actions/composer@v6
         with:
-          php_version: 7.4
+          php_version: 8.0
+          php_extensions: pdo_sqlite sqlite3 mbstring mysqli gd zip curl dom xml
 
       - name: Run linter
         run: composer lint

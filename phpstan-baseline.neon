@@ -1,0 +1,181 @@
+parameters:
+  ignoreErrors:
+    - message: '#^Parameter \#3 \$args of class WP_Customize_Color_Control constructor expects array\{instance_number\?\: int, manager\?\: WP_Customize_Manager, id\?\: string, settings\?\: array, setting\?\: string, capability\?\: string, priority\?\: int, section\?\: string, \.\.\.\}, array\{label\: string, section\: ''paytrail_checkout…'', settings\: ''paytrail_group_text''\} given\.$#'
+      identifier: argument.type
+      count: 1
+      path: plugin.php
+
+    - message: '#^Parameter \#3 \$args of class WP_Customize_Color_Control constructor expects array\{instance_number\?\: int, manager\?\: WP_Customize_Manager, id\?\: string, settings\?\: array, setting\?\: string, capability\?\: string, priority\?\: int, section\?\: string, \.\.\.\}, array\{label\: string, section\: ''paytrail_checkout…'', settings\: ''paytrail_group…''\} given\.$#'
+      identifier: argument.type
+      count: 5
+      path: plugin.php
+
+    - message: '#^Parameter \#3 \$args of class WP_Customize_Color_Control constructor expects array\{instance_number\?\: int, manager\?\: WP_Customize_Manager, id\?\: string, settings\?\: array, setting\?\: string, capability\?\: string, priority\?\: int, section\?\: string, \.\.\.\}, array\{label\: string, section\: ''paytrail_checkout…'', settings\: ''paytrail_method…''\} given\.$#'
+      identifier: argument.type
+      count: 2
+      path: plugin.php
+
+    - message: '#^Unreachable statement \- code above always terminates\.$#'
+      identifier: deadCode.unreachable
+      count: 3
+      path: src/Controllers/Card.php
+
+    - message: '#^Ternary operator condition is always true\.$#'
+      identifier: ternary.alwaysTrue
+      count: 1
+      path: src/Controllers/OrderManagement.php
+
+    - message: '#^Call to an undefined method WC_Order_Item\:\:get_taxes\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Call to an undefined method WC_Order_Item\:\:get_total\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Method Paytrail\\WooCommercePaymentGateway\\Gateway\:\:process_paytrail_payment\(\) should return array but return statement is missing\.$#'
+      identifier: return.missing
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Negated boolean expression is always false\.$#'
+      identifier: booleanNot.alwaysFalse
+      count: 2
+      path: src/Gateway.php
+
+    - message: '#^Parameter \#1 \$prefix of function uniqid expects string, true given\.$#'
+      identifier: argument.type
+      count: 2
+      path: src/Gateway.php
+
+    - message: '#^Parameter \#2 \$value of method WC_Data\:\:update_meta_data\(\) expects array\|string, float given\.$#'
+      identifier: argument.type
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Parameter \#2 \$value of method WC_Data\:\:update_meta_data\(\) expects array\|string, true given\.$#'
+      identifier: argument.type
+      count: 3
+      path: src/Gateway.php
+
+    - message: '#^Parameter \#3 \$args of function wp_die expects array\{response\?\: int, link_url\?\: string, link_text\?\: string, back_link\?\: bool, text_direction\?\: string, charset\?\: string, code\?\: string, exit\?\: bool\}\|int, string given\.$#'
+      identifier: argument.type
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Property Paytrail\\WooCommercePaymentGateway\\Gateway\:\:\$logger \(WC_Logger\) does not accept WC_Logger_Interface\.$#'
+      identifier: assign.propertyType
+      count: 2
+      path: src/Gateway.php
+
+    - message: '#^Property Paytrail\\WooCommercePaymentGateway\\Gateway\:\:\$logger \(WC_Logger\) in empty\(\) is not falsy\.$#'
+      identifier: empty.property
+      count: 2
+      path: src/Gateway.php
+
+    - message: '#^Variable \$wanted_provider might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: src/Gateway.php
+
+    - message: '#^Access to an undefined property WC_Cart\:\:\$total\.$#'
+      identifier: property.notFound
+      count: 1
+      path: src/Helper.php
+
+    - message: '#^Access to an undefined property WooCommerce\:\:\$payment_gateways\.$#'
+      identifier: property.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Access to property \$order on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentContext\.$#'
+      identifier: class.notFound
+      count: 2
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Access to property \$payment_data on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentContext\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Access to property \$payment_method on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentContext\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to an undefined method WC_Payment_Token\:\:get_card_type\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to an undefined method WC_Payment_Token\:\:get_expiry_month\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to an undefined method WC_Payment_Token\:\:get_expiry_year\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to an undefined method WC_Payment_Token\:\:get_last4\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to method set_payment_details\(\) on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentResult\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to method set_redirect_url\(\) on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentResult\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Call to method set_status\(\) on an unknown class Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentResult\.$#'
+      identifier: class.notFound
+      count: 2
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Method Paytrail\\WooCommercePaymentGateway\\Paytrail_Blocks_Support\:\:add_payment_request_order_meta\(\) has invalid return type Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentResult\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Parameter \$context of method Paytrail\\WooCommercePaymentGateway\\Paytrail_Blocks_Support\:\:add_payment_request_order_meta\(\) has invalid type Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentContext\.$#'
+      identifier: class.notFound
+      count: 2
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Parameter \$context of method Paytrail\\WooCommercePaymentGateway\\Paytrail_Blocks_Support\:\:get_payment_method_data\(\) has invalid type Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentContext\.$#'
+      identifier: class.notFound
+      count: 1
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Parameter \$result of method Paytrail\\WooCommercePaymentGateway\\Paytrail_Blocks_Support\:\:add_payment_request_order_meta\(\) has invalid type Automattic\\WooCommerce\\StoreApi\\Payments\\PaymentResult\.$#'
+      identifier: class.notFound
+      count: 2
+      path: src/PaytrailBlocks.php
+
+    - message: '#^Variable \$controller might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: src/Router.php
+
+    - message: '#^Variable \$amount might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: src/View/MetaBox.php
+
+    - message: '#^Variable \$order_status might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: src/View/MetaBox.php
+
+    - message: '#^Variable \$transaction_id might not be defined\.$#'
+      identifier: variable.undefined
+      count: 1
+      path: src/View/MetaBox.php

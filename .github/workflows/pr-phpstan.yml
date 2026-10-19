@@ -1,0 +1,57 @@
+name: PHPStan
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+        paths:
+            - "**.php"
+            - "phpstan.neon"
+            - "phpstan-baseline.neon"
+            - "composer.json"
+            - ".github/workflows/pr-phpstan.yml"
+
+permissions:
+    contents: read
+
+concurrency:
+    group: pr-phpstan-check-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    phpstan:
+        name: PHPStan static analysis (PHP ${{ matrix.php }})
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ["8.4"]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # 2.37.0
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Get Composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+            # Keyed on composer.json: composer.lock is gitignored, so hashing it would
+            # give an empty key that never invalidates.
+            - name: Cache Composer packages
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+            - name: Install Composer dependencies
+              run: composer install --prefer-dist --no-progress --no-interaction --no-scripts ## No scripts to avoid installing WordPress test setup.
+
+            - name: Run PHPStan
+              run: composer phpstan

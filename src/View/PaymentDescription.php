@@ -1,6 +1,10 @@
 <?php
 /**
  * Checkout payment description
+ *
+ * Rendered from Gateway::payment_description().
+ *
+ * @var array $data The view data, holding the 'description' key.
  */
 
 $allowed_html = array(

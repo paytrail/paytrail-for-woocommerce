@@ -67,7 +67,7 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	/**
 	 * Lazy initialize and retrieve the Paytrail gateway.
 	 *
-	 * @return WC_Payment_Gateway|null The Paytrail gateway or null if not found.
+	 * @return Gateway|null The Paytrail gateway or null if not found.
 	 */
 	private function get_gateway() {
 		if ( $this->gateway ) {
@@ -128,11 +128,11 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	 *
 	 * @param PaymentContext $context The payment context.
 	 * @param PaymentResult  $result  The payment result.
-	 * @return PaymentResult
+	 * @return PaymentResult|null
 	 */
 	public function add_payment_request_order_meta( PaymentContext $context, PaymentResult &$result ) {
 		if ( $context->payment_method !== $this->name ) {
-			return;
+			return null;
 		}
 
 		$payment_data = $context->payment_data;
@@ -150,38 +150,22 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 		}
 
 		// Check if tokenized card is used.
-		if ( ! empty( $payment_data['wc-paytrail-payment-token'] ) ) {
-			$token_id = $payment_data['wc-paytrail-payment-token'];
-			$token    = WC_Payment_Tokens::get( $token_id );
+		$token_id = ! empty( $payment_data['wc-paytrail-payment-token'] )
+			? $payment_data['wc-paytrail-payment-token']
+			: null;
 
-			if ( $token && $token->validate() ) {
-				$payment_result = $gateway->process_paytrail_payment( $order, $token_id, null, false );
-
-				if ( 'success' === $payment_result['result'] ) {
-					$result->set_status( 'success' );
-					$result->set_redirect_url( $payment_result['redirect'] );
-				} else {
-					$result->set_status( 'failure' );
-					$result->set_payment_details(
-						array(
-							'error_message' => __( 'Payment failed, please try again.', 'paytrail-for-woocommerce' ),
-						)
-					);
-				}
-
-				return $result;
-			}
+		if ( $token_id ) {
+			$payment_result = $gateway->process_paytrail_payment( $order, $token_id, null, false );
+		} else {
+			$payment_result = $gateway->process_paytrail_payment(
+				$order,
+				null,
+				! empty( $payment_data['payment_provider'] )
+					? $payment_data['payment_provider']
+					: $payment_data['payment_method'],
+				false
+			);
 		}
-
-		// Process payment normally if no tokenized card is used.
-		$payment_result = $gateway->process_paytrail_payment(
-			$order,
-			null,
-			! empty( $payment_data['payment_provider'] )
-				? $payment_data['payment_provider']
-				: $payment_data['payment_method'],
-			false
-		);
 
 		if ( 'success' === $payment_result['result'] ) {
 			$result->set_status( 'success' );
@@ -230,6 +214,25 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 	}
 
 	/**
+	 * Whether the payment provider list should be fetched for the current request.
+	 *
+	 * @return bool
+	 */
+	private function should_load_payment_providers() {
+		$should_load = is_checkout()
+			&& ! is_wc_endpoint_url( 'order-pay' )
+			&& ! is_wc_endpoint_url( 'order-received' );
+
+		/**
+		 * Filters whether the payment providers are fetched for the block checkout.
+		 *
+		 * @since 2.8.0
+		 * @param bool $should_load Whether the provider list should be fetched.
+		 */
+		return (bool) apply_filters( 'paytrail_blocks_load_payment_providers', $should_load );
+	}
+
+	/**
 	 * Retrieve payment method data for the block-based checkout.
 	 *
 	 * @param PaymentContext|null $context The payment context provided during checkout.
@@ -261,9 +264,24 @@ class Paytrail_Blocks_Support extends AbstractPaymentMethodType {
 				);
 		}
 
+		if ( ! $this->should_load_payment_providers() ) {
+			if ( is_cart() || is_checkout() ) {
+				$this->get_payment_method_style_handles();
+			}
+
+			return array(
+				'title'        => $gateway->title,
+				'description'  => $gateway->description,
+				'supports'     => array_filter( $gateway->supports, array( $gateway, 'supports' ) ),
+				'groups'       => array(),
+				'terms'        => '',
+				'no_providers' => true,
+			);
+		}
+
 		$grouped_providers = $gateway->get_grouped_payment_providers();
 		$this->get_payment_method_style_handles();
-		$tokens = WC_Payment_Tokens::get_customer_tokens( get_current_user_id() );
+		$tokens = WC_Payment_Tokens::get_customer_tokens( get_current_user_id(), Plugin::GATEWAY_ID );
 
 		return array(
 			'title'                 => $gateway->title,

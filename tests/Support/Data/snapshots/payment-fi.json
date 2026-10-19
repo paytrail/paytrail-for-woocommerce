@@ -1,0 +1,62 @@
+{
+    "method": "POST",
+    "path": "/payments",
+    "query": [],
+    "body": {
+        "stamp": "<stamp>",
+        "reference": "<order-id>",
+        "amount": 26091,
+        "currency": "EUR",
+        "language": "EN",
+        "items": [
+            {
+                "unitPrice": 12550,
+                "units": 2,
+                "vatPercentage": 25.5,
+                "productCode": "sauna-bucket",
+                "description": "Sauna bucket",
+                "stamp": "<item-stamp>"
+            },
+            {
+                "unitPrice": 251,
+                "units": 1,
+                "vatPercentage": 25.5,
+                "productCode": "fee",
+                "description": "Handling fee",
+                "stamp": "<item-stamp>"
+            },
+            {
+                "unitPrice": 740,
+                "units": 1,
+                "vatPercentage": 25.5,
+                "productCode": "shipping",
+                "description": "Flat rate",
+                "stamp": "<item-stamp>"
+            }
+        ],
+        "customer": {
+            "email": "matti@example.com",
+            "firstName": "Matti",
+            "lastName": "Meikalainen",
+            "phone": "+358401234567",
+            "companyName": "Krokedil Oy"
+        },
+        "invoicingAddress": {
+            "streetAddress": "Mannerheimintie 12 A 4",
+            "postalCode": "00100",
+            "city": "Helsinki",
+            "county": "",
+            "country": "FI"
+        },
+        "redirectUrls": {
+            "success": "<site>/checkout/order-received/<order-id>/?key=<order-key>",
+            "cancel": "<site>/checkout/order-pay/<order-id>/?pay_for_order=true&key=<order-key>"
+        },
+        "callbackUrls": {
+            "success": "<site>/paytrail/callback/index",
+            "cancel": "<site>/paytrail/callback/index"
+        },
+        "callbackDelay": 3,
+        "manualInvoiceActivation": false
+    }
+}

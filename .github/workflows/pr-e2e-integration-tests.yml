@@ -1,0 +1,260 @@
+name: Run E2E and Integration Tests
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: pr-e2e-integration-tests-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    # Harness and Integration load WordPress in process: no browser, no tunnel, no
+    # credentials. Kept in their own job so a pull request still gets signal when the
+    # E2E credentials are unavailable, or the e2e environment waits on a reviewer.
+    tests:
+        # Only run on our repository for now.
+        if: github.repository == 'krokedil/paytrail-for-woocommerce'
+            && github.event.pull_request.head.repo.full_name == github.repository
+        name: Harness and Integration (PHP ${{ matrix.php }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ["8.4"]
+        env:
+            WORDPRESS_URL: http://localhost:8080
+            WORDPRESS_DOMAIN: localhost
+            WORDPRESS_DB_URL: sqlite://%codecept_root_dir%/tests/_wordpress/data/db.sqlite
+            WORDPRESS_TABLE_PREFIX: wp_
+            TEST_TABLE_PREFIX: test_
+            WORDPRESS_ROOT_DIR: tests/_wordpress
+            WORDPRESS_ADMIN_USER: admin
+            WORDPRESS_ADMIN_PATH: /wp-admin
+            BUILTIN_SERVER_PORT: 8080
+            CHROMEDRIVER_HOST: 127.0.0.1
+            CHROMEDRIVER_PORT: 16159
+        steps:
+            - name: Checkout
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: pdo_sqlite, sqlite3, mbstring, mysqli, gd, zip, curl, dom, xml
+                  coverage: none
+                  tools: composer:v2
+
+            # codeception.yml resolves every %PARAM% when it loads, whichever suite is
+            # running, so all the keys have to be here even where this job never reads
+            # them. The two credentials stay empty: neither suite needs one.
+            - name: Write tests/.env
+              run: |
+                  {
+                    echo "WORDPRESS_URL=${WORDPRESS_URL}"
+                    echo "PAYTRAIL_WORDPRESS_URL=${PAYTRAIL_WORDPRESS_URL}"
+                    echo "WORDPRESS_DOMAIN=${WORDPRESS_DOMAIN}"
+                    echo "WORDPRESS_DB_URL=${WORDPRESS_DB_URL}"
+                    echo "WORDPRESS_TABLE_PREFIX=${WORDPRESS_TABLE_PREFIX}"
+                    echo "TEST_TABLE_PREFIX=${TEST_TABLE_PREFIX}"
+                    echo "WORDPRESS_ROOT_DIR=${WORDPRESS_ROOT_DIR}"
+                    echo "WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER}"
+                    echo "WORDPRESS_ADMIN_PASSWORD="
+                    echo "WORDPRESS_ADMIN_PATH=${WORDPRESS_ADMIN_PATH}"
+                    echo "BUILTIN_SERVER_PORT=${BUILTIN_SERVER_PORT}"
+                    echo "CHROMEDRIVER_HOST=${CHROMEDRIVER_HOST}"
+                    echo "CHROMEDRIVER_PORT=${CHROMEDRIVER_PORT}"
+                    echo "NGROK_DOMAIN="
+                    echo "NGROK_AUTHTOKEN="
+                  } > tests/.env
+
+            - name: Get Composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+            # Keyed on composer.json: composer.lock is gitignored, so hashing it would
+            # give an empty key that never invalidates.
+            - name: Cache Composer packages
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+            - name: Install Composer dependencies
+              # The post-autoload-dump hook fires here and provisions tests/_wordpress/.
+              run: composer install --prefer-dist --no-progress --no-interaction
+
+            # Run the Harness suite first, so the redaction tests run before the
+            # Integration suite.
+            - name: Harness tests (gate, redaction must hold)
+              run: composer test:harness
+
+            # Shares the SQLite file with the Harness suite, so the two must not overlap.
+            - name: Integration tests
+              run: composer test:integration
+
+            - name: Upload failure artifacts
+              # No credential is in scope here, so there is nothing for
+              # verify-no-secrets.php to find and no scan gate to clear.
+              if: failure()
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+              with:
+                  name: allure-results-tests-php${{ matrix.php }}
+                  path: |
+                      tests/_output/
+                      !tests/_output/cache/
+                  retention-days: 7
+                  if-no-files-found: ignore
+
+    # The browser suite: Chrome, an ngrok tunnel for Paytrail's callbacks, and the
+    # admin password WPWebDriver logs in with. Where those are unavailable the suite
+    # is skipped rather than failed, since a red build for a missing credential says
+    # nothing about the pull request.
+    e2e:
+        if: github.repository == 'krokedil/paytrail-for-woocommerce'
+            && github.event.pull_request.head.repo.full_name == github.repository
+        name: EndToEnd (PHP ${{ matrix.php }})
+        needs: tests
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ["8.4"]
+        environment: e2e
+        env:
+            # One ngrok endpoint per PR number, so two open PRs never fight over the same tunnel.
+            NGROK_DOMAIN: paytrail-test-${{ github.event.pull_request.number }}.internal
+            # Only Paytrail's callbacks use the tunnel; the browser drives the site locally.
+            PAYTRAIL_WORDPRESS_URL: https://paytrail-test-${{ github.event.pull_request.number }}.krokedil.ngrok.io
+            WORDPRESS_URL: http://localhost:8080
+            WORDPRESS_DOMAIN: localhost
+
+            # The rest of the env variables to use for the tests.
+            WORDPRESS_DB_URL: sqlite://%codecept_root_dir%/tests/_wordpress/data/db.sqlite
+            WORDPRESS_TABLE_PREFIX: wp_
+            TEST_TABLE_PREFIX: test_
+            WORDPRESS_ROOT_DIR: tests/_wordpress
+            WORDPRESS_ADMIN_USER: admin
+            WORDPRESS_ADMIN_PATH: /wp-admin
+            BUILTIN_SERVER_PORT: 8080
+            CHROMEDRIVER_HOST: 127.0.0.1
+            CHROMEDRIVER_PORT: 16159
+        steps:
+            # The secrets context is not available in an `if:`, so the answer has to
+            # travel as a step output. An empty secret would make verify-no-secrets
+            # pass vacuously, which is worse than not running the suite at all.
+            - name: Check for E2E credentials
+              id: credentials
+              env:
+                  NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+                  WORDPRESS_ADMIN_PASSWORD: ${{ secrets.WORDPRESS_ADMIN_PASSWORD }}
+              run: |
+                  missing=
+                  for key in NGROK_AUTHTOKEN WORDPRESS_ADMIN_PASSWORD; do
+                    [ -n "${!key}" ] || missing="${missing} ${key}"
+                  done
+                  if [ -n "${missing}" ]; then
+                    echo "run=false" >> "$GITHUB_OUTPUT"
+                    echo "::warning::Skipping the EndToEnd suite, the e2e environment is missing:${missing}"
+                  else
+                    echo "run=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Checkout
+              if: steps.credentials.outputs.run == 'true'
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+            - name: Setup PHP
+              if: steps.credentials.outputs.run == 'true'
+              uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: pdo_sqlite, sqlite3, mbstring, mysqli, gd, zip, curl, dom, xml
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Write tests/.env
+              if: steps.credentials.outputs.run == 'true'
+              env:
+                  NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+                  WORDPRESS_ADMIN_PASSWORD: ${{ secrets.WORDPRESS_ADMIN_PASSWORD }}
+              run: |
+                  {
+                    echo "WORDPRESS_URL=${WORDPRESS_URL}"
+                    echo "PAYTRAIL_WORDPRESS_URL=${PAYTRAIL_WORDPRESS_URL}"
+                    echo "WORDPRESS_DOMAIN=${WORDPRESS_DOMAIN}"
+                    echo "WORDPRESS_DB_URL=${WORDPRESS_DB_URL}"
+                    echo "WORDPRESS_TABLE_PREFIX=${WORDPRESS_TABLE_PREFIX}"
+                    echo "TEST_TABLE_PREFIX=${TEST_TABLE_PREFIX}"
+                    echo "WORDPRESS_ROOT_DIR=${WORDPRESS_ROOT_DIR}"
+                    echo "WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER}"
+                    echo "WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD}"
+                    echo "WORDPRESS_ADMIN_PATH=${WORDPRESS_ADMIN_PATH}"
+                    echo "BUILTIN_SERVER_PORT=${BUILTIN_SERVER_PORT}"
+                    echo "CHROMEDRIVER_HOST=${CHROMEDRIVER_HOST}"
+                    echo "CHROMEDRIVER_PORT=${CHROMEDRIVER_PORT}"
+                    echo "NGROK_DOMAIN=${NGROK_DOMAIN}"
+                    echo "NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}"
+                  } > tests/.env
+
+            - name: Get Composer cache directory
+              if: steps.credentials.outputs.run == 'true'
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+            - name: Cache Composer packages
+              if: steps.credentials.outputs.run == 'true'
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+            - name: Install Composer dependencies
+              if: steps.credentials.outputs.run == 'true'
+              # The post-autoload-dump hook fires here and provisions tests/_wordpress/.
+              run: composer install --prefer-dist --no-progress --no-interaction
+
+            - name: Install ngrok
+              if: steps.credentials.outputs.run == 'true'
+              # NgrokController shells out to a bare `ngrok`, which the runner image does not ship.
+              run: |
+                  curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz \
+                    | sudo tar -xz -C /usr/local/bin ngrok
+                  ngrok version
+
+            - name: E2E tests
+              if: steps.credentials.outputs.run == 'true'
+              # test:e2e matches Chromedriver to the runner's Chrome as its first step.
+              run: composer test:e2e
+
+            # Must run before the upload: tests/_output holds HTML snapshots, the WP debug
+            # log and ngrok.log, and artifacts on a public repo are downloadable.
+            - name: Scan artifacts for credentials
+              id: scan
+              if: always() && steps.credentials.outputs.run == 'true'
+              env:
+                  NGROK_AUTHTOKEN: ${{ secrets.NGROK_AUTHTOKEN }}
+                  WORDPRESS_ADMIN_PASSWORD: ${{ secrets.WORDPRESS_ADMIN_PASSWORD }}
+              run: php tests/_support_scripts/verify-no-secrets.php tests/_output/report tests/_output/report-share
+
+            - name: Upload failure artifacts
+              # Only once the scan came back clean; a leaked artifact must never be published.
+              if: failure() && steps.scan.outcome == 'success'
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+              with:
+                  name: allure-results-e2e-php${{ matrix.php }}
+                  path: |
+                      tests/_output/
+                      !tests/_output/cache/
+                  retention-days: 7
+                  if-no-files-found: ignore

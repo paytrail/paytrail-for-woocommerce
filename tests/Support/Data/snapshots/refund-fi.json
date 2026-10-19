@@ -1,0 +1,12 @@
+{
+    "method": "POST",
+    "path": "/payments/paytrail-transaction-1/refund",
+    "query": [],
+    "body": {
+        "amount": 2550,
+        "callbackUrls": {
+            "success": "<site>/checkout/order-received/<order-id>/?key=<order-key>&refund_callback=success&refund_unique_id=<refund-unique-id>&order_id=<order-id>",
+            "cancel": "<site>/checkout/order-received/<order-id>/?key=<order-key>&refund_callback=cancel&refund_unique_id=<refund-unique-id>&order_id=<order-id>"
+        }
+    }
+}

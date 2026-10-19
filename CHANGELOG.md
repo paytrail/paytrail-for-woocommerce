@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-09-28
+### Added
+- Added a "Card saving" setting to hide the "Add new card" button and the related login prompt at checkout. This is for merchants whose Paytrail agreement doesn't include card tokenization. Card saving is always shown for subscription purchases.
+### Changed
+- Improved performance: the payment provider list is now fetched only on the checkout page and reused within the same request. Before, it was fetched on every page with a mini-cart and in the block editor, which slowed down the whole site.
+- Improved the redirect back to the store after payment, which is now up to several seconds faster. Paytrail's payment notifications are now handled in the background with WooCommerce's scheduled actions, instead of making the customer wait.
+### Fixed
+- Fixed an issue where adding a new card while changing a subscription's payment method did not update the subscription, so renewals kept charging the old card.
+- Fixed newly added cards not being set as the customer's default card.
+- Fixed the "Add new card" option not showing for subscription purchases when payment provider selection is turned off. Guest customers are now told to log in or create an account, because a subscription needs a saved card.
+- Fixed an issue in the block checkout where clicking "Place order" without choosing a payment provider did nothing. Customers are now sent to Paytrail's payment page to choose a provider there.
+
 ## [2.8.0] - 2026-08-20
 ### Changed
 - Raised the minimum supported versions to WordPress 6.7 and PHP 7.4.

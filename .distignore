@@ -1,8 +1,27 @@
 /.wordpress-org
 /.git
 /.github
+/.claude
 /node_modules
+/tests
+
+codeception.yml
+allurerc.mjs
+allurerc.single.mjs
+
+phpstan.neon
+phpstan-baseline.neon
+phpcs.xml
+phpcs-report.txt
+
+package.json
+package-lock.json
+webpack.config.js
+postcss.config.js
 
 .distignore
 .gitignore
+.gitattributes
+.DS_Store
 composer.lock
+README.md

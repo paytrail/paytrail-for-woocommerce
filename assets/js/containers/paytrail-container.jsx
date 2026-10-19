@@ -13,14 +13,7 @@ export const PaytrailContainer = withPaytrail( (props) => {
 	const { eventRegistration, emitResponse } = props;
     const { onPaymentSetup } = eventRegistration;
 	const { activeProvider } = useContext(PaytrailContext);
-	let cleanProvider = activeProvider.replace(/-\d+$/, '');
-
-	if (!settings.groups || settings.groups.length === 0) {
-        const defaultProvider = 'paytrail';
-        if (!cleanProvider) {
-            cleanProvider = defaultProvider;
-        }
-    }
+	const cleanProvider = activeProvider.replace(/-\d+$/, '') || 'paytrail';
 
 	const PaytrailStaticComponent = () => (
 		<div className="paytrail-static-container">
@@ -34,7 +27,7 @@ export const PaytrailContainer = withPaytrail( (props) => {
 		const paymentSetup = onPaymentSetup(async () => {
 		return{
 		  type: emitResponse.responseTypes.SUCCESS,
-		  meta: { paymentMethodData: { payment_provider: cleanProvider || defaultProvider } }
+		  meta: { paymentMethodData: { payment_provider: cleanProvider } }
 		}
 		});
 

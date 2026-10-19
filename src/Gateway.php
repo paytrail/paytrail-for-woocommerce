@@ -112,6 +112,13 @@ final class Gateway extends \WC_Payment_Gateway {
 	public $method_info = array();
 
 	/**
+	 * Grouped payment providers fetched during this request, keyed by request arguments.
+	 *
+	 * @var array
+	 */
+	private $grouped_providers = array();
+
+	/**
 	 * WooCommerce logger instance
 	 *
 	 * @var \WC_Logger
@@ -135,12 +142,34 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Settlement prefix
 	 *
-	 * @var int
+	 * @var string
 	 */
-	private $settlement_prefix = 10;
+	private $settlement_prefix = '10';
+
+	/**
+	 * Whether the response currently being handled comes from a queued callback rather than from a live HTTP request.
+	 *
+	 * @var boolean
+	 */
+	protected $deferred_processing = false;
 
 	const TAX_RATE_PRECISION   = 1;
 	const SUPPORTED_CURRENCIES = array( 'EUR' );
+
+	/**
+	 * Action Scheduler hook used to process Paytrail callbacks outside of the callback request.
+	 */
+	const CALLBACK_ACTION_HOOK = 'paytrail_for_woocommerce_process_callback';
+
+	/**
+	 * Action Scheduler group for the queued callbacks.
+	 */
+	const CALLBACK_ACTION_GROUP = 'paytrail_for_woocommerce';
+
+	/**
+	 * Default number of seconds to wait before a queued callback is processed.
+	 */
+	const CALLBACK_ACTION_DELAY = 120;
 
 	/**
 	 * Object constructor
@@ -243,6 +272,9 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Check if we are in response phase.
 		add_action( 'template_redirect', array( $this, 'on_redirect_to_thankyou_page' ) );
+
+		// Process callbacks that were queued instead of being handled inside the callback request.
+		add_action( self::CALLBACK_ACTION_HOOK, array( $this, 'process_scheduled_callback' ) );
 	}
 
 	/**
@@ -417,6 +449,14 @@ final class Gateway extends \WC_Payment_Gateway {
 				'label'       => __( 'Enable payment provider selection in the checkout page', 'paytrail-for-woocommerce' ),
 				'default'     => 'yes',
 				'description' => __( 'Choose whether you want the payment provider selection to happen in the checkout page or in a separate page.', 'paytrail-for-woocommerce' ),
+			),
+			// Whether customers can save their card details for future purchases.
+			'card_saving'                 => array(
+				'title'       => __( 'Card saving', 'paytrail-for-woocommerce' ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable card saving in the checkout page', 'paytrail-for-woocommerce' ),
+				'default'     => 'yes',
+				'description' => __( 'Choose whether customers can save their card details for future purchases. Disable this if card tokenization is not included in your Paytrail agreement. Card saving is always shown when the purchase involves a subscription (WooCommerce Subscriptions), because recurring payments can only be charged from a saved card.', 'paytrail-for-woocommerce' ),
 			),
 			// Alternative text + description to show on the Checkout page.
 			'custom_provider_name'        => array(
@@ -653,11 +693,18 @@ final class Gateway extends \WC_Payment_Gateway {
 			$success_url = Router::get_url( Plugin::ADD_CARD_REDIRECT_SUCCESS_URL, Plugin::ADD_CARD_CONTEXT_MY_ACCOUNT );
 			$cancel_url  = Router::get_url( Plugin::ADD_CARD_REDIRECT_CANCEL_URL, Plugin::ADD_CARD_CONTEXT_MY_ACCOUNT );
 		} elseif ( Helper::getIsChangeSubscriptionPaymentMethod() ) {
-			$success_url = Router::get_url(
-				Plugin::ADD_CARD_REDIRECT_SUCCESS_URL,
-				Plugin::ADD_CARD_CONTEXT_CHANGE_PAYMENT_METHOD
+			$subscription_id = absint( Helper::getIsChangeSubscriptionPaymentMethod() );
+			$success_url     = add_query_arg(
+				array(
+					'change_payment_method' => $subscription_id,
+					'_paytrail_nonce'       => wp_create_nonce( 'paytrail_change_payment_method_' . $subscription_id ),
+				),
+				Router::get_url(
+					Plugin::ADD_CARD_REDIRECT_SUCCESS_URL,
+					Plugin::ADD_CARD_CONTEXT_CHANGE_PAYMENT_METHOD
+				)
 			);
-			$cancel_url  = Router::get_url(
+			$cancel_url      = Router::get_url(
 				Plugin::ADD_CARD_REDIRECT_CANCEL_URL,
 				Plugin::ADD_CARD_CONTEXT_CHANGE_PAYMENT_METHOD
 			);
@@ -691,7 +738,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process card token
 	 *
-	 * @return bool
+	 * @return int The saved token ID, or 0 when saving failed.
 	 * @throws HmacException If the response signature does not validate.
 	 * @throws ValidationException If the request is rejected by the API.
 	 */
@@ -702,14 +749,14 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		$response = $this->client->createGetTokenRequest( $get_token_request );
 
-		return (bool) $this->save_card_token( $response );
+		return $this->save_card_token( $response );
 	}
 
 	/**
 	 * Save card token
 	 *
 	 * @param GetTokenResponse $card_token The token response returned by the API.
-	 * @return bool
+	 * @return int The saved token ID, or 0 when saving failed.
 	 */
 	private function save_card_token( GetTokenResponse $card_token ) {
 		$this->log( 'Paytrail: save_card_token', 'debug' );
@@ -722,9 +769,42 @@ final class Gateway extends \WC_Payment_Gateway {
 		$token->set_token( $card_token->getToken() );
 		$token->set_user_id( get_current_user_id() );
 		$token->set_gateway_id( Plugin::GATEWAY_ID );
-		\WC_Payment_Tokens::set_users_default( get_current_user_id(), $token->get_id() );
 
-		return $token->save();
+		$token_id = $token->save();
+
+		// The token only has an ID once it is saved, so the default is set afterwards.
+		if ( $token_id ) {
+			\WC_Payment_Tokens::set_users_default( get_current_user_id(), $token_id );
+		}
+
+		return $token_id;
+	}
+
+	/**
+	 * Point a subscription at a newly stored card.
+	 *
+	 * @param int|string $subscription_id The subscription to charge with the new card.
+	 * @param int        $token_id        The stored card token.
+	 * @return bool Whether the subscription was re-pointed at the card.
+	 */
+	public function set_subscription_card( $subscription_id, $token_id ) {
+		if ( ! $subscription_id || ! $token_id || ! function_exists( 'wcs_get_subscription' ) ) {
+			return false;
+		}
+
+		$subscription = wcs_get_subscription( absint( $subscription_id ) );
+		$token        = \WC_Payment_Tokens::get( $token_id );
+
+		// The subscription comes from the request, so only the card owner's own subscription may be re-pointed.
+		if ( ! $subscription || ! $token || $subscription->get_customer_id() !== $token->get_user_id() ) {
+			return false;
+		}
+
+		$this->log( 'Paytrail: set_subscription_card for subscription ' . $subscription->get_id(), 'debug' );
+
+		$subscription->get_data_store()->update_payment_token_ids( $subscription, array( $token->get_id() ) );
+
+		return true;
 	}
 
 	/**
@@ -747,7 +827,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * Grab and display users saved card payment methods.
 	 */
 	public function saved_payment_methods() {
-		$html = '<ul class="woocommerce-SavedPaymentMethods wc-saved-payment-methods" data-count="' . esc_attr( count( $this->get_tokens() ) ) . '">';
+		$html = '<ul class="woocommerce-SavedPaymentMethods wc-saved-payment-methods" data-count="' . esc_attr( (string) count( $this->get_tokens() ) ) . '">';
 		foreach ( $this->get_tokens() as $token ) {
 			$html .= $this->get_saved_payment_method_option_html( $token );
 		}
@@ -758,11 +838,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			'li'    => array( 'class' => array() ),
 			'label' => array( 'for' => array() ),
 			'input' => array(
-				'id'    => array(),
-				'type'  => array(),
-				'name'  => array(),
-				'value' => array(),
-				'class' => array(),
+				'id'      => array(),
+				'type'    => array(),
+				'name'    => array(),
+				'value'   => array(),
+				'class'   => array(),
+				'checked' => array(),
 			),
 			'div'   => array( 'class' => array() ),
 			'ul'    => array( 'class' => array() ),
@@ -795,7 +876,7 @@ final class Gateway extends \WC_Payment_Gateway {
 				</label>
 			</li>',
 			esc_attr( $this->id ),
-			esc_attr( $token->get_id() ),
+			esc_attr( (string) $token->get_id() ),
 			$this->get_display_name( $token ),
 			esc_html( $token->get_display_name() ),
 			$this->get_card_image( $token ),
@@ -853,7 +934,6 @@ final class Gateway extends \WC_Payment_Gateway {
 		$status           = filter_input( INPUT_GET, 'checkout-status' );
 		$refund_callback  = filter_input( INPUT_GET, 'refund_callback' );
 		$refund_unique_id = filter_input( INPUT_GET, 'refund_unique_id' );
-		$order_id         = filter_input( INPUT_GET, 'order_id' );
 		$reference        = filter_input( INPUT_GET, 'checkout-reference' );
 		$cancel_order     = filter_input( INPUT_GET, 'cancel_order' );
 		$pay_for_order    = filter_input( INPUT_GET, 'pay_for_order' );
@@ -901,47 +981,130 @@ final class Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 
-		$sleep_time          = wp_rand( 0, 3 );
-		$sleep_time_callback = wp_rand( 3, 6 );
+		$params = $this->get_response_params();
 
 		if ( true === $this->callback_mode ) {
 			$this->log( 'Paytrail: Callback check_paytrail_response for order ' . $reference, 'debug' );
-			$this->log( 'Paytrail: Wait for ' . $sleep_time_callback . ' seconds until processing order ' . $reference, 'debug' );
-			sleep( $sleep_time_callback );
+
+			if ( $this->schedule_callback_processing( $params ) ) {
+				return;
+			}
 		} else {
 			$this->log( 'Paytrail: Redirect check_paytrail_response for reference ' . $reference, 'debug' );
-			$this->log( 'Paytrail: Wait for ' . $sleep_time . ' seconds until processing reference ' . $reference, 'debug' );
-			sleep( $sleep_time );
 		}
 
-		// Handle the response only if the status exists.
-		if ( $refund_callback ) {
-			$this->log( 'Paytrail: Start handle_refund_response for order_id ' . $order_id, 'debug' );
-			$this->handle_refund_response( $refund_callback, $refund_unique_id, $order_id );
+		$this->process_response( $params );
+	}
 
+	/**
+	 * Read the Paytrail response parameters from the current request.
+	 *
+	 * @return array
+	 */
+	protected function get_response_params() {
+		$params = filter_input_array( INPUT_GET );
+
+		return is_array( $params ) ? $params : array();
+	}
+
+	/**
+	 * Queue a Paytrail callback for processing after the browser redirect has had a head start.
+	 *
+	 * @param array $params The callback query parameters.
+	 * @return bool Whether the callback was queued. False means it has to be handled inline.
+	 */
+	protected function schedule_callback_processing( array $params ) {
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			$this->log( 'Paytrail: Action Scheduler is unavailable, processing the callback inline.', 'debug' );
+			return false;
+		}
+
+		$args = array( $params );
+
+		if ( function_exists( 'as_has_scheduled_action' ) && as_has_scheduled_action( self::CALLBACK_ACTION_HOOK, $args, self::CALLBACK_ACTION_GROUP ) ) {
+			$this->log( 'Paytrail: Callback is already queued, skipping.', 'debug' );
+			return true;
+		}
+
+		/**
+		 * Filter the number of seconds a Paytrail callback is held before it is processed.
+		 *
+		 * @since 2.9.0
+		 *
+		 * @param int   $delay  The delay in seconds.
+		 * @param array $params The callback query parameters.
+		 */
+		$delay = (int) apply_filters( 'woocommerce_paytrail_callback_processing_delay', self::CALLBACK_ACTION_DELAY, $params );
+
+		as_schedule_single_action( time() + max( 0, $delay ), self::CALLBACK_ACTION_HOOK, $args, self::CALLBACK_ACTION_GROUP );
+
+		$this->log( 'Paytrail: Callback queued to be processed in ' . max( 0, $delay ) . ' seconds.', 'debug' );
+
+		return true;
+	}
+
+	/**
+	 * Process a callback that was queued by schedule_callback_processing().
+	 *
+	 * @param array $params The callback query parameters.
+	 * @throws \Throwable If the response could not be processed. Action Scheduler records the
+	 *                    action as failed so the failure stays visible in the scheduled actions list.
+	 * @return void
+	 */
+	public function process_scheduled_callback( $params ) {
+		$this->deferred_processing = true;
+
+		try {
+			$this->process_response( (array) $params );
+		} catch ( \Throwable $exception ) {
+			$this->log( 'Paytrail: Deferred callback processing failed: ' . $exception->getMessage(), 'error' );
+
+			throw $exception;
+		} finally {
+			$this->deferred_processing = false;
+		}
+	}
+
+	/**
+	 * Route a Paytrail response to the payment or the refund handler.
+	 *
+	 * @param array $params The response query parameters.
+	 * @return void
+	 */
+	protected function process_response( array $params ) {
+		$refund_callback = $params['refund_callback'] ?? null;
+
+		if ( $refund_callback ) {
+			$order_id = $params['order_id'] ?? null;
+			$this->log( 'Paytrail: Start handle_refund_response for order_id ' . $order_id, 'debug' );
+			$this->handle_refund_response( $refund_callback, $params['refund_unique_id'] ?? null, $order_id, $params );
 		} else {
-			$this->log( 'Paytrail: Start handle_payment_response for reference ' . $reference, 'debug' );
-			$this->handle_payment_response( $status );
+			$this->log( 'Paytrail: Start handle_payment_response for reference ' . ( $params['checkout-reference'] ?? '' ), 'debug' );
+			$this->handle_payment_response( $params['checkout-status'] ?? null, $params );
 		}
 	}
 
 	/**
 	 * Handle payment response functionalities
 	 *
-	 * @param string $status The status of the response.
+	 * @param string     $status The status of the response.
+	 * @param array|null $params The response query parameters. Defaults to the current request.
 	 *
 	 * @return bool|null
 	 */
-	public function handle_payment_response( $status ) {
+	public function handle_payment_response( $status, $params = null ) {
+		$params = null === $params ? $this->get_response_params() : (array) $params;
+
 		// Check the HMAC.
 		try {
-			$this->client->validateHmac( filter_input_array( INPUT_GET ), '', filter_input( INPUT_GET, 'signature' ) );
+			$this->client->validateHmac( $params, '', $params['signature'] ?? '' );
 		} catch ( HmacException $exception ) {
-			$this->signature_error( $exception );
+			// Never wp_die() out of a queued action, it would take the queue runner with it.
+			$this->signature_error( $exception, ! $this->deferred_processing );
 		}
 
-		$reference      = filter_input( INPUT_GET, 'checkout-reference' );
-		$transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
+		$reference      = $params['checkout-reference'] ?? null;
+		$transaction_id = $params['checkout-transaction-id'] ?? null;
 
 		try {
 			$orders = wc_get_orders(
@@ -956,7 +1119,7 @@ final class Gateway extends \WC_Payment_Gateway {
 
 			if ( empty( $orders ) ) {
 				$this->log( 'Paytrail: handle_payment_response, orders collection empty for reference: ' . $reference, 'debug' );
-				return;
+				return null;
 			}
 
 			$order = reset( $orders );
@@ -1006,12 +1169,10 @@ final class Gateway extends \WC_Payment_Gateway {
 		switch ( $status ) {
 			case 'ok':
 				$this->log( 'Paytrail: handle_payment_response, case = ok for order ' . $order->get_id(), 'debug' );
-				if ( ! $this->validate_order_payment_processing( $order ) ) {
-					return;
+				if ( ! $this->validate_order_payment_processing( $order, $transaction_id ) ) {
+					return null;
 				}
 				$this->log( 'Paytrail: handle_payment_response payment_complete, order ' . $order->get_id() . ' needs processing ' . $order->needs_processing(), 'debug' );
-
-				$transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
 
 				// If this transaction has already been processed, don't process again.
 				if ( $order->get_transaction_id() === $transaction_id && ! empty( $order->get_date_paid() ) ) {
@@ -1025,8 +1186,8 @@ final class Gateway extends \WC_Payment_Gateway {
 				if ( ! $this->use_provider_selection() ) {
 					$this->log( 'Paytrail: handle_payment_response, use_provider_selection = false for order ' . $order->get_id(), 'debug' );
 					// Get the chosen payment provider and save it to the order.
-					$payment_provider = filter_input( INPUT_GET, 'checkout-provider' );
-					$payment_amount   = filter_input( INPUT_GET, 'checkout-amount' );
+					$payment_provider = $params['checkout-provider'] ?? null;
+					$payment_amount   = $params['checkout-amount'] ?? null;
 
 					$order->update_meta_data( '_checkout_payment_provider', $payment_provider );
 					$order->save();
@@ -1044,7 +1205,9 @@ final class Gateway extends \WC_Payment_Gateway {
 						}
 					}
 
-					WC()->session->set( 'payment_provider', $wanted_provider );
+					if ( WC()->session ) {
+						WC()->session->set( 'payment_provider', $wanted_provider );
+					}
 
 					$message = sprintf(
 						// translators: First parameter is transaction ID, the other is the name of the payment provider.
@@ -1072,15 +1235,16 @@ final class Gateway extends \WC_Payment_Gateway {
 				// Mark payment completed and store the transaction ID.
 				$order->payment_complete( $transaction_id );
 
-				// Clear the cart.
-				WC()->cart->empty_cart();
+				// Clear the cart. Not available when the response is processed from the queue.
+				if ( WC()->cart ) {
+					WC()->cart->empty_cart();
+				}
 
 				// Delete transient.
 				\delete_transient( 'checkout_transaction_id_processing_' . $transaction_id );
 
 				break;
 			case 'pending':
-				$transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
 				$this->log( 'Paytrail: handle_payment_response, case = pending', 'debug' );
 				if ( ! $this->validate_order_payment_process_status( $order ) ) {
 					break;
@@ -1115,18 +1279,18 @@ final class Gateway extends \WC_Payment_Gateway {
 				$order->add_order_note( $failed_order_note );
 				break;
 		}
+
+		return null;
 	}
 
 	/**
 	 * Validate payment processing
 	 *
-	 * @param WC_Order $order The order to validate.
-	 * @param bool     $retry Whether to try again after 15 seconds if order is being processed.
+	 * @param WC_Order    $order          The order to validate.
+	 * @param string|null $transaction_id The Paytrail transaction ID from the response.
 	 * @return bool
 	 */
-	protected function validate_order_payment_processing( WC_Order $order, $retry = true ) {
-		$transaction_id = filter_input( INPUT_GET, 'checkout-transaction-id' );
-
+	protected function validate_order_payment_processing( WC_Order $order, $transaction_id ) {
 		if ( ! $transaction_id ) {
 			$this->log( 'Paytrail: validate_order_payment_processing, transaction id empty for order: ' . $order->get_id(), 'debug' );
 			return false;
@@ -1140,18 +1304,14 @@ final class Gateway extends \WC_Payment_Gateway {
 			return false;
 		}
 
-		// If the transaction is currently being processed, wait for 15 seconds and check again.
+		if ( ! empty( $order->get_date_paid() ) ) {
+			$this->log( 'Paytrail: validate_order_payment_processing, order is already paid ' . $order->get_id(), 'debug' );
+			return false;
+		}
+
+		// Another request is already processing this transaction.
 		if ( 'yes' === \get_transient( 'checkout_transaction_id_processing_' . $transaction_id ) ) {
 			$this->log( 'Paytrail: validate_order_payment_processing, order is currently being processed ' . $order->get_id(), 'debug' );
-
-			if ( true === $retry ) {
-				$this->log( 'Paytrail: validate_order_payment_processing, waiting for 15 seconds ' . $order->get_id(), 'debug' );
-				sleep( 15 );
-
-				return $this->validate_order_payment_processing( $order, false );
-			}
-
-			$this->log( 'Paytrail: validate_order_payment_processing, not trying again ' . $order->get_id(), 'debug' );
 			return false;
 		}
 
@@ -1186,16 +1346,73 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Whether the card saving options should be displayed.
+	 *
+	 * @return boolean
+	 */
+	public function use_card_saving() {
+		if ( Helper::getIsSubscriptionsEnabled() || Helper::getIsChangeSubscriptionPaymentMethod() ) {
+			return true;
+		}
+
+		return 'yes' === $this->get_option( 'card_saving', 'yes' );
+	}
+
+	/**
+	 * Whether the purchase must be paid with a stored card.
+	 *
+	 * @return boolean
+	 */
+	protected function requires_card_for_subscription() {
+		return Helper::getIsSubscriptionsEnabled() && ! Helper::getIsChangeSubscriptionPaymentMethod();
+	}
+
+	/**
+	 * Get the stored card matching a token ID submitted by the customer.
+	 *
+	 * @param string|int $token_id The submitted token ID.
+	 * @return \WC_Payment_Token The stored card belonging to the current customer.
+	 * @throws \Exception If the token is not a card saved by the current customer.
+	 */
+	protected function get_customer_payment_token( $token_id ) {
+		$customer_id = get_current_user_id();
+		$token_id    = absint( $token_id );
+		$token       = $customer_id ? \WC_Payment_Tokens::get( $token_id ) : null;
+
+		if ( ! $token
+			|| absint( $token->get_user_id() ) !== $customer_id
+			|| Plugin::GATEWAY_ID !== $token->get_gateway_id() ) {
+			$this->log(
+				sprintf(
+					'Paytrail: token %1$d is not a card saved by customer %2$d, refusing the payment',
+					$token_id,
+					$customer_id
+				),
+				'error'
+			);
+
+			$message = __( 'The chosen card is not available. Please choose one of your saved cards, or add a new one.', 'paytrail-for-woocommerce' );
+
+			throw new \Exception( esc_html( $message ) );
+		}
+
+		return $token;
+	}
+
+	/**
 	 * Handle refund response functionalities
 	 *
-	 * @param string $refund_callback  Refund callback status.
-	 * @param string $refund_unique_id Unique ID for the refund.
-	 * @param string $order_id         Order ID.
+	 * @param string     $refund_callback  Refund callback status.
+	 * @param string     $refund_unique_id Unique ID for the refund.
+	 * @param string     $order_id         Order ID.
+	 * @param array|null $params           The response query parameters. Defaults to the current request.
 	 * @return void
 	 */
-	public function handle_refund_response( $refund_callback, $refund_unique_id, $order_id ) {
-		// Remove the callback indicators from the GET array.
-		$get = filter_input_array( INPUT_GET );
+	public function handle_refund_response( $refund_callback, $refund_unique_id, $order_id, $params = null ) {
+		$params = null === $params ? $this->get_response_params() : (array) $params;
+
+		// Remove the callback indicators from the parameters.
+		$get = $params;
 
 		unset( $get['refund_callback'] );
 		unset( $get['refund_unique_id'] );
@@ -1203,9 +1420,10 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Check the HMAC.
 		try {
-			$this->client->validateHmac( $get, '', filter_input( INPUT_GET, 'signature' ) );
+			$this->client->validateHmac( $get, '', $params['signature'] ?? '' );
 		} catch ( HmacException $exception ) {
-			$this->signature_error( $exception );
+			// Never wp_die() out of a queued action, it would take the queue runner with it.
+			$this->signature_error( $exception, ! $this->deferred_processing );
 		}
 
 		// Check if HPOS is enabled.
@@ -1233,10 +1451,16 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ( empty( $refunds ) ) {
+			$this->log( 'Paytrail: handle_refund_response, refund not found for unique id ' . $refund_unique_id, 'error' );
+
+			if ( $this->deferred_processing ) {
+				return;
+			}
+
 			wp_die( esc_html__( 'Refund cannot be found.', 'paytrail-for-woocommerce' ), '', 404 );
-		} else {
-			$refund = $refunds[0];
 		}
+
+		$refund = $refunds[0];
 
 		switch ( $refund_callback ) {
 			case 'success':
@@ -1275,6 +1499,10 @@ final class Gateway extends \WC_Payment_Gateway {
 				break;
 		}
 
+		if ( $this->deferred_processing ) {
+			return;
+		}
+
 		die( 'ok' );
 	}
 
@@ -1284,7 +1512,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function payment_fields() {
-		if ( is_checkout() && $this->use_provider_selection() ) {
+		if ( is_checkout() && ( $this->use_provider_selection() || $this->requires_card_for_subscription() ) ) {
 			$this->provider_form();
 		} elseif ( is_checkout() ) {
 			$this->payment_description();
@@ -1302,6 +1530,14 @@ final class Gateway extends \WC_Payment_Gateway {
 		$this->log( 'Paytrail: process_payment', 'debug' );
 		$order    = wc_get_order( $order_id );
 		$token_id = filter_input( INPUT_POST, 'wc-paytrail-payment-token' );
+
+		if ( empty( $token_id ) && $this->requires_card_for_subscription() ) {
+			$message = __( 'Please choose one of your saved cards, or add a new one, to pay for a subscription.', 'paytrail-for-woocommerce' );
+
+			$this->log( 'Paytrail: process_payment, subscription payment without a card token', 'error' );
+
+			throw new \Exception( esc_html( $message ) );
+		}
 
 		// Define if the process should die if an error occurs.
 		$die_on_error = filter_input( INPUT_POST, 'woocommerce_pay' ) ? true : false;
@@ -1338,10 +1574,10 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process the payment with Paytrail SDK and return the result.
 	 *
-	 * @param WC_Order $order            The order being paid.
-	 * @param string   $token_id         The stored card token to charge, if any.
-	 * @param string   $payment_provider The selected payment provider.
-	 * @param bool     $die_on_error     Whether to die on error or not. If false, the error is handled by WooCommerce.
+	 * @param WC_Order    $order            The order being paid.
+	 * @param string|null $token_id         The stored card token to charge, if any.
+	 * @param string|null $payment_provider The selected payment provider.
+	 * @param bool        $die_on_error     Whether to die on error or not. If false, the error is handled by WooCommerce.
 	 * @return array
 	 * @throws \Exception If the processing fails, this error is handled by WooCommerce.
 	 */
@@ -1358,13 +1594,13 @@ final class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ( $is_token_payment ) {
-			$token = \WC_Payment_Tokens::get( $token_id );
+			$token = $this->get_customer_payment_token( $token_id );
 
 			$this->log( 'Paytrail: process_payment, add_payment_token', 'debug' );
 			$order->add_payment_token( $token );
 
 			if ( $this->helper::getIsSubscriptionsEnabled() ) {
-				$subscriptions = wcs_get_subscriptions_for_order( $order->ID );
+				$subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
 				$this->log( 'Paytrail: add_payment_token to subscriptions', 'debug' );
 				foreach ( $subscriptions as $subscription ) {
 					$subscription->add_payment_token( $token );
@@ -1372,13 +1608,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			}
 
 			$payment = new CitPaymentRequest();
-
-			if ( $token && method_exists( $token, 'get_token' ) ) {
-				$payment->setToken( $token->get_token() );
-			} else {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- Diagnostic detail for the plugin's own log, not output.
-				$this->log( 'Paytrail: Token value: ' . print_r( $token, true ), 'debug' );
-			}
+			$payment->setToken( $token->get_token() );
 		} else {
 			$this->log( 'Paytrail: init PaymentRequest', 'debug' );
 			$payment = new PaymentRequest();
@@ -1454,12 +1684,12 @@ final class Gateway extends \WC_Payment_Gateway {
 			throw new \Exception( esc_html__( 'We couldn\'t process your payment. You have not been charged. Please check your payment details and try again, or contact us if the problem continues.', 'paytrail-for-woocommerce' ) );
 		}
 
-		if ( $this->use_provider_selection() ) {
-			$this->log( 'Paytrail: create_normal_payment, use_provider_selection = true', 'debug' );
-			$providers = $response->getProviders();
+		$wanted_provider = $this->use_provider_selection()
+			? $this->get_wanted_provider( $response->getProviders(), $payment_provider )
+			: null;
 
-			// Get only the wanted payment provider object.
-			$wanted_provider = $this->get_wanted_provider( $providers, $payment_provider );
+		if ( $wanted_provider ) {
+			$this->log( 'Paytrail: create_normal_payment, provider resolved', 'debug' );
 
 			WC()->session->set( 'payment_provider', $wanted_provider );
 
@@ -1472,31 +1702,31 @@ final class Gateway extends \WC_Payment_Gateway {
 				$response->getTransactionId(),
 				! empty( $wanted_provider->getName() ) ? $wanted_provider->getName() : ucfirst( $payment_provider )
 			);
-			$this->log( 'Paytrail: create_normal_payment, use_provider_selection = true, redirect', 'debug' );
+			$this->log( 'Paytrail: create_normal_payment, provider resolved, redirect', 'debug' );
 			$order->add_order_note( $message );
 
 			return array(
 				'result'   => 'success',
 				'redirect' => $order->get_checkout_payment_url( true ),
 			);
-		} else {
-			$this->log( 'Paytrail: create_normal_payment, use_provider_selection = false', 'debug' );
-			$message = sprintf(
-				// translators: First parameter is transaction ID, the other is the name of the payment provider.
-				__(
-					'Transaction %1$s created and user redirected to the payment provider selection page.',
-					'paytrail-for-woocommerce'
-				),
-				$response->getTransactionId()
-			);
-
-			$order->add_order_note( $message );
-			$this->log( 'Paytrail: create_normal_payment, use_provider_selection = false, redirect', 'debug' );
-			return array(
-				'result'   => 'success',
-				'redirect' => $response->getHref(),
-			);
 		}
+
+		$this->log( 'Paytrail: create_normal_payment, no provider resolved', 'debug' );
+		$message = sprintf(
+			// translators: First parameter is transaction ID.
+			__(
+				'Transaction %1$s created and user redirected to the payment provider selection page.',
+				'paytrail-for-woocommerce'
+			),
+			$response->getTransactionId()
+		);
+
+		$order->add_order_note( $message );
+		$this->log( 'Paytrail: create_normal_payment, no provider resolved, redirect', 'debug' );
+		return array(
+			'result'   => 'success',
+			'redirect' => $response->getHref(),
+		);
 	}
 
 	/**
@@ -1778,6 +2008,8 @@ final class Gateway extends \WC_Payment_Gateway {
 				return $key;
 			}
 		}
+
+		return null;
 	}
 
 	/**
@@ -1851,9 +2083,9 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process refunds.
 	 *
-	 * @param integer $order_id Order ID to refund from.
-	 * @param integer $amount   Optionally the refund amount if not the whole sum.
-	 * @param string  $reason   Optional reason for the refund.
+	 * @param integer    $order_id Order ID to refund from.
+	 * @param float|null $amount   Optionally the refund amount if not the whole sum.
+	 * @param string     $reason   Optional reason for the refund.
 	 * @return boolean|\WP_Error
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
@@ -1925,7 +2157,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			// Do some additional stuff after the refund object has been created.
 			add_action(
 				'woocommerce_order_refunded',
-				function ( $order_id, $refund_id ) use ( $order, $refund, $reason, $transaction_id, $amount, $price, $refund_unique_id ) {
+				function ( $order_id, $refund_id ) use ( $order, $refund, $transaction_id, $amount, $price, $refund_unique_id ) {
 					$refund_object = wc_get_order( $refund_id );
 
 					try {
@@ -1995,7 +2227,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					$refund_object->update_meta_data( '_checkout_refund_unique_id', $refund_unique_id );
 					$refund_object->update_meta_data( '_checkout_refund_processing', true );
 
-					$refund_object->set_amount( 0 );
+					$refund_object->set_amount( '0' );
 					$refund_object->set_reason( $reason . ' Refund is still being processed. The status and the amount (' . $price . ') of the refund will update when the processing is completed.' );
 
 					$refund_object->save();
@@ -2031,7 +2263,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					$meta = $refund->get_meta( '_checkout_refund_processing' );
 					if ( $meta ) {
 						echo '<style>';
-						echo '[data-order_refund_id=' . esc_html( $refund->get_id() ) . '] span.amount {';
+						echo '[data-order_refund_id=' . esc_html( (string) $refund->get_id() ) . '] span.amount {';
 						echo 'font-style: italic;';
 						echo '}';
 						echo '</style>';
@@ -2082,7 +2314,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @param \WC_Order $order The order to create the customer object from.
 	 *
-	 * @return Paytrail\SDK\Model\Customer
+	 * @return \Paytrail\SDK\Model\Customer
 	 */
 	protected function create_customer( \WC_Order $order ) {
 		$customer = new Customer();
@@ -2132,10 +2364,18 @@ final class Gateway extends \WC_Payment_Gateway {
 			$groups = array( 'creditcard' );
 		}
 
+		$amount    = isset( $payment_amount ) ? $payment_amount : $this->get_cart_total();
+		$language  = isset( $locale ) ? $locale : Helper::getLocale();
+		$cache_key = $amount . '|' . $language . '|' . implode( ',', $groups );
+
+		if ( isset( $this->grouped_providers[ $cache_key ] ) ) {
+			return $this->grouped_providers[ $cache_key ];
+		}
+
 		try {
 			$providers = $this->client->getGroupedPaymentProviders(
-				isset( $payment_amount ) ? $payment_amount : $this->get_cart_total(),
-				isset( $locale ) ? $locale : Helper::getLocale(),
+				$amount,
+				$language,
 				$groups
 			);
 
@@ -2144,6 +2384,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		} catch ( \Exception $exception ) {
 			$providers = $this->get_payment_providers_error_handler( $exception );
 		}
+
+		$this->grouped_providers[ $cache_key ] = $providers;
 
 		return $providers;
 	}
@@ -2186,7 +2428,7 @@ final class Gateway extends \WC_Payment_Gateway {
 		$address = new Address();
 
 		if ( ! $order ) {
-			return;
+			return null;
 		}
 
 		switch ( $type ) {
@@ -2229,7 +2471,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param WC_Order_Item $order_item The order item object to create the item object from.
 	 * @param WC_Order      $order      The current order object.
 	 *
-	 * @return Item|null
+	 * @return Item
 	 */
 	protected function create_item( WC_Order_Item $order_item, WC_Order $order ) {
 		$item = new Item();

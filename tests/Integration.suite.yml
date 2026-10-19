@@ -1,0 +1,30 @@
+# Integration suite configuration
+#
+# Everything reachable from PHP with WordPress and WooCommerce loaded. Nothing here
+# opens a socket: FakePaytrailApi replaces the SDK's HTTP client per test.
+
+actor: IntegrationTester
+bootstrap: _bootstrap.php
+modules:
+  enabled:
+    - lucatume\WPBrowser\Module\WPLoader
+  config:
+    lucatume\WPBrowser\Module\WPLoader:
+      wpRootFolder: "%WORDPRESS_ROOT_DIR%"
+      dbUrl: "%WORDPRESS_DB_URL%"
+      wpDebug: true
+      tablePrefix: "%TEST_TABLE_PREFIX%"
+      domain: "%WORDPRESS_DOMAIN%"
+      adminEmail: "admin@%WORDPRESS_DOMAIN%"
+      title: "Integration Tests"
+      skipInstall: true
+      plugins:
+        - "woocommerce/woocommerce.php"
+        - "./plugin.php"
+      theme: ""
+extensions:
+  enabled:
+    - Qameta\Allure\Codeception\AllureCodeception
+  config:
+    Qameta\Allure\Codeception\AllureCodeception:
+      outputDirectory: allure-results/integration

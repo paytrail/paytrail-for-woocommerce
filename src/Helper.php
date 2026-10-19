@@ -55,10 +55,10 @@ class Helper {
 	 * Currency specific formattings
 	 *
 	 * @param int|double $sum The sum to format.
-	 * @return integer
+	 * @return int
 	 */
 	public function handle_currency( $sum ) {
-		return round( $sum * 100 );
+		return (int) round( $sum * 100 );
 	}
 
 	/**

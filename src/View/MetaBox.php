@@ -3,6 +3,10 @@
  * Metabox view.
  *
  * @package Paytrail\WooCommercePaymentGateway\View
+ *
+ * Rendered from Controllers\MetaBox::meta_box_content().
+ *
+ * @var array{error?: string, status?: string|null, amount?: int|null, currency?: string, transaction_id?: string} $data The view data.
  */
 
 $allowed_html = array(

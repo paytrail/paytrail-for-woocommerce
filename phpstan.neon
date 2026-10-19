@@ -1,0 +1,27 @@
+includes:
+  - phpstan-baseline.neon
+
+parameters:
+  level: 5
+  phpVersion: 70400
+  treatPhpDocTypesAsCertain: false
+
+  paths:
+    - plugin.php
+    - src
+
+  excludePaths:
+    - node_modules (?)
+    - tests (?)
+    - assets
+
+  scanDirectories:
+    - vendor/php-stubs
+
+  bootstrapFiles:
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+    - vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+    - vendor/php-stubs/woocommerce-subscriptions-stubs/woocommerce-subscriptions-stubs.php
+
+  ignoreErrors:

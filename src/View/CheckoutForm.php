@@ -1,6 +1,10 @@
 <?php
 /**
  * Checkout form view
+ *
+ * Rendered from Gateway::receipt_page(), which passes the selected provider.
+ *
+ * @var \Paytrail\SDK\Model\Provider $data The provider to post the checkout form to.
  */
 
 // Ensure that the file is being run within the WordPress context.

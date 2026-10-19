@@ -26,14 +26,14 @@ class MetaBox {
 	/**
 	 * The Paytrail order status.
 	 *
-	 * @var array
+	 * @var string|null
 	 */
 	private $status;
 
 	/**
 	 * The Paytrail order amount.
 	 *
-	 * @var string
+	 * @var int|null
 	 */
 	private $amount;
 
@@ -70,7 +70,7 @@ class MetaBox {
 	/**
 	 * Retrieves the Paytrail order status.
 	 *
-	 * @return array|null The Paytrail order status.
+	 * @return string|null The Paytrail order status.
 	 */
 	public function get_status() {
 		if ( empty( $this->status ) ) {
@@ -87,7 +87,7 @@ class MetaBox {
 	/**
 	 * Retrieves the Paytrail order amount.
 	 *
-	 * @return string The Paytrail order amount.
+	 * @return int|null The Paytrail order amount.
 	 */
 	public function get_amount() {
 		if ( null === $this->amount ) {

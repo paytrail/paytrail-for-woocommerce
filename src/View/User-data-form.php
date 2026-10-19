@@ -1,3 +1,21 @@
+<?php
+/**
+ * Paytrail onboarding user data form.
+ *
+ * Rendered from Gateway::user_data_form(), which defines every variable below.
+ *
+ * @var string $first_name    Current user first name.
+ * @var string $last_name     Current user last name.
+ * @var string $user_email    Current user email address.
+ * @var string $phone_number  Billing phone number.
+ * @var string $site_url      Store site URL.
+ * @var string $company_name  Billing company name.
+ * @var string $shop_address  Store base address.
+ * @var string $shop_city     Store base city.
+ * @var string $shop_postcode Store base postcode.
+ */
+
+?>
 <div class="wrap" style="display:none">
 	<div class="paytrail-registration-container">
 		<form id="user-data-form" method="get" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
