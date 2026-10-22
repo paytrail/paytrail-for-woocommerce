@@ -55,9 +55,10 @@ class OrderManagement extends AbstractController {
 		}
 
 		try {
-			$model            = new Model\MetaBox( $order );
-			$payment_status   = $model->get_payment_status();
-			$payment_provider = $payment_status ? strtolower( $payment_status->getProvider() ) : '';
+			$manual_activation = wc_string_to_bool( $gateway->get_option( 'manual_invoice_activation', 'no' ) );
+			$model             = new Model\MetaBox( $order );
+			$payment_status    = $model->get_payment_status( $manual_activation );
+			$payment_provider  = $payment_status ? strtolower( $payment_status->getProvider() ) : '';
 
 			if ( empty( $payment_status ) || 'pending' !== $payment_status->getStatus() || ( false === strpos( $payment_provider, 'walley' ) && false === strpos( $payment_provider, 'klarna' ) ) ) {
 				return;
@@ -67,25 +68,43 @@ class OrderManagement extends AbstractController {
 
 			$response = $client->activateInvoice( $transaction_id );
 
+			if ( 'ok' !== $response->getStatus() ) {
+				$this->hold_for_failed_activation( $order, sprintf( 'Paytrail answered the activation with status "%s"', $response->getStatus() ) );
+				return;
+			}
+
 			$gateway->log(
 				InvoiceActivationResponse::class . " Successfully activated invoice for order $order_id with transaction id $transaction_id: " . wp_json_encode( $response )
 			);
 		} catch ( \Exception $e ) {
-			$sanitized_message = sanitize_text_field( $e->getMessage() );
-			$gateway->log(
-				"Failed to send manual invoice for order $order_id with transaction id $transaction_id: $sanitized_message",
-				'error'
-			);
-			$order->set_status(
-				'on-hold',
-				sprintf(
-					// Translators: %s is the error message.
-					__( 'Failed to activate manual invoice: %s', 'paytrail-for-woocommerce' ),
-					$sanitized_message
-				)
-			);
-			$order->save();
+			$this->hold_for_failed_activation( $order, $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Puts an order whose manual invoice was not activated on hold, with the reason.
+	 *
+	 * @param \WC_Order $order   The WC order.
+	 * @param string    $message Why the activation did not happen.
+	 * @return void
+	 */
+	private function hold_for_failed_activation( $order, $message ) {
+		$order_id          = $order->get_id();
+		$transaction_id    = $order->get_transaction_id();
+		$sanitized_message = sanitize_text_field( $message );
+		Plugin::instance()->gateway()->log(
+			"Failed to send manual invoice for order $order_id with transaction id $transaction_id: $sanitized_message",
+			'error'
+		);
+		$order->set_status(
+			'on-hold',
+			sprintf(
+				// Translators: %s is the error message.
+				__( 'Failed to activate manual invoice: %s', 'paytrail-for-woocommerce' ),
+				$sanitized_message
+			)
+		);
+		$order->save();
 	}
 
 	/**
