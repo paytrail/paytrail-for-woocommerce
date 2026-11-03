@@ -110,6 +110,42 @@ class KlarnaExpressTest extends IntegrationTestCase {
 		$this->assertSame( 'failed', $this->statusOf( $order ) );
 	}
 
+	/** Nothing was created after a rejection, so Klarna's resend may try again. */
+	public function test_a_resent_notification_after_a_rejection_tries_again(): void {
+		$order = $this->haveExpressOrder();
+
+		$this->willRejectWith( '/payments/klarna/charge', 'Invalid session token', 400 );
+		$this->gateway()->process_klarna_express_payment( $order, self::SESSION_TOKEN );
+
+		$this->willPayWithKlarna();
+		$this->gateway()->process_klarna_express_payment( $this->reload( $order ), self::SESSION_TOKEN );
+
+		$this->assertApiRequestCount( 2, '/payments/klarna/charge' );
+		$this->assertNotEmpty( $this->reload( $order )->get_date_paid() );
+	}
+
+	/** Without an answer the payment may exist at Paytrail, so it must never be sent twice. */
+	public function test_an_unanswered_payment_is_never_sent_again(): void {
+		$order = $this->haveExpressOrder();
+
+		$this->willFailToConnect( '/payments/klarna/charge', 'Operation timed out' );
+		$redirect = $this->gateway()->process_klarna_express_payment( $order, self::SESSION_TOKEN );
+
+		$this->assertSame( $order->get_checkout_order_received_url(), $redirect );
+		$this->assertSame( 'on-hold', $this->statusOf( $order ) );
+		$this->assertOrderHasNote( $order, 'may have been created with Paytrail' );
+
+		$this->willPayWithKlarna();
+		try {
+			$this->gateway()->process_klarna_express_payment( $this->reload( $order ), self::SESSION_TOKEN );
+			$this->fail( 'A resent notification should not be handled while the first payment is unresolved.' );
+		} catch ( \Exception $exception ) {
+			$this->assertStringContainsString( 'already in progress', $exception->getMessage() );
+		}
+
+		$this->assertApiRequestCount( 1, '/payments/klarna/charge' );
+	}
+
 	/** Completing the order captures the hold, which needs no request body. */
 	public function test_completing_the_order_captures_the_hold(): void {
 		$order = $this->haveHeldExpressOrder();

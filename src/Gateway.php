@@ -6,6 +6,7 @@
 namespace Paytrail\WooCommercePaymentGateway;
 
 use Automattic\WooCommerce\Utilities\NumberUtil;
+use Paytrail\SDK\Exception\ClientException;
 use Paytrail\SDK\Exception\ValidationException;
 use Paytrail\SDK\Request\AddCardFormRequest;
 use Paytrail\SDK\Request\CitPaymentRequest;
@@ -2031,6 +2032,7 @@ final class Gateway extends \WC_Payment_Gateway {
 	 * @param WC_Order $order                 The order created by Klarna Express Checkout.
 	 * @param string   $network_session_token The Klarna network session token.
 	 * @return string The URL to redirect the customer to.
+	 * @throws \Exception If an earlier payment for the order is still in progress.
 	 */
 	public function process_klarna_express_payment( WC_Order $order, string $network_session_token ) {
 		$this->log( 'Paytrail: process_klarna_express_payment, order ' . $order->get_id(), 'debug' );
@@ -2041,6 +2043,15 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log( 'Paytrail: process_klarna_express_payment, payment already created for order ' . $order->get_id(), 'debug' );
 
 			return ! empty( $redirect_url ) ? $redirect_url : $order->get_checkout_order_received_url();
+		}
+
+		// A stamp without a redirect URL means a request is in flight or ended without a clear answer.
+		$stamp = $order->get_meta( '_paytrail_klarna_stamp' );
+		if ( ! empty( $stamp ) ) {
+			$this->log( "Paytrail: process_klarna_express_payment, payment {$stamp} already in progress for order {$order->get_id()}", 'error' );
+
+			// Klarna retries the notification later, by when the first request has finished.
+			throw new \Exception( esc_html( "A Klarna Express Checkout payment is already in progress for order {$order->get_id()}." ) );
 		}
 
 		$order->set_payment_method( $this->id );
@@ -2060,20 +2071,49 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order->update_meta_data( '_checkout_reference', $payment->getReference() );
 			$order->update_meta_data( '_checkout_reference_' . $payment->getReference(), true );
 			$order->update_meta_data( '_checkout_payment_provider', 'klarna' );
-			$order->save();
-
-			$this->log( 'Paytrail\SDK\Request\KlarnaPaymentRequest: ' . wp_json_encode( $payment ), 'info' );
-
-			// The Klarna endpoints ignore manualInvoiceActivation, so manual activation needs an authorization hold.
-			$authorization_hold = $payment->getManualInvoiceActivation();
-			$response           = $authorization_hold
-				? $this->client->createKlarnaPaymentAuthorizationHold( $payment )
-				: $this->client->createKlarnaPaymentCharge( $payment );
 		} catch ( \Exception $exception ) {
 			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
 			$order->update_status( 'failed', __( 'Klarna Express Checkout payment could not be created with Paytrail.', 'paytrail-for-woocommerce' ) );
 
 			return $order->get_checkout_payment_url();
+		}
+
+		// Saved before the request, so a resent notification stops at the guard above.
+		$stamp = $payment->getStamp();
+		$order->update_meta_data( '_paytrail_klarna_stamp', $stamp );
+		$order->save();
+
+		$this->log( 'Paytrail\SDK\Request\KlarnaPaymentRequest: ' . wp_json_encode( $payment ), 'info' );
+
+		// The Klarna endpoints ignore manualInvoiceActivation, so manual activation needs an authorization hold.
+		$authorization_hold = $payment->getManualInvoiceActivation();
+
+		try {
+			$response = $authorization_hold
+				? $this->client->createKlarnaPaymentAuthorizationHold( $payment )
+				: $this->client->createKlarnaPaymentCharge( $payment );
+		} catch ( \Exception $exception ) {
+			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
+
+			// Paytrail rejected the request, so nothing was created and a retry is safe. The SDK omits ClientException from its @throws.
+			if ( $exception instanceof ValidationException || $exception instanceof ClientException ) {
+				$order->delete_meta_data( '_paytrail_klarna_stamp' );
+				$order->update_status( 'failed', __( 'Klarna Express Checkout payment could not be created with Paytrail.', 'paytrail-for-woocommerce' ) );
+
+				return $order->get_checkout_payment_url();
+			}
+
+			// No clear answer, the payment may exist at Paytrail, so it is never sent again automatically.
+			$order->update_status(
+				'on-hold',
+				sprintf(
+					// translators: %s is the Paytrail payment stamp.
+					__( 'Klarna Express Checkout payment %s may have been created with Paytrail. Check the Paytrail merchant panel before taking action.', 'paytrail-for-woocommerce' ),
+					$stamp
+				)
+			);
+
+			return $order->get_checkout_order_received_url();
 		}
 
 		$this->log(
