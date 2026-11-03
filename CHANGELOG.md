@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-11-03
+### Added
+- Added support for Klarna Express Checkout through Paytrail, together with Klarna Payments for WooCommerce.
+- Added the `woocommerce_paytrail_test_merchant_id` and `woocommerce_paytrail_test_secret_key` filters to override the credentials used in test mode.
+### Changed
+- Updated PHP-SDK version to ^2.9.0.
+- Improved handling of refund notifications from Paytrail.
+- Improved payment card saving and use.
+### Fixed
+- Fixed a critical error on the order-pay page when it was opened outside the browser session that placed the order.
+- Fixed payment requests using the store's currency instead of the order's currency.
+
 ## [2.9.0] - 2026-09-28
 ### Added
 - Added a "Card saving" setting to hide the "Add new card" button and the related login prompt at checkout. This is for merchants whose Paytrail agreement doesn't include card tokenization. Card saving is always shown for subscription purchases.
