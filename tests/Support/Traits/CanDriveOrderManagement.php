@@ -65,4 +65,14 @@ trait CanDriveOrderManagement {
 			'/cancel-order'
 		);
 	}
+
+	/** Queues a successful capture of a Klarna Express authorization hold. */
+	protected function willCommitKlarnaHold( string $transaction_id = 'paytrail-klarna-1' ): void {
+		$this->willRespondWith( [ 'transactionId' => $transaction_id ], 201, '/klarna/commit' );
+	}
+
+	/** Queues a successful release of a Klarna Express authorization hold. */
+	protected function willRevertKlarnaHold( string $transaction_id = 'paytrail-klarna-1' ): void {
+		$this->willRespondWith( [ 'transactionId' => $transaction_id ], 200, '/klarna/revert' );
+	}
 }

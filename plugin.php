@@ -3,13 +3,13 @@
  * Plugin Name: Paytrail for WooCommerce
  * Plugin URI: https://github.com/paytrail/paytrail-for-woocommerce
  * Description: Paytrail is a payment gateway that offers 20+ payment methods for Finnish customers.
- * Version: 2.9.0
+ * Version: 2.10.0
  * Requires at least: 6.7
  * Requires Plugins: woocommerce
  * Tested up to: 7.1
  * Requires PHP: 7.4
  * WC requires at least: 3.5
- * WC tested up to: 11.1.2
+ * WC tested up to: 11.2.1
  * Author: Paytrail
  * Author URI: https://www.paytrail.com/
  * Text Domain: paytrail-for-woocommerce
@@ -24,6 +24,7 @@
 namespace Paytrail\WooCommercePaymentGateway;
 
 use Paytrail\WooCommercePaymentGateway\Controllers\OrderManagement;
+use Paytrail\WooCommercePaymentGateway\Providers\KlarnaExpress;
 
 // Ensure that the file is being run within the WordPress context.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -173,6 +174,7 @@ final class Plugin {
 		add_action( 'init', array( $this, 'initialize_gateway' ) );
 		add_action( 'init', array( $this, 'initialize_order_management' ) );
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_gateway' ) );
+		add_filter( 'kec_acquiring_partner_integrations', array( $this, 'register_klarna_express' ) );
 	}
 
 	/**
@@ -199,6 +201,18 @@ final class Plugin {
 		$gateways[] = $this->gateway();
 
 		return $gateways;
+	}
+
+	/**
+	 * Register Paytrail as the Klarna Express Checkout acquiring partner with Klarna Payments for WooCommerce.
+	 *
+	 * @param array $integrations The registered acquiring partner integrations.
+	 * @return array
+	 */
+	public function register_klarna_express( $integrations ) {
+		$integrations[] = new KlarnaExpress();
+
+		return $integrations;
 	}
 
 	/**

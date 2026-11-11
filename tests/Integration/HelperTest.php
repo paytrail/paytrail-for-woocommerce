@@ -85,6 +85,10 @@ class HelperTest extends IntegrationTestCase {
 		$this->assertStringStartsWith( '42-', ( new Helper() )->generate_item_stamp( 42 ) );
 	}
 
+	public function test_an_item_stamp_ends_in_random_hex(): void {
+		$this->assertMatchesRegularExpression( '/^42-[0-9a-f]{16}$/', ( new Helper() )->generate_item_stamp( 42 ) );
+	}
+
 	/**
 	 * Whether the plugin treats the request as a subscription one, which decides both
 	 * the tokenisation surface and the provider groups it asks Paytrail for.

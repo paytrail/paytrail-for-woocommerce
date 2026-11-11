@@ -4,7 +4,7 @@ Donate link: https://www.paytrail.com/
 Tags: woocommerce
 Requires at least: 6.7
 Tested up to: 7.1
-Stable tag: 2.9.0
+Stable tag: 2.10.0
 Requires PHP: 7.4
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -55,6 +55,15 @@ Test credentials:
 With test credentials, you can test most of the payment methods included in Paytrail’s payment service. You can find the payment method specific credentials needed for testing in Paytrail’s [documentation](https://docs.paytrail.com/#/payment-method-providers).
 
 == Changelog ==
+
+= 2.10.0 =
+- Added support for Klarna Express Checkout through Paytrail, together with Klarna Payments for WooCommerce.
+- Added the `woocommerce_paytrail_test_merchant_id` and `woocommerce_paytrail_test_secret_key` filters to override the credentials used in test mode.
+- Updated PHP-SDK version to ^2.9.0.
+- Improved handling of refund notifications from Paytrail.
+- Improved payment card saving and use.
+- Fixed a critical error on the order-pay page when it was opened outside the browser session that placed the order.
+- Fixed payment requests using the store's currency instead of the order's currency.
 
 = 2.9.0 =
 - Added a "Card saving" setting to hide the "Add new card" button and the related login prompt at checkout. This is for merchants whose Paytrail agreement doesn't include card tokenization. Card saving is always shown for subscription purchases.

@@ -11,6 +11,7 @@ allurerc.single.mjs
 
 phpstan.neon
 phpstan-baseline.neon
+phpstan-stubs.php
 phpcs.xml
 phpcs-report.txt
 

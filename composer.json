@@ -35,7 +35,7 @@
     "require": {
         "php": ">=7.4",
         "ext-mbstring": "*",
-        "paytrail/paytrail-php-sdk": "^2.8.0"
+        "paytrail/paytrail-php-sdk": "^2.9.0"
     },
     "config": {
         "process-timeout": 0,

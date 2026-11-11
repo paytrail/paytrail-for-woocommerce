@@ -105,6 +105,6 @@ class Helper {
 	 * @return string
 	 */
 	public function generate_item_stamp( $order_id ) {
-		return uniqid( $order_id . '-', true );
+		return $order_id . '-' . bin2hex( random_bytes( 8 ) );
 	}
 }

@@ -45,16 +45,21 @@ class Card extends AbstractController {
 			return new WP_Error( 'invalid-request', $e->getMessage(), array( 'status' => 400 ) );
 		}
 
-		$body = file_get_contents( 'php://input' );
+		$body = $this->get_request_body();
 		$data = json_decode( $body, true );
 
 		if ( ! is_array( $data ) ) {
 			throw new \Exception( 'Failed to decode JSON object' );
 		}
 
+		// Only a deliberate click on the store's own delete button may remove a card.
+		if ( ! is_user_logged_in() || ! wp_verify_nonce( sanitize_text_field( (string) ( $data['nonce'] ?? '' ) ), 'paytrail_delete_card' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Card could not be deleted', 'paytrail-for-woocommerce' ) ), 403 );
+		}
+
 		$current_user = wp_get_current_user();
 
-		$token_id = $data['token_id'];
+		$token_id = $data['token_id'] ?? 0;
 
 		if ( ! $current_user->ID || ! $token_id ) {
 			return new WP_Error( 'cant-delete', __( 'Card could not be deleted', 'paytrail-for-woocommerce' ), array( 'status' => 500 ) );
@@ -80,6 +85,15 @@ class Card extends AbstractController {
 	}
 
 	/**
+	 * Read the raw request body.
+	 *
+	 * @return string
+	 */
+	protected function get_request_body() {
+		return (string) file_get_contents( 'php://input' );
+	}
+
+	/**
 	 * Ensure the incoming request is a JSON POST.
 	 *
 	 * @return void
@@ -87,10 +101,6 @@ class Card extends AbstractController {
 	 */
 	private function validate_request() {
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
-
-		if ( empty( $request_method ) ) {
-			return;
-		}
 
 		if ( 'POST' !== $request_method ) {
 			throw new \Exception( 'Only POST requests are allowed' );

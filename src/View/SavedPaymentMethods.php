@@ -78,7 +78,10 @@ $delete_card_url = Router::get_url( Plugin::CARD_ENDPOINT, 'delete' );
 			type: 'POST',
 			contentType: 'application/json',
 			url: '<?php echo esc_url_raw( $delete_card_url ); ?>',
-			data: JSON.stringify({token_id: cardTokenId}),
+			data: JSON.stringify({
+				token_id: cardTokenId,
+				nonce: <?php echo wp_json_encode( wp_create_nonce( 'paytrail_delete_card' ) ); ?>
+			}),
 			success: function (response) {
 				if (response.success && !isSubscriptionPage) {
 					jQuery('body').trigger('update_checkout');

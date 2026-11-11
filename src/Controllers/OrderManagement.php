@@ -54,6 +54,25 @@ class OrderManagement extends AbstractController {
 			return;
 		}
 
+		if ( 'yes' === $order->get_meta( '_paytrail_klarna_authorization_hold' ) ) {
+			try {
+				$gateway->commit_klarna_authorization_hold( $order );
+			} catch ( \Exception $e ) {
+				$sanitized_message = sanitize_text_field( $e->getMessage() );
+				$gateway->log( "Failed to capture Klarna authorization hold for order $order_id with transaction id $transaction_id: $sanitized_message", 'error' );
+				$order->set_status(
+					'on-hold',
+					sprintf(
+						// Translators: %s is the error message.
+						__( 'Failed to capture Klarna authorization hold: %s', 'paytrail-for-woocommerce' ),
+						$sanitized_message
+					)
+				);
+				$order->save();
+			}
+			return;
+		}
+
 		try {
 			$model            = new Model\MetaBox( $order );
 			$payment_status   = $model->get_payment_status();
@@ -112,6 +131,23 @@ class OrderManagement extends AbstractController {
 				"Cannot cancel pending Klarna invoice for order $order_id: missing transaction ID",
 				'error'
 			);
+			return;
+		}
+
+		if ( 'yes' === $order->get_meta( '_paytrail_klarna_authorization_hold' ) ) {
+			try {
+				$gateway->revert_klarna_authorization_hold( $order );
+			} catch ( \Exception $e ) {
+				$sanitized_message = sanitize_text_field( $e->getMessage() );
+				$gateway->log( "Failed to void Klarna authorization hold for order $order_id with transaction id $transaction_id: $sanitized_message", 'error' );
+				$order->add_order_note(
+					sprintf(
+						// Translators: %s is the error message.
+						__( 'Failed to void Klarna authorization hold: %s', 'paytrail-for-woocommerce' ),
+						$sanitized_message
+					)
+				);
+			}
 			return;
 		}
 

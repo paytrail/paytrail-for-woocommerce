@@ -98,6 +98,28 @@ trait CanDriveCheckout {
 		);
 	}
 
+	/**
+	 * Queues a Klarna Express payment Paytrail accepts without the shopper doing anything
+	 * more, on the charge or the authorization hold endpoint.
+	 */
+	protected function willPayWithKlarna( string $endpoint = '/payments/klarna/charge', string $transaction_id = 'paytrail-klarna-1' ): void {
+		$this->willRespondWith( [ 'transactionId' => $transaction_id ], 201, $endpoint );
+	}
+
+	/** Queues the 403 Paytrail answers a Klarna Express payment with when Klarna wants a step-up. */
+	protected function willAskForKlarnaStepUp( string $step_up_url = 'https://pay.test.klarna.com/eu/requests/1/start', string $transaction_id = 'paytrail-klarna-1' ): void {
+		$this->willRejectWith(
+			'/payments/klarna/',
+			'Step-up required',
+			403,
+			[
+				'transactionId' => $transaction_id,
+				'stepUpUrl'     => $step_up_url,
+				'error'         => 'Step-up required',
+			]
+		);
+	}
+
 	/** Queues a successful merchant-initiated charge, which is what a renewal is. */
 	protected function willChargeStoredCard( string $transaction_id = 'paytrail-mit-1' ): void {
 		$this->willRespondWith(

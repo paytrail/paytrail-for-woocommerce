@@ -6,21 +6,28 @@
 namespace Paytrail\WooCommercePaymentGateway;
 
 use Automattic\WooCommerce\Utilities\NumberUtil;
+use Paytrail\SDK\Exception\ClientException;
 use Paytrail\SDK\Exception\ValidationException;
 use Paytrail\SDK\Request\AddCardFormRequest;
 use Paytrail\SDK\Request\CitPaymentRequest;
 use Paytrail\SDK\Request\GetTokenRequest;
+use Paytrail\SDK\Request\KlarnaPaymentRequest;
 use Paytrail\SDK\Request\MitPaymentRequest;
 use Paytrail\SDK\Request\PaymentRequest;
 use Paytrail\SDK\Model\Customer;
 use Paytrail\SDK\Model\Address;
 use Paytrail\SDK\Model\Item;
 use Paytrail\SDK\Model\CallbackUrl;
+use Paytrail\SDK\Model\KlarnaProviderDetails;
+use Paytrail\SDK\Model\ProviderDetails;
+use Paytrail\SDK\Model\Provider;
 use Paytrail\SDK\Exception\HmacException;
 use Paytrail\SDK\Request\RefundRequest;
+use Paytrail\SDK\Request\RevertPaymentAuthHoldRequest;
 use Paytrail\SDK\Client;
 use Paytrail\SDK\Request\EmailRefundRequest;
 use Paytrail\SDK\Response\GetTokenResponse;
+use Paytrail\SDK\Response\RefundResponse;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentSubscriptionMigration;
 use Paytrail\WooCommercePaymentGateway\Model\PaymentTokenMigration;
 use Paytrail\WooCommercePaymentGateway\Providers\OPLasku;
@@ -172,6 +179,16 @@ final class Gateway extends \WC_Payment_Gateway {
 	const CALLBACK_ACTION_DELAY = 120;
 
 	/**
+	 * Transient prefix tying an add-card return to the customer who started it.
+	 */
+	const ADD_CARD_STATE_PREFIX = 'paytrail_add_card_';
+
+	/**
+	 * Seconds a customer has to finish adding a card before the return is refused.
+	 */
+	const ADD_CARD_STATE_TTL = 1800;
+
+	/**
 	 * Object constructor
 	 */
 	public function __construct() {
@@ -205,8 +222,19 @@ final class Gateway extends \WC_Payment_Gateway {
 
 		// Set merchant ID and secret key either from the options or for test mode.
 		if ( $this->enable_test_mode ) {
-			$this->merchant_id = (int) Plugin::TEST_MERCHANT_ID;
-			$this->secret_key  = Plugin::TEST_SECRET_KEY;
+			/**
+			 * Filter the merchant ID used in test mode.
+			 *
+			 * @param int $merchant_id The test merchant ID.
+			 */
+			$this->merchant_id = (int) apply_filters( 'woocommerce_paytrail_test_merchant_id', Plugin::TEST_MERCHANT_ID );
+
+			/**
+			 * Filter the secret key used in test mode.
+			 *
+			 * @param string $secret_key The test secret key.
+			 */
+			$this->secret_key = (string) apply_filters( 'woocommerce_paytrail_test_secret_key', Plugin::TEST_SECRET_KEY );
 		} else {
 			$this->merchant_id = (int) $this->get_option( 'merchant_id' );
 			$this->secret_key  = $this->get_option( 'secret_key' );
@@ -656,12 +684,33 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Receipt page to redirect user forward.
 	 *
+	 * Falls back to a link to the pay for order page when the session holds no provider for this order.
+	 *
+	 * @param int $order_id The WooCommerce order ID.
+	 *
 	 * @return void
 	 */
-	public function receipt_page() {
-		$view = new View( 'CheckoutForm' );
+	public function receipt_page( $order_id = 0 ) {
+		$order             = wc_get_order( $order_id );
+		$provider          = WC()->session ? WC()->session->get( 'payment_provider' ) : null;
+		$provider_order_id = WC()->session ? WC()->session->get( 'paytrail_payment_provider_order_id' ) : null;
 
-		$provider = WC()->session->get( 'payment_provider' );
+		// The provider form is single use: a reload must not re-submit the same transaction.
+		if ( WC()->session ) {
+			WC()->session->__unset( 'payment_provider' );
+			WC()->session->__unset( 'paytrail_payment_provider_order_id' );
+		}
+
+		if ( ! $order || ! $provider instanceof Provider || absint( $provider_order_id ) !== $order->get_id() ) {
+			printf(
+				'<p><a class="button" href="%s">%s</a></p>',
+				esc_url( $order ? $order->get_checkout_payment_url() : wc_get_checkout_url() ),
+				esc_html__( 'Choose payment method', 'paytrail-for-woocommerce' )
+			);
+			return;
+		}
+
+		$view = new View( 'CheckoutForm' );
 
 		$view->render( $provider );
 	}
@@ -682,12 +731,18 @@ final class Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @param string $context The context the card is being added from.
 	 * @return void
-	 * @throws HmacException If the response signature does not validate.
-	 * @throws ValidationException If the request is rejected by the API.
+	 * @throws ValidationException If no customer is signed in or the API rejects the request. The SDK can also throw HmacException.
 	 */
 	public function add_card_form( $context = Plugin::ADD_CARD_CONTEXT_CHECKOUT ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			$this->log( 'Paytrail: add_card_form, refusing to add a card without a signed-in customer', 'error' );
+			throw new ValidationException( 'A card can only be added by a signed-in customer.' );
+		}
+
 		$datetime       = new \DateTime();
-		$checkout_nonce = sha1( uniqid( true ) );
+		$checkout_nonce = wp_generate_uuid4();
 
 		if ( Plugin::ADD_CARD_CONTEXT_MY_ACCOUNT === $context ) {
 			$success_url = Router::get_url( Plugin::ADD_CARD_REDIRECT_SUCCESS_URL, Plugin::ADD_CARD_CONTEXT_MY_ACCOUNT );
@@ -712,6 +767,10 @@ final class Gateway extends \WC_Payment_Gateway {
 			$success_url = Router::get_url( Plugin::ADD_CARD_REDIRECT_SUCCESS_URL, Plugin::ADD_CARD_CONTEXT_CHECKOUT );
 			$cancel_url  = Router::get_url( Plugin::ADD_CARD_REDIRECT_CANCEL_URL, Plugin::ADD_CARD_CONTEXT_CHECKOUT );
 		}
+
+		set_transient( self::ADD_CARD_STATE_PREFIX . $checkout_nonce, $user_id, self::ADD_CARD_STATE_TTL );
+		$success_url = add_query_arg( 'paytrail_state', $checkout_nonce, $success_url );
+
 		$this->log( 'Paytrail: try to add new card', 'debug' );
 
 		$add_card_form_request = new AddCardFormRequest();
@@ -738,18 +797,42 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Process card token
 	 *
+	 * @param array|null $params The add-card return query parameters. Defaults to the current request.
 	 * @return int The saved token ID, or 0 when saving failed.
 	 * @throws HmacException If the response signature does not validate.
-	 * @throws ValidationException If the request is rejected by the API.
+	 * @throws ValidationException If the return does not belong to the current customer, or the request is rejected by the API.
 	 */
-	public function process_card_token() {
+	public function process_card_token( $params = null ) {
+		$params = null === $params ? $this->get_response_params() : (array) $params;
+
+		$this->verify_add_card_state( (string) ( $params['paytrail_state'] ?? '' ) );
+
 		$get_token_request = new GetTokenRequest();
-		$get_token_request->setCheckoutTokenizationId( filter_input( INPUT_GET, 'checkout-tokenization-id' ) );
+		$get_token_request->setCheckoutTokenizationId( (string) ( $params['checkout-tokenization-id'] ?? '' ) );
 		$this->log( 'Paytrail: process_card_token', 'debug' );
 
 		$response = $this->client->createGetTokenRequest( $get_token_request );
 
 		return $this->save_card_token( $response );
+	}
+
+	/**
+	 * Check that an add-card return belongs to the signed-in customer who started it.
+	 *
+	 * @param string $state The paytrail_state query arg from the return URL.
+	 * @return void
+	 * @throws ValidationException If the state is missing, expired or belongs to someone else.
+	 */
+	protected function verify_add_card_state( $state ) {
+		$user_id = get_current_user_id();
+		$state   = sanitize_key( $state );
+		$owner   = $state ? get_transient( self::ADD_CARD_STATE_PREFIX . $state ) : false;
+
+		if ( ! $user_id || false === $owner || absint( $owner ) !== $user_id
+			|| ! delete_transient( self::ADD_CARD_STATE_PREFIX . $state ) ) {
+			$this->log( 'Paytrail: process_card_token, the add-card return does not belong to customer ' . $user_id . ', refusing to save the card', 'error' );
+			throw new ValidationException( 'The card could not be tied to the customer who added it.' );
+		}
 	}
 
 	/**
@@ -1411,19 +1494,138 @@ final class Gateway extends \WC_Payment_Gateway {
 	public function handle_refund_response( $refund_callback, $refund_unique_id, $order_id, $params = null ) {
 		$params = null === $params ? $this->get_response_params() : (array) $params;
 
-		// Remove the callback indicators from the parameters.
-		$get = $params;
-
-		unset( $get['refund_callback'] );
-		unset( $get['refund_unique_id'] );
-		unset( $get['order_id'] );
-
-		// Check the HMAC.
+		// Check the HMAC. The SDK picks out the signed checkout- parameters itself.
 		try {
-			$this->client->validateHmac( $get, '', $params['signature'] ?? '' );
+			$this->client->validateHmac( $params, '', $params['signature'] ?? '' );
 		} catch ( HmacException $exception ) {
 			// Never wp_die() out of a queued action, it would take the queue runner with it.
 			$this->signature_error( $exception, ! $this->deferred_processing );
+		}
+
+		$refund = $this->get_refund_by_unique_id( $refund_unique_id );
+
+		$order = $refund ? \wc_get_order( $refund->get_parent_id() ) : null;
+
+		if ( ! $refund || ! $order ) {
+			$this->refuse_refund_callback(
+				'Paytrail: handle_refund_response, refund not found for unique id ' . $refund_unique_id,
+				__( 'Refund cannot be found.', 'paytrail-for-woocommerce' ),
+				404
+			);
+			return;
+		}
+
+		if ( ! $refund->get_meta( '_checkout_refund_processing' ) ) {
+			$this->log( 'Paytrail: handle_refund_response, refund ' . $refund->get_id() . ' is already processed, skipping.', 'debug' );
+
+			if ( $this->deferred_processing ) {
+				return;
+			}
+
+			die( 'ok' );
+		}
+
+		$match = $this->refund_matches_callback( $refund, $params );
+
+		if ( true !== $match ) {
+			// A value the binding needs is missing, so the merchant has to check the refund by hand.
+			if ( 'unverifiable' === $match ) {
+				$this->note_unverified_refund( $refund, $order );
+			}
+
+			$this->refuse_refund_callback(
+				sprintf(
+					'Paytrail: handle_refund_response, refund %1$d does not match transaction %2$s (order_id in request: %3$s)',
+					$refund->get_id(),
+					(string) ( $params['checkout-transaction-id'] ?? '' ),
+					$order_id
+				),
+				__( 'Refund callback does not match the order.', 'paytrail-for-woocommerce' ),
+				409
+			);
+			return;
+		}
+
+		$signed_status   = (string) ( $params['checkout-status'] ?? '' );
+		$status_callback = array(
+			'ok'   => 'success',
+			'fail' => 'cancel',
+		);
+
+		if ( ! isset( $status_callback[ $signed_status ] ) ) {
+			$this->log( 'Paytrail: handle_refund_response, refund ' . $refund->get_id() . ' has status ' . $signed_status . ', leaving it processing.', 'debug' );
+
+			if ( $this->deferred_processing ) {
+				return;
+			}
+
+			die( 'ok' );
+		}
+
+		if ( $status_callback[ $signed_status ] !== $refund_callback ) {
+			$this->refuse_refund_callback(
+				sprintf(
+					'Paytrail: handle_refund_response, refund_callback %1$s does not match the signed status %2$s for refund %3$d',
+					$refund_callback,
+					$signed_status,
+					$refund->get_id()
+				),
+				__( 'Refund callback does not match the order.', 'paytrail-for-woocommerce' ),
+				409
+			);
+			return;
+		}
+
+		switch ( $refund_callback ) {
+			case 'success':
+				$amount = $refund->get_meta( '_checkout_refund_amount' );
+				$reason = $refund->get_meta( '_checkout_refund_reason' );
+
+				$refund->set_amount( $amount );
+				$refund->set_reason( $reason );
+
+				$order->add_order_note(
+					__( 'Refund process completed.', 'paytrail-for-woocommerce' )
+				);
+
+				$refund->update_meta_data( '_checkout_refund_processing', '' );
+				$refund->save();
+				break;
+			case 'cancel':
+				$refund->delete( true );
+
+				$order_note = __(
+					'Refund was cancelled by the payment provider.',
+					'paytrail-for-woocommerce'
+				);
+
+				$order->add_order_note( $order_note );
+
+				/**
+				 * Delete refund action
+				 *
+				 * @since 1.0
+				 */
+				do_action( 'woocommerce_refund_delete', $refund->get_id(), $order->get_id() );
+				break;
+		}
+
+		if ( $this->deferred_processing ) {
+			return;
+		}
+
+		die( 'ok' );
+	}
+
+	/**
+	 * Find a refund by the unique id the plugin added to its callback URLs.
+	 *
+	 * @param string $refund_unique_id Unique ID for the refund.
+	 * @return \WC_Order_Refund|null
+	 */
+	protected function get_refund_by_unique_id( $refund_unique_id ) {
+		if ( empty( $refund_unique_id ) ) {
+			return null;
 		}
 
 		// Check if HPOS is enabled.
@@ -1450,60 +1652,95 @@ final class Gateway extends \WC_Payment_Gateway {
 			);
 		}
 
-		if ( empty( $refunds ) ) {
-			$this->log( 'Paytrail: handle_refund_response, refund not found for unique id ' . $refund_unique_id, 'error' );
+		return empty( $refunds ) ? null : $refunds[0];
+	}
 
-			if ( $this->deferred_processing ) {
-				return;
+	/**
+	 * Whether a signed refund callback belongs to this refund.
+	 *
+	 * @param \WC_Order_Refund $refund The refund the callback names.
+	 * @param array            $params The callback parameters, already HMAC validated.
+	 * @return true|string True on a match, 'unverifiable' when a value to compare is missing, 'mismatch' otherwise.
+	 */
+	protected function refund_matches_callback( $refund, $params ) {
+		$signed_transaction_id = (string) ( $params['checkout-transaction-id'] ?? '' );
+
+		if ( '' === $signed_transaction_id ) {
+			$expected_stamp = (string) $refund->get_meta( '_checkout_refund_stamp' );
+			$signed_stamp   = (string) ( $params['checkout-stamp'] ?? '' );
+
+			if ( 'fail' === ( $params['checkout-status'] ?? '' ) && '' !== $expected_stamp && hash_equals( $expected_stamp, $signed_stamp ) ) {
+				return true;
 			}
 
-			wp_die( esc_html__( 'Refund cannot be found.', 'paytrail-for-woocommerce' ), '', 404 );
+			return 'unverifiable';
 		}
 
-		$refund = $refunds[0];
+		$expected = (string) $refund->get_meta( '_checkout_refund_transaction_id' );
 
-		switch ( $refund_callback ) {
-			case 'success':
-				$amount = $refund->get_meta( '_checkout_refund_amount' );
-				$reason = $refund->get_meta( '_checkout_refund_reason' );
-
-				$refund->set_amount( $amount );
-				$refund->set_reason( $reason );
-
-				$order = \wc_get_order( $order_id );
-
-				$order->add_order_note(
-					__( 'Refund process completed.', 'paytrail-for-woocommerce' )
-				);
-
-				$refund->update_meta_data( '_checkout_refund_processing', false );
-				$refund->save();
-				break;
-			case 'cancel':
-				$refund->delete( true );
-
-				$order_note = __(
-					'Refund was cancelled by the payment provider.',
-					'paytrail-for-woocommerce'
-				);
-
-				$order = \wc_get_order( $order_id );
-				$order->add_order_note( $order_note );
-
-				/**
-				 * Delete refund action
-				 *
-				 * @since 1.0
-				 */
-				do_action( 'woocommerce_refund_delete', $refund->get_id(), $order_id );
-				break;
+		// Refunds started before the transaction id was stored.
+		if ( '' === $expected ) {
+			return 'unverifiable';
 		}
+
+		return hash_equals( $expected, $signed_transaction_id ) ? true : 'mismatch';
+	}
+
+	/**
+	 * Tell the merchant, once, that a refund callback could not be verified.
+	 *
+	 * @param \WC_Order_Refund $refund The refund the callback names.
+	 * @param WC_Order         $order  The order the refund belongs to.
+	 * @return void
+	 */
+	protected function note_unverified_refund( $refund, $order ) {
+		if ( $refund->get_meta( '_checkout_refund_unverified_noted' ) ) {
+			return;
+		}
+
+		$order->add_order_note(
+			sprintf(
+				// Translators: %d is the refund ID.
+				__( 'Paytrail sent an update for refund #%d that could not be verified, so the refund was left unchanged. Check the refund\'s status in Paytrail\'s merchant panel. If it failed, delete this refund. If it went through, delete it and record it again with "Refund manually".', 'paytrail-for-woocommerce' ),
+				$refund->get_id()
+			)
+		);
+
+		$refund->update_meta_data( '_checkout_refund_unverified_noted', '1' );
+		$refund->save();
+	}
+
+	/**
+	 * Log a refused refund callback and end the request, unless it is being processed from the queue.
+	 *
+	 * @param string $log_message The message to log.
+	 * @param string $message     The message to show.
+	 * @param int    $status      The HTTP status code.
+	 * @return void
+	 */
+	protected function refuse_refund_callback( $log_message, $message, $status ) {
+		$this->log( $log_message, 'error' );
 
 		if ( $this->deferred_processing ) {
 			return;
 		}
 
-		die( 'ok' );
+		wp_die( esc_html( $message ), '', absint( $status ) );
+	}
+
+	/**
+	 * Read the transaction id Paytrail assigned to a refund.
+	 *
+	 * @param RefundResponse $response The refund response.
+	 * @return string The transaction id, or an empty string when Paytrail did not return one.
+	 */
+	protected function get_refund_transaction_id( $response ) {
+		try {
+			return (string) $response->getTransactionId();
+		} catch ( \TypeError $exception ) {
+			// The SDK types the getter as a string but leaves the property null when it is missing.
+			return '';
+		}
 	}
 
 	/**
@@ -1692,6 +1929,7 @@ final class Gateway extends \WC_Payment_Gateway {
 			$this->log( 'Paytrail: create_normal_payment, provider resolved', 'debug' );
 
 			WC()->session->set( 'payment_provider', $wanted_provider );
+			WC()->session->set( 'paytrail_payment_provider_order_id', $order->get_id() );
 
 			$message = sprintf(
 				// translators: First parameter is transaction ID, the other is the name of the payment provider.
@@ -1789,6 +2027,167 @@ final class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
+	 * Charge or authorize a Klarna Express Checkout order with the Klarna network session token.
+	 *
+	 * @param WC_Order $order                 The order created by Klarna Express Checkout.
+	 * @param string   $network_session_token The Klarna network session token.
+	 * @return string The URL to redirect the customer to.
+	 * @throws \Exception If an earlier payment for the order is still in progress.
+	 */
+	public function process_klarna_express_payment( WC_Order $order, string $network_session_token ) {
+		$this->log( 'Paytrail: process_klarna_express_payment, order ' . $order->get_id(), 'debug' );
+
+		// Klarna resends the notification on errors and timeouts, never create a second payment for the order.
+		$redirect_url = $order->get_meta( '_paytrail_klarna_redirect_url' );
+		if ( $order->is_paid() || ! empty( $redirect_url ) ) {
+			$this->log( 'Paytrail: process_klarna_express_payment, payment already created for order ' . $order->get_id(), 'debug' );
+
+			return ! empty( $redirect_url ) ? $redirect_url : $order->get_checkout_order_received_url();
+		}
+
+		// A stamp without a redirect URL means a request is in flight or ended without a clear answer.
+		$stamp = $order->get_meta( '_paytrail_klarna_stamp' );
+		if ( ! empty( $stamp ) ) {
+			$this->log( "Paytrail: process_klarna_express_payment, payment {$stamp} already in progress for order {$order->get_id()}", 'error' );
+
+			// Klarna retries the notification later, by when the first request has finished.
+			throw new \Exception( esc_html( "A Klarna Express Checkout payment is already in progress for order {$order->get_id()}." ) );
+		}
+
+		$order->set_payment_method( $this->id );
+		$order->set_payment_method_title( $this->get_title() );
+
+		$payment = new KlarnaPaymentRequest();
+
+		try {
+			$this->set_base_payment_data( $payment, $order );
+			$payment->setProviderDetails(
+				( new ProviderDetails() )->setKlarna(
+					( new KlarnaProviderDetails() )->setNetworkSessionToken( $network_session_token )
+				)
+			);
+
+			// The reference lets the regular callback find the order if Klarna requires a step-up.
+			$order->update_meta_data( '_checkout_reference', $payment->getReference() );
+			$order->update_meta_data( '_checkout_reference_' . $payment->getReference(), true );
+			$order->update_meta_data( '_checkout_payment_provider', 'klarna' );
+		} catch ( \Exception $exception ) {
+			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
+			$order->update_status( 'failed', __( 'Klarna Express Checkout payment could not be created with Paytrail.', 'paytrail-for-woocommerce' ) );
+
+			return $order->get_checkout_payment_url();
+		}
+
+		// Saved before the request, so a resent notification stops at the guard above.
+		$stamp = $payment->getStamp();
+		$order->update_meta_data( '_paytrail_klarna_stamp', $stamp );
+		$order->save();
+
+		$this->log( 'Paytrail\SDK\Request\KlarnaPaymentRequest: ' . wp_json_encode( $payment ), 'info' );
+
+		// The Klarna endpoints ignore manualInvoiceActivation, so manual activation needs an authorization hold.
+		$authorization_hold = $payment->getManualInvoiceActivation();
+
+		try {
+			$response = $authorization_hold
+				? $this->client->createKlarnaPaymentAuthorizationHold( $payment )
+				: $this->client->createKlarnaPaymentCharge( $payment );
+		} catch ( \Exception $exception ) {
+			$this->log( $exception->getMessage() . $exception->getTraceAsString(), 'error' );
+
+			// Paytrail rejected the request, so nothing was created and a retry is safe. The SDK omits ClientException from its @throws.
+			if ( $exception instanceof ValidationException || $exception instanceof ClientException ) {
+				$order->delete_meta_data( '_paytrail_klarna_stamp' );
+				$order->update_status( 'failed', __( 'Klarna Express Checkout payment could not be created with Paytrail.', 'paytrail-for-woocommerce' ) );
+
+				return $order->get_checkout_payment_url();
+			}
+
+			// No clear answer, the payment may exist at Paytrail, so it is never sent again automatically.
+			$order->update_status(
+				'on-hold',
+				sprintf(
+					// translators: %s is the Paytrail payment stamp.
+					__( 'Klarna Express Checkout payment %s may have been created with Paytrail. Check the Paytrail merchant panel before taking action.', 'paytrail-for-woocommerce' ),
+					$stamp
+				)
+			);
+
+			return $order->get_checkout_order_received_url();
+		}
+
+		$this->log(
+			'Paytrail\SDK\Response\KlarnaPaymentResponse: ' . wp_json_encode(
+				array(
+					'transactionId' => $response->getTransactionId(),
+					'stepUpUrl'     => $response->getStepUpUrl(),
+					'error'         => $response->getError(),
+				)
+			),
+			'info'
+		);
+
+		$redirect_url = $response->getStepUpUrl() ? $response->getStepUpUrl() : $order->get_checkout_order_received_url();
+
+		// Set before a step-up completes too, so cancelling the order can still void the hold.
+		$order->set_transaction_id( $response->getTransactionId() );
+		$order->update_meta_data( '_paytrail_klarna_redirect_url', $redirect_url );
+		if ( $authorization_hold ) {
+			$order->update_meta_data( '_paytrail_klarna_authorization_hold', 'yes' );
+		}
+		$order->save();
+
+		$order->add_order_note(
+			sprintf(
+				// translators: First parameter is transaction ID, the other whether Klarna required the customer to take further action.
+				__( 'Transaction %1$s created with Klarna Express Checkout. Requires step-up: %2$s', 'paytrail-for-woocommerce' ),
+				$response->getTransactionId(),
+				$response->getStepUpUrl() ? __( 'yes', 'paytrail-for-woocommerce' ) : __( 'no', 'paytrail-for-woocommerce' )
+			)
+		);
+
+		if ( ! $response->getStepUpUrl() ) {
+			$order->payment_complete( $response->getTransactionId() );
+		}
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Commit (capture) the Klarna authorization hold of a Klarna Express Checkout order.
+	 *
+	 * @param WC_Order $order The order to capture.
+	 * @return void
+	 * @throws \Exception If the commit fails.
+	 */
+	public function commit_klarna_authorization_hold( WC_Order $order ) {
+		$this->log( 'Paytrail: commit_klarna_authorization_hold, order ' . $order->get_id(), 'debug' );
+		$this->client->createKlarnaPaymentCommit( $order->get_transaction_id() );
+
+		$order->delete_meta_data( '_paytrail_klarna_authorization_hold' );
+		$order->add_order_note( __( 'Captured Klarna authorization hold.', 'paytrail-for-woocommerce' ) );
+		$order->save();
+	}
+
+	/**
+	 * Revert (void) the Klarna authorization hold of a Klarna Express Checkout order.
+	 *
+	 * @param WC_Order $order The order to void.
+	 * @return void
+	 * @throws \Exception If the revert fails.
+	 */
+	public function revert_klarna_authorization_hold( WC_Order $order ) {
+		$this->log( 'Paytrail: revert_klarna_authorization_hold, order ' . $order->get_id(), 'debug' );
+		$this->client->revertKlarnaPaymentAuthorizationHold(
+			( new RevertPaymentAuthHoldRequest() )->setTransactionId( $order->get_transaction_id() )
+		);
+
+		$order->delete_meta_data( '_paytrail_klarna_authorization_hold' );
+		$order->add_order_note( __( 'Voided Klarna authorization hold.', 'paytrail-for-woocommerce' ) );
+		$order->save();
+	}
+
+	/**
 	 * Create MIT payment
 	 *
 	 * @param MitPaymentRequest $payment The payment request to send.
@@ -1838,8 +2237,8 @@ final class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Set payment data
 	 *
-	 * @param PaymentRequest|CitPaymentRequest|MitPaymentRequest $payment The payment request to populate.
-	 * @param WC_Order                                           $order   The order being paid.
+	 * @param PaymentRequest|CitPaymentRequest|MitPaymentRequest|KlarnaPaymentRequest $payment The payment request to populate.
+	 * @param WC_Order                                                                $order   The order being paid.
 	 * @return mixed
 	 * @throws \Exception If the order data cannot be read.
 	 */
@@ -1858,8 +2257,8 @@ final class Gateway extends \WC_Payment_Gateway {
 		// Set WooCommerce order number as the payment reference.
 		$payment->setReference( $reference );
 
-		// Fetch current currency and the cart total.
-		$currency    = get_woocommerce_currency();
+		// Use the order currency, the store currency can differ outside the customer's session (webhooks, renewals).
+		$currency    = $order->get_currency();
 		$order_total = $this->helper->handle_currency( $order->get_total() );
 
 		// Set the aforementioned values to the payment request.
@@ -2095,9 +2494,11 @@ final class Gateway extends \WC_Payment_Gateway {
 			$order = \wc_get_order( $order_id );
 
 			// Create a unique identifier for the refund.
-			$refund_unique_id = sha1( uniqid( true ) );
+			$refund_unique_id = bin2hex( random_bytes( 16 ) );
 
 			$refund = new RefundRequest();
+
+			$refund->setRefundStamp( $refund_unique_id );
 
 			if ( $amount ) {
 				$refund->setAmount( $this->helper->handle_currency( $amount ) );
@@ -2161,7 +2562,7 @@ final class Gateway extends \WC_Payment_Gateway {
 					$refund_object = wc_get_order( $refund_id );
 
 					try {
-						$this->client->refund( $refund, $transaction_id );
+						$response = $this->client->refund( $refund, $transaction_id );
 					} catch ( \Exception $e ) {
 						switch ( $e->getCode() ) {
 							case 422:
@@ -2171,6 +2572,7 @@ final class Gateway extends \WC_Payment_Gateway {
 								$email_refund_request = new EmailRefundRequest();
 
 								$email_refund_request->setEmail( $email );
+								$email_refund_request->setRefundStamp( $refund->getRefundStamp() );
 								$email_refund_request->setAmount( $refund->getAmount() );
 								$email_refund_request->setCallbackUrls( $refund->getCallbackUrls() );
 
@@ -2179,7 +2581,7 @@ final class Gateway extends \WC_Payment_Gateway {
 								}
 
 								try {
-									$this->client->emailRefund( $email_refund_request, $transaction_id );
+									$response = $this->client->emailRefund( $email_refund_request, $transaction_id );
 								} catch ( \Exception $e ) {
 									switch ( $e->getCode() ) {
 										case 422:
@@ -2225,7 +2627,14 @@ final class Gateway extends \WC_Payment_Gateway {
 					$refund_object->update_meta_data( '_checkout_refund_amount', $amount );
 					$refund_object->update_meta_data( '_checkout_refund_reason', $reason );
 					$refund_object->update_meta_data( '_checkout_refund_unique_id', $refund_unique_id );
-					$refund_object->update_meta_data( '_checkout_refund_processing', true );
+					$refund_object->update_meta_data( '_checkout_refund_processing', '1' );
+					$refund_object->update_meta_data( '_checkout_refund_stamp', $refund->getRefundStamp() );
+
+					// The refund callback is signed over this id, which ties the callback to this refund.
+					$refund_transaction_id = $this->get_refund_transaction_id( $response );
+					if ( $refund_transaction_id ) {
+						$refund_object->update_meta_data( '_checkout_refund_transaction_id', $refund_transaction_id );
+					}
 
 					$refund_object->set_amount( '0' );
 					$refund_object->set_reason( $reason . ' Refund is still being processed. The status and the amount (' . $price . ') of the refund will update when the processing is completed.' );

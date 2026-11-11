@@ -107,6 +107,16 @@ class RefundsTest extends IntegrationTestCase {
 		);
 	}
 
+	/** The unique id is the only secret in the callback URL, so it comes from a CSPRNG rather than the clock. */
+	public function test_the_refund_id_is_random_hex(): void {
+		$order = $this->haveRefundableOrder();
+
+		$this->willRefund();
+		$this->haveGatewayRefund( $order, 25.50 );
+
+		$this->assertMatchesRegularExpression( '/^[0-9a-f]{32}$/', $this->refundUniqueIdOf( $this->apiRequestTo( '/refund' ) ) );
+	}
+
 	/**
 	 * A refund Paytrail refuses is rolled back rather than left on the order as one that
 	 * happened, and the order is failed so a merchant looks at it.
